@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quality AI · Simulador de inspección</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000;
+  --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.18);
+  --raise:rgba(255,255,255,.025);
+  --ink:#ECE8E1;
+  --muted:#8C8790;
+  --faint:#4A464E;
+  --brass:#D4B26A;
+  --pass:#6FD6B4;
+  --reject:#FF5A5F;
+}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{color:var(--ink);font:400 14px/1.5 Geist,system-ui,sans-serif;font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+b{font-weight:500}
+
+.bar{display:flex;align-items:baseline;gap:20px;padding:16px 28px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.wordmark{font-weight:600;font-size:17px;letter-spacing:-.02em}
+.client{color:var(--muted)}
+.client em{font-family:"Cormorant Garamond",serif;font-size:19px;color:var(--ink)}
+
+.wrap{display:grid;grid-template-columns:380px minmax(0,1fr);gap:20px;padding:24px 28px 40px;max-width:1500px;margin:0 auto;align-items:start}
+section{border:1px solid var(--line);border-radius:14px;background:var(--raise)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.steps{display:grid;gap:12px}
+.step{padding:18px 20px;display:grid;gap:12px}
+.step[aria-disabled=true]{opacity:.45;pointer-events:none}
+.step-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.step-h h2{font-size:15px;font-weight:500}
+.state{font-size:12px;color:var(--faint);white-space:nowrap}
+.state.done{color:var(--pass)}
+.step p{color:var(--muted);font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{background:transparent;border:1px solid var(--line-strong);border-radius:8px;padding:8px 12px;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:#000;border-color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:wait}
+.file{position:relative;overflow:hidden}
+.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.link{justify-self:start;background:none;border:0;padding:0;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.link:hover{color:var(--ink)}
+.cal-run{display:grid;gap:8px}
+.cal-strip{display:flex;flex-wrap:wrap;gap:4px}
+.cal-strip img{width:22px;height:33px;border-radius:2px;border:1px solid var(--line);opacity:.35;transition:opacity .15s,border-color .15s}
+.cal-strip img.seen{opacity:1;border-color:var(--pass)}
+.cal-strip img.now{opacity:1;border-color:var(--brass);outline:1px solid var(--brass)}
+.cal-done{font-size:14px;color:var(--ink)}
+.counts{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:13px}
+.counts dt{color:var(--muted)}
+.progress{height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--brass);transition:width .1s}
+details{font-size:13px;color:var(--muted)}
+summary{cursor:pointer;color:var(--ink)}
+details pre{margin-top:8px;font:12px/1.5 ui-monospace,Menlo,monospace;color:var(--muted);white-space:pre-wrap}
+.err{color:var(--reject);font-size:13px}
+label.slider{display:grid;gap:6px;font-size:13px}
+label.slider span{display:flex;justify-content:space-between}
+input[type=range]{width:100%;accent-color:var(--brass)}
+
+.machine{overflow:hidden}
+.m-head{display:flex;align-items:center;gap:20px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.m-title{display:grid;gap:2px}
+.m-title h2{font-size:15px;font-weight:500}
+.lamp{width:12px;height:12px;border-radius:50%;background:var(--faint);flex:none}
+.on .lamp{background:var(--pass);box-shadow:0 0 12px var(--pass)}
+.spacer{flex:1}
+
+.lever{display:flex;align-items:center;gap:14px;background:none;border:0;cursor:pointer;padding:0}
+.lever:disabled{cursor:not-allowed;opacity:.4}
+.lever-track{position:relative;width:34px;height:66px;border-radius:17px;border:1px solid var(--line-strong);background:#0d0c0f}
+.lever-knob{position:absolute;left:3px;top:35px;width:26px;height:26px;border-radius:50%;background:var(--muted);transition:top .25s cubic-bezier(.3,1.4,.5,1),background .2s}
+.lever[aria-checked=true] .lever-knob{top:3px;background:var(--pass)}
+.lever-text{display:grid;text-align:left;font-size:13px}
+.lever-text b{font-size:15px}
+
+.belt-wrap{padding:30px 22px 18px}
+.belt{position:relative;height:96px;border-bottom:2px solid var(--line-strong)}
+.belt-clip{position:absolute;inset:0;overflow:hidden}
+.belt::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 14px,transparent 14px 28px)}
+.on .belt::after{animation:belt .9s linear infinite}
+@keyframes belt{to{background-position:28px 0}}
+.station{position:absolute;top:0;bottom:8px;width:0;border-left:1px dashed var(--line-strong)}
+.station span{position:absolute;top:-24px;left:0;transform:translateX(-50%);font-size:12px;color:var(--muted);white-space:nowrap}
+.cam-st{left:46%}
+.ex-st{left:78%}
+.flash{position:absolute;top:0;bottom:8px;left:calc(46% - 31px);width:62px;background:radial-gradient(closest-side,rgba(255,255,255,.55),transparent);opacity:0;pointer-events:none}
+.flash.go{animation:flash .25s ease-out}
+@keyframes flash{from{opacity:1}to{opacity:0}}
+.bottle{position:absolute;bottom:8px;left:0;width:26px;height:70px}
+.bottle-in,.bottle svg{width:100%;height:100%;display:block}
+.bottle .glass{fill:#1e2a22;stroke:rgba(255,255,255,.25)}
+.bottle .lbl{fill:#cfc8b8}
+.bottle.pass .glass{stroke:var(--pass);stroke-width:2}
+.bottle.reject .glass{stroke:var(--reject);stroke-width:2}
+.belt-legend{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted);margin-top:8px}
+
+.view{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:22px;padding:6px 22px 22px}
+.shot{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#07060a;aspect-ratio:1/2;display:grid;place-items:center}
+.shot img,.shot canvas{position:absolute;inset:0;width:100%;height:100%}
+.shot .ph{color:var(--muted);font-size:13px;padding:24px;text-align:center}
+.verdict{display:grid;gap:14px;align-content:start}
+.v-word{font-size:52px;font-weight:300;letter-spacing:-.045em;line-height:1}
+.v-word.pass{color:var(--pass)} .v-word.reject{color:var(--reject)}
+.v-truth{font-size:13px;color:var(--muted);padding:10px 14px;border:1px solid var(--line);border-radius:8px}
+.v-truth b.ok{color:var(--pass)} .v-truth b.bad{color:var(--reject)}
+.checks{display:grid;gap:14px}
+.chk{display:grid;gap:6px;font-size:13px}
+.chk-h{display:flex;justify-content:space-between;gap:12px}
+.chk-h span{color:var(--muted);text-align:right}
+.meter{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.07)}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--ink)}
+.meter .th{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--brass)}
+.meter.bad i{background:var(--reject)}
+.chk small{color:var(--muted)}
+
+.stats{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line)}
+.stat{padding:16px 22px;border-left:1px solid var(--line)}
+.stat:first-child{border-left:0}
+.stat .v{font-size:26px;font-weight:300;letter-spacing:-.03em}
+.stat .l{font-size:12px;color:var(--muted)}
+
+.main-col{display:grid;gap:20px;min-width:0}
+.lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.panel-h{padding:16px 20px 0;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.panel-h h2{font-size:15px;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+th{font-weight:400;color:var(--muted);text-align:left;padding:9px 20px;border-bottom:1px solid var(--line)}
+td{padding:9px 20px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+.ok-t{color:var(--pass)} .bad-t{color:var(--reject)}
+.thumb{width:30px;height:45px;border-radius:3px;display:block;border:1px solid var(--line)}
+.empty{padding:22px 20px;color:var(--muted);font-size:13px}
+.how{list-style:none;padding:12px 20px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;font-size:13px;color:var(--muted)}
+.how strong{color:var(--ink);font-weight:500;display:block;margin-bottom:4px}
+
+footer{max-width:1500px;margin:0 auto;padding:0 28px 32px;color:var(--faint);font-size:12px}
+
+@media (max-width:1100px){
+  .wrap{grid-template-columns:1fr}
+  .lower{grid-template-columns:1fr}
+  .how{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .stat:nth-child(4){border-left:0}
+  .stat:nth-child(n+4){border-top:1px solid var(--line)}
+}
+@media (max-width:640px){
+  .bar,.wrap{padding-left:16px;padding-right:16px}
+  .view{grid-template-columns:1fr}
+  .shot{max-width:260px;justify-self:center;width:100%}
+  .m-head{flex-wrap:wrap}
+  .how{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stat:nth-child(n){border-left:0;border-top:1px solid var(--line)}
+  .stat:nth-child(even){border-left:1px solid var(--line)}
+  .stat:nth-child(-n+2){border-top:0}
+  th,td{padding:9px 12px}
+}
+@media (prefers-reduced-motion:reduce){ .lever-knob{transition:none} .on .belt::after{animation:none} }
+.field{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+select{background:#0d0c0f;border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;color:var(--ink);font:inherit}
+.models{border:0;padding:0;display:grid;gap:8px}
+.models legend{font-size:13px;color:var(--muted);margin-bottom:6px}
+.model{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.model:has(input:checked){border-color:var(--brass)}
+.model input{accent-color:var(--brass);margin-top:3px}
+.model span{display:grid;gap:2px;font-size:13px}
+.model small{color:var(--muted);font-size:12px}
+.profile{display:grid;gap:10px}
+.pf-imgs{display:flex;gap:14px}
+.pf-imgs figure{display:grid;gap:4px;margin:0}
+.pf-imgs canvas{width:72px;height:144px;border-radius:6px;border:1px solid var(--line);image-rendering:pixelated}
+.pf-imgs figcaption{font-size:12px;color:var(--muted)}
+button,input,select{font:inherit;color:inherit}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <span class="wordmark">Quality AI</span>
+  <span class="client"><em>Viña Concha y Toro</em> &nbsp;Simulador de inspección de etiquetas</span>
+</header>
+
+<div class="wrap">
+  <div class="steps">
+
+    <section class="step" id="s1">
+      <div class="step-h"><h2>1. Agrega el banco de imágenes</h2><span class="state" id="st1">Pendiente</span></div>
+      <p>Fotos reales de botellas en línea, ordenadas por producto: algunas buenas que sirven de referencia y otras para que la máquina las inspeccione. Las fotos se quedan en este computador.</p>
+      <div class="row">
+        <span class="btn primary file">Agregar banco de imágenes<input type="file" id="pick" webkitdirectory directory multiple aria-label="Agregar banco de imágenes"></span>
+      </div>
+      <details>
+        <summary>Cómo ordenar la carpeta</summary>
+        <pre>banco/
+  Frontera Chardonnay/
+    maestras/        botellas buenas de referencia
+    test/ok/         buenas para inspeccionar
+    test/&lt;defecto&gt;/  una carpeta por tipo de defecto
+  Casillero Merlot/
+    ...
+
+Con un solo producto basta con
+maestras/ y test/ dentro de la carpeta.
+También sirve juice_bottle de MVTec LOCO
+tal como se descarga.</pre>
+      </details>
+      <button class="link" id="btn-demo">¿Aún no tienes fotos? Prueba con un banco de ejemplo</button>
+      <div class="progress" hidden id="prog"><i></i></div>
+      <dl class="counts" id="counts" hidden></dl>
+      <p class="err" id="err1" hidden></p>
+    </section>
+
+    <section class="step" id="s2" aria-disabled="true">
+      <div class="step-h"><h2>2. Elige el producto y calibra</h2><span class="state" id="st2">Pendiente</span></div>
+      <label class="field">Producto que corre en la línea
+        <select id="prod"></select>
+      </label>
+      <fieldset class="models">
+        <legend>Modelo que mira las botellas</legend>
+        <label class="model"><input type="radio" name="model" value="simple" checked>
+          <span><b>Huella rápida</b><small>Compara forma y bordes de la etiqueta. Instantáneo. Sirve para probar el flujo.</small></span></label>
+        <label class="model"><input type="radio" name="model" value="dino">
+          <span><b>DINOv2 de Meta</b><small>Modelo de visión ya entrenado, el que proponemos para la línea. Se descarga una vez (unos 25 MB) y corre en este computador.</small></span></label>
+      </fieldset>
+      <p>Al calibrar, la máquina mira las botellas de referencia del producto una por una y aprende cómo se ve una botella buena y cuánto varía normalmente.</p>
+      <div class="row"><button class="btn primary" id="btn-cal">Calibrar</button></div>
+      <div class="cal-run" id="cal-run" hidden>
+        <span class="small" id="cal-msg" aria-live="polite"></span>
+        <div class="progress"><i id="cal-bar"></i></div>
+        <div class="cal-strip" id="cal-strip" aria-hidden="true"></div>
+      </div>
+      <p class="err" id="err2" hidden></p>
+      <div class="profile" id="profile" hidden>
+        <p class="cal-done" id="cal-done"></p>
+        <div class="pf-imgs">
+          <figure><canvas id="pf-mean" width="64" height="128"></canvas><figcaption>Botella típica</figcaption></figure>
+          <figure><canvas id="pf-var" width="64" height="96"></canvas><figcaption>Dónde varía más</figcaption></figure>
+        </div>
+        <p>La botella típica es la referencia que más se parece a todas las demás. En el mapa, las zonas más doradas cambian más entre botellas buenas (bordes, reflejos, nivel del líquido), así que ahí tolera más diferencia; en las oscuras exige más.</p>
+        <details><summary>Ver los límites calculados</summary><dl class="counts" id="cal-out" style="margin-top:8px"></dl></details>
+      </div>
+      <label class="slider" id="margin-box" hidden><span>Margen de tolerancia <b id="margin-v">30%</b></span>
+        <input type="range" id="margin" min="0" max="100" step="5" value="30">
+        <small class="muted">Más margen: bota menos buenas, pero se le escapan más defectos. Menos margen: al revés. Se puede mover con la línea andando.</small>
+      </label>
+    </section>
+
+    <section class="step" id="s3" aria-disabled="true">
+      <div class="step-h"><h2>3. Configura la línea</h2><span class="state done" id="st3" hidden>Listo</span></div>
+      <label class="slider"><span>Una foto cada <b id="ms-v">800 ms</b></span>
+        <input type="range" id="ms" min="150" max="3000" step="50" value="800">
+        <small class="muted" id="bph">≈ 4.500 botellas por hora. La línea real va a 10.000 (una cada 360 ms).</small>
+      </label>
+      <label class="slider"><span>Botellas con defecto <b id="pct-v">10%</b></span>
+        <input type="range" id="pct" min="0" max="50" step="1" value="10">
+        <small class="muted" id="pct-note">En la línea real es cerca de 0,1%. Lo subimos para ver rechazos.</small>
+      </label>
+      <p>Cuando esté listo, sube la palanca de la máquina.</p>
+    </section>
+  </div>
+
+  <div class="main-col">
+  <section class="machine" id="machine" aria-labelledby="m-h">
+    <div class="m-head">
+      <span class="lamp" aria-hidden="true"></span>
+      <div class="m-title"><h2 id="m-h">Línea QE05 simulada</h2><span class="small muted" id="m-sub">Agrega el banco de imágenes y calibra para poder encenderla.</span></div>
+      <div class="spacer"></div>
+      <button class="lever" id="lever" role="switch" aria-checked="false" disabled>
+        <span class="lever-track"><span class="lever-knob"></span></span>
+        <span class="lever-text"><b id="lever-b">Línea apagada</b><span class="muted" id="lever-s">Sube para activar</span></span>
+      </button>
+    </div>
+
+    <div class="belt-wrap">
+      <div class="belt">
+        <div class="belt-clip" id="belt"></div>
+        <div class="station cam-st"><span>Cámara</span></div>
+        <div class="station ex-st"><span>Expulsor</span></div>
+        <div class="flash" id="flash"></div>
+      </div>
+      <div class="belt-legend"><span>Las botellas entran por la izquierda</span><span>Las rechazadas caen en el expulsor</span></div>
+    </div>
+
+    <div class="view">
+      <div class="shot" id="shot"></div>
+      <div class="verdict" aria-live="polite">
+        <div class="v-word" id="v-word">—</div>
+        <div id="v-why">La máquina está apagada.</div>
+        <div class="v-truth" id="v-truth" hidden></div>
+        <div class="checks" id="checks" hidden>
+          <div class="chk" id="c-sim">
+            <div class="chk-h"><b>¿Es el producto correcto?</b><span id="c-sim-v"></span></div>
+            <div class="meter"><i></i><span class="th"></span></div>
+            <small id="c-sim-note"></small>
+          </div>
+          <div class="chk" id="c-col">
+            <div class="chk-h"><b>¿El color calza en todas las zonas?</b><span id="c-col-v"></span></div>
+            <div class="meter"><i></i><span class="th"></span></div>
+            <small>Busca las 3 botellas de referencia más parecidas y compara el color de cada zona contra ellas (ΔE). Cada zona tiene su propio límite. Se muestra la zona más cerca de pasarse; la línea dorada es su límite.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="v" id="k-n">0</div><div class="l">Fotos inspeccionadas</div></div>
+      <div class="stat"><div class="v" id="k-r">0</div><div class="l">Rechazadas</div></div>
+      <div class="stat"><div class="v" id="k-acc">—</div><div class="l">Aciertos</div></div>
+      <div class="stat"><div class="v" id="k-fr">0</div><div class="l">Buenas rechazadas</div></div>
+      <div class="stat"><div class="v" id="k-esc">0</div><div class="l">Defectos que pasaron</div></div>
+    </div>
+  </section>
+
+  <div class="lower">
+    <section>
+      <div class="panel-h"><h2>Resultado por tipo de foto</h2><span class="small muted">Acierto = rechaza un defecto o deja pasar una buena</span></div>
+      <div id="by-type"></div>
+    </section>
+    <section>
+      <div class="panel-h"><h2>Últimas botellas</h2><span class="small muted">Lo más reciente arriba</span></div>
+      <div id="log"></div>
+    </section>
+    <section style="grid-column:1/-1">
+      <div class="panel-h"><h2>Qué hace el sistema con cada foto</h2></div>
+      <ol class="how">
+        <li><strong>1. Toma la foto</strong>Aquí la foto sale del banco de imágenes. En la línea, la tomaría una cámara a color disparada por un sensor al pasar cada botella.</li>
+        <li><strong>2. ¿Es el producto correcto?</strong>El modelo convierte la foto en una "huella" numérica y busca la botella de referencia más parecida entre todos los productos (vecino más cercano, kNN). Si la más parecida es de otro producto, o ninguna se parece lo suficiente, la rechaza.</li>
+        <li><strong>3. ¿El color calza?</strong>Divide la foto en una grilla de 16 x 32 zonas, busca las 3 botellas de referencia más parecidas y compara el color de cada zona contra ellas usando ΔE (bajo ~2 el ojo no nota la diferencia). Si una zona se pasa de su límite, la rechaza.</li>
+        <li><strong>4. Decide</strong>Si falla cualquiera de las dos revisiones, la botella va al expulsor. Los límites salen de la calibración del paso 2, distinta para cada producto.</li>
+      </ol>
+    </section>
+  </div>
+  </div>
+</div>
+
+<footer>Prototipo Quality AI. Con el banco de ejemplo los resultados no representan el desempeño real.</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const W = 128, H = 256, G_COLS = 16, G_ROWS = 32, EMB_W = 24, EMB_H = 48, MAX_MASTERS = 400, K_REF = 3;
+const TJS = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.1";
+const DINO_IDS = ["Xenova/dinov2-small", "onnx-community/dinov2-small"];
+const OTHER = "Otro producto";
+const EMPTY = {
+  shot: '<span class="ph">Aquí aparece la foto que toma la cámara. Los recuadros rojos marcan las zonas donde el color no calza.</span>',
+  byType: '<p class="empty">Enciende la línea para ver cómo le va con cada tipo de foto.</p>',
+  log: '<p class="empty">Todavía no pasa ninguna botella.</p>',
+};
+
+const S = {
+  products: {}, prod: null, model: "simple", cal: null, dino: null,
+  running: false, interval: 800, defectPct: 10, margin: 30, timer: null, n: 0, stats: null, log: [],
+};
+const P = () => S.products[S.prod];
+const allMasters = () => Object.values(S.products).flatMap(p => p.masters);
+const emb = it => it.emb[S.model];
+
+/* ---------- color (CIELAB) y huella rápida ---------- */
+const lin = c => (c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+const fLab = t => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+function toLab(r, g, b) {
+  r = lin(r); g = lin(g); b = lin(b);
+  const x = fLab((0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047);
+  const y = fLab(0.2126 * r + 0.7152 * g + 0.0722 * b);
+  const z = fLab((0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883);
+  return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+
+const work = document.createElement("canvas");
+work.width = W; work.height = H;
+const wctx = work.getContext("2d", { willReadFrequently: true });
+
+function features(source) {
+  wctx.drawImage(source, 0, 0, W, H);
+  const px = wctx.getImageData(0, 0, W, H).data;
+  const nCells = G_COLS * G_ROWS, grid = new Float32Array(nCells * 3), cnt = new Float32Array(nCells), gray = new Float32Array(W * H);
+
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = (y * W + x) * 4, [L, a, b] = toLab(px[i], px[i + 1], px[i + 2]);
+    const c = ((y * G_ROWS / H) | 0) * G_COLS + ((x * G_COLS / W) | 0);
+    grid[c * 3] += L; grid[c * 3 + 1] += a; grid[c * 3 + 2] += b; cnt[c]++;
+    gray[y * W + x] = L;
+  }
+  for (let c = 0; c < nCells; c++) for (let k = 0; k < 3; k++) grid[c * 3 + k] /= cnt[c];
+
+  const n = EMB_W * EMB_H, e = new Float32Array(n * 2);
+  for (let y = 0; y < EMB_H; y++) for (let x = 0; x < EMB_W; x++) {
+    const X = Math.min(W - 2, (x * W / EMB_W) | 0), Y = Math.min(H - 2, (y * H / EMB_H) | 0), v = gray[Y * W + X];
+    e[y * EMB_W + x] = v;
+    e[n + y * EMB_W + x] = Math.hypot(gray[Y * W + X + 1] - v, gray[(Y + 1) * W + X] - v);
+  }
+  return { grid, emb: { simple: normalize(e) } };
+}
+
+function normalize(v) {
+  let m = 0; for (const x of v) m += x; m /= v.length;
+  let nrm = 0; for (let i = 0; i < v.length; i++) { v[i] -= m; nrm += v[i] ** 2; }
+  nrm = Math.sqrt(nrm) || 1; for (let i = 0; i < v.length; i++) v[i] /= nrm;
+  return v;
+}
+
+const dot = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; };
+const maxOf = a => a.reduce((m, v) => v > m ? v : m, -Infinity);
+function gridDist(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += (a[i] - b[i]) ** 2; return s; }
+function knnRef(grid, masters, skip = -1) {
+  const near = masters.map((m, i) => [i === skip ? Infinity : gridDist(grid, m.grid), m]).sort((a, b) => a[0] - b[0]).slice(0, K_REF).map(x => x[1]);
+  return meanGrid(near);
+}
+function meanGrid(items) {
+  const g = new Float32Array(G_COLS * G_ROWS * 3);
+  for (const it of items) for (let i = 0; i < g.length; i++) g[i] += it.grid[i] / items.length;
+  return g;
+}
+function cellDE(grid, ref) {
+  const out = new Float32Array(G_COLS * G_ROWS);
+  for (let c = 0; c < out.length; c++)
+    out[c] = Math.hypot(grid[c * 3] - ref[c * 3], grid[c * 3 + 1] - ref[c * 3 + 1], grid[c * 3 + 2] - ref[c * 3 + 2]);
+  return out;
+}
+
+/* ---------- DINOv2 en el navegador ---------- */
+async function loadDino(onMsg) {
+  if (S.dino) return S.dino;
+  onMsg("Descargando DINOv2 (solo la primera vez)…");
+  const { pipeline, env } = await import(TJS);
+  if (location.protocol === "file:") env.useBrowserCache = false;
+  let last;
+  for (const id of DINO_IDS) {
+    try { S.dino = await pipeline("image-feature-extraction", id); return S.dino; } catch (e) { last = e; }
+  }
+  throw last;
+}
+async function dinoEmbed(url) {
+  const t = await S.dino(url), d = t.dims[t.dims.length - 1];
+  return normalize(Float32Array.from(t.data.slice(0, d)));
+}
+
+/* ---------- calibración ---------- */
+function calibrate() {
+  const M = P().masters, nCells = G_COLS * G_ROWS, goodMax = new Float32Array(nCells), sim = [];
+  M.forEach((it, k) => {
+    const de = cellDE(it.grid, knnRef(it.grid, M, k));
+    for (let c = 0; c < nCells; c++) goodMax[c] = Math.max(goodMax[c], de[c]);
+    sim.push(maxOf(M.map((r, j) => j === k ? -1 : dot(emb(r), emb(it)))));
+  });
+  let medoid = M[0], best = Infinity;
+  for (const a of M) { let s = 0; for (const b of M) s += gridDist(a.grid, b.grid); if (s < best) { best = s; medoid = a; } }
+  return { goodMax, minSimGood: Math.min(...sim), medoid, prod: S.prod, model: S.model };
+}
+
+function applyMargin() {
+  const c = S.cal, k = 1 + S.margin / 100, gap = Math.max(0.005, 1 - c.minSimGood);
+  c.thr = c.goodMax.map(v => Math.max(3, v * k));
+  c.thrSim = c.minSimGood - gap * (0.1 + 0.5 * S.margin / 100);
+  const sorted = [...c.thr].sort((a, b) => a - b);
+  $("cal-out").innerHTML =
+    `<dt>Límite de color</dt><dd>uno por zona: ${S.margin}% sobre lo que varía esa zona en las buenas (mínimo ΔE 3)</dd>` +
+    `<dt>Límites</dt><dd>desde ΔE ${sorted[0].toFixed(1)} en zonas estables hasta ${sorted[sorted.length - 1].toFixed(1)} en bordes</dd>` +
+    `<dt>Parecido en buenas</dt><dd>al menos ${c.minSimGood.toFixed(3)}</dd>` +
+    `<dt>Parecido mínimo</dt><dd>${c.thrSim.toFixed(3)}</dd>`;
+}
+
+async function drawProfile() {
+  const c = S.cal, img = new Image();
+  img.src = c.medoid.url; await img.decode();
+  const pw = 64, ph = 128;
+  for (const id of ["pf-mean", "pf-var"]) { $(id).width = pw; $(id).height = ph; }
+  $("pf-mean").getContext("2d").drawImage(img, 0, 0, pw, ph);
+  const v = $("pf-var").getContext("2d");
+  v.drawImage(img, 0, 0, pw, ph);
+  v.fillStyle = "rgba(0,0,0,.6)"; v.fillRect(0, 0, pw, ph);
+  const top = maxOf(c.goodMax) || 1, cw = pw / G_COLS, ch = ph / G_ROWS;
+  c.goodMax.forEach((g, i) => {
+    v.fillStyle = `rgba(212,178,106,${(0.05 + 0.85 * g / top).toFixed(2)})`;
+    v.fillRect((i % G_COLS) * cw, ((i / G_COLS) | 0) * ch, cw, ch);
+  });
+}
+
+/* ---------- inspección ---------- */
+function inspect(item) {
+  const t0 = performance.now(), c = S.cal, e = emb(item);
+  const de = cellDE(item.grid, knnRef(item.grid, P().masters)), ratio = de.map((v, i) => v / c.thr[i]);
+  let best = -Infinity, bestProd = S.prod;
+  for (const [name, p] of Object.entries(S.products)) for (const m of p.masters) {
+    const s = dot(emb(m), e); if (s > best) { best = s; bestProd = name; }
+  }
+  const simOwn = maxOf(P().masters.map(m => dot(emb(m), e)));
+  const w = ratio.indexOf(maxOf(ratio)), bad = [...ratio].filter(v => v > 1).length;
+  const prodOk = bestProd === S.prod, simOk = prodOk && simOwn >= c.thrSim, colOk = bad === 0;
+  const reasons = [];
+  if (!prodOk) reasons.push(`Parece ser ${bestProd}, no ${S.prod}.`);
+  else if (!simOk) reasons.push("No se parece lo suficiente a las botellas de referencia (etiqueta dañada, faltante o distinta).");
+  if (!colOk) reasons.push(`El color no calza en ${bad} zona(s): la peor tiene ΔE ${de[w].toFixed(1)} y su límite es ${c.thr[w].toFixed(1)}.`);
+  return { simOwn, bestProd, simOk, prodOk, de, ratio, worstDE: de[w], worstThr: c.thr[w], worstRatio: ratio[w], colOk, reject: !(simOk && colOk), reasons, ms: performance.now() - t0 };
+}
+
+/* ---------- banco de ejemplo ---------- */
+const DEMO = {
+  "Frontera Chardonnay": { bg: "#f3f0e6", band: [196, 170, 60], title: "FRONTERA",  sub: "CHARDONNAY" },
+  "Frontera Cabernet":   { bg: "#f3f0e6", band: [120, 30, 45],  title: "FRONTERA",  sub: "CABERNET" },
+  "Casillero Merlot":    { bg: "#1a1a1f", band: [150, 40, 60],  title: "CASILLERO", sub: "MERLOT" },
+};
+const DEMO_TYPES = { color: "Color alterado", missing: "Sin etiqueta", torn: "Etiqueta rota" };
+const rnd = (a, b) => a + Math.random() * (b - a);
+const rgb = c => `rgb(${c.map(v => Math.round(Math.max(0, Math.min(255, v)))).join(",")})`;
+
+function drawDemo(spec, kind) {
+  const cv = document.createElement("canvas"); cv.width = 240; cv.height = 360;
+  const x = cv.getContext("2d", { willReadFrequently: true }), light = rnd(0.97, 1.03);
+  const bg = x.createLinearGradient(0, 0, 240, 360);
+  bg.addColorStop(0, `rgb(${40 * light},${38 * light},${44 * light})`); bg.addColorStop(1, "#08080a");
+  x.fillStyle = bg; x.fillRect(0, 0, 240, 360);
+
+  x.save();
+  x.translate(120 + rnd(-2, 2), 180 + rnd(-2, 2)); x.rotate(rnd(-0.008, 0.008)); x.translate(-120, -180);
+  x.fillStyle = "#1c2a20";
+  x.beginPath(); x.moveTo(100, 10); x.lineTo(140, 10); x.lineTo(140, 80); x.quadraticCurveTo(190, 100, 190, 150);
+  x.lineTo(190, 350); x.lineTo(50, 350); x.lineTo(50, 150); x.quadraticCurveTo(50, 100, 100, 80); x.closePath(); x.fill();
+
+  if (kind !== "missing") {
+    const band = [...spec.band], dark = spec.bg === "#1a1a1f";
+    if (kind === "color") band[(Math.random() * 3) | 0] += (Math.random() < .5 ? -1 : 1) * rnd(40, 60);
+    x.fillStyle = spec.bg; x.fillRect(62, 170, 116, 150);
+    x.textAlign = "center";
+    x.fillStyle = dark ? "#e8e8e8" : "#141414"; x.font = "600 17px Geist, sans-serif"; x.fillText(spec.title, 120, 196);
+    x.fillStyle = "#4b5056";
+    x.beginPath(); x.moveTo(74, 262); x.lineTo(102, 222); x.lineTo(120, 244); x.lineTo(140, 214); x.lineTo(166, 262); x.fill();
+    x.fillStyle = rgb(band); x.fillRect(66, 268, 108, 28);
+    x.fillStyle = "#fafafa"; x.font = "10px Geist, sans-serif"; x.fillText(spec.sub, 120, 286);
+    x.fillStyle = dark ? "#bbb" : "#333"; x.font = "8px Geist, sans-serif"; x.fillText("Reserva · Chile · 750 ml", 120, 308);
+    if (kind === "torn") {
+      x.fillStyle = "#1c2a20";
+      x.beginPath(); x.moveTo(178, 170); x.lineTo(110 + rnd(0, 25), 170); x.lineTo(150, 235); x.lineTo(178, 255); x.fill();
+    }
+  }
+  x.restore();
+
+  const glare = x.createLinearGradient(70, 0, 110, 0);
+  glare.addColorStop(0, "rgba(255,255,255,0)"); glare.addColorStop(.5, `rgba(255,255,255,${rnd(.06, .11)})`); glare.addColorStop(1, "rgba(255,255,255,0)");
+  x.fillStyle = glare; x.fillRect(70, 0, 40, 360);
+
+  const img = x.getImageData(0, 0, 240, 360), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = rnd(-9, 9);
+    d[i] = d[i] * light + n; d[i + 1] = d[i + 1] * light + n; d[i + 2] = d[i + 2] * light + n;
+  }
+  x.putImageData(img, 0, 0);
+  return cv;
+}
+
+async function loadDemo() {
+  resetBank();
+  const plan = [["master", 100], ["ok", 40], ...Object.keys(DEMO_TYPES).map(k => [k, 10])];
+  const perProd = plan.reduce((s, [, n]) => s + n, 0), total = perProd * Object.keys(DEMO).length, items = [];
+  for (const [name, spec] of Object.entries(DEMO)) for (const [kind, n] of plan) for (let i = 0; i < n; i++) {
+    const master = kind === "master", cv = drawDemo(spec, master ? "ok" : kind);
+    items.push({ ...features(cv), url: cv.toDataURL("image/jpeg", .8), prod: name, master, truth: master ? null : kind === "ok" ? "ok" : DEMO_TYPES[kind] });
+    if (items.length % 15 === 0) { progress(items.length / total); await pause(); }
+  }
+  finishBank(items, "Banco de ejemplo (dibujos, no fotos reales)");
+}
+
+/* ---------- carpeta propia ---------- */
+const IMG = /\.(png|jpe?g|bmp|webp)$/i;
+const NAMES = { logical_anomalies: "Anomalía lógica", structural_anomalies: "Anomalía estructural", wrong_sku: "Etiqueta equivocada", bad_color: "Color alterado", logica: "Anomalía lógica", estructural: "Anomalía estructural" };
+const pretty = s => { s = s.replace(/[_-]+/g, " ").trim(); return s.charAt(0).toUpperCase() + s.slice(1); };
+
+function classify(path) {
+  const parts = path.replace(/\\/g, "/").split("/"), low = parts.map(p => p.toLowerCase());
+  if (low.includes("ground_truth") || low.includes("validation")) return null;
+  const prodAt = i => pretty(parts[Math.max(0, i - 1)]);
+  const t = low.indexOf("train");
+  if (t >= 0 && low[t + 1] === "good") return { master: true, prod: prodAt(t) };
+  const m = low.findIndex(p => p === "maestras" || p === "references" || p === "referencias");
+  if (m >= 0) return { master: true, prod: parts.length > m + 2 ? pretty(parts[m + 1]) : prodAt(m) };
+  const s = low.indexOf("test");
+  if (s < 0 || parts.length < s + 3) return null;
+  const kind = low[s + 1];
+  return { master: false, prod: prodAt(s), truth: ["good", "ok"].includes(kind) ? "ok" : (NAMES[kind] || pretty(kind)) };
+}
+
+async function loadFolder(files) {
+  resetBank();
+  const all = [...files].filter(f => IMG.test(f.name)).map(f => ({ f, c: classify(f.webkitRelativePath) })).filter(x => x.c);
+  const byProd = {};
+  for (const x of all) (byProd[x.c.prod] ||= { m: [], t: [] })[x.c.master ? "m" : "t"].push(x);
+  const usable = Object.entries(byProd).filter(([, v]) => v.m.length >= 3);
+  if (!usable.length || !all.some(x => !x.c.master))
+    return showErr("No encontré la estructura esperada: cada producto necesita al menos 3 fotos en maestras/ y fotos para inspeccionar en test/. Revisa «Cómo ordenar la carpeta».");
+
+  const list = usable.flatMap(([, v]) => [...v.m.sort(() => Math.random() - .5).slice(0, MAX_MASTERS), ...v.t]), items = [];
+  for (let i = 0; i < list.length; i++) {
+    const { f, c } = list[i];
+    try {
+      const bmp = await createImageBitmap(f);
+      items.push({ ...features(bmp), url: URL.createObjectURL(f), prod: c.prod, master: c.master, truth: c.truth ?? null });
+      bmp.close();
+    } catch { }
+    if (i % 8 === 0) { progress(i / list.length); await pause(); }
+  }
+  finishBank(items, `Carpeta «${files[0].webkitRelativePath.split("/")[0]}»`);
+}
+
+/* ---------- pasos ---------- */
+const pause = (ms = 0) => new Promise(r => setTimeout(r, ms));
+function progress(p) { $("prog").hidden = false; $("prog").firstElementChild.style.width = (p * 100) + "%"; }
+function showErr(msg) { $("prog").hidden = true; $("err1").hidden = false; $("err1").textContent = msg; setStep(1, "Pendiente"); }
+function setStep(n, text, done = false) { const s = $("st" + n); s.textContent = text; s.classList.toggle("done", done); }
+function lock(n, v) { $("s" + n).setAttribute("aria-disabled", v); }
+
+function resetBank() {
+  stopLine();
+  S.products = {}; S.prod = null;
+  $("err1").hidden = true; $("counts").hidden = true;
+  setStep(1, "Cargando…"); lock(2, true);
+  invalidateCalibration();
+}
+
+function invalidateCalibration() {
+  stopLine();
+  S.cal = null;
+  setStep(2, "Pendiente"); lock(3, true); $("st3").hidden = true;
+  $("cal-run").hidden = true; $("profile").hidden = true; $("margin-box").hidden = true; $("err2").hidden = true;
+  $("btn-cal").textContent = "Calibrar"; $("btn-cal").classList.add("primary"); $("btn-cal").disabled = false;
+  $("lever").disabled = true;
+  $("m-sub").textContent = S.prod ? "Calibra para poder encenderla." : "Agrega el banco de imágenes y calibra para poder encenderla.";
+  resetStats();
+}
+
+function finishBank(items, label) {
+  $("prog").hidden = true;
+  for (const it of items) {
+    const p = (S.products[it.prod] ||= { masters: [], tests: {} });
+    if (it.master) p.masters.push(it); else (p.tests[it.truth] ||= []).push(it);
+  }
+  for (const [k, p] of Object.entries(S.products)) if (p.masters.length < 3) delete S.products[k];
+  const names = Object.keys(S.products).sort();
+  $("counts").innerHTML = `<dt>Banco</dt><dd>${label}</dd>` + names.map(n => {
+    const p = S.products[n], ok = p.tests.ok?.length || 0;
+    const bad = Object.entries(p.tests).filter(([t]) => t !== "ok").reduce((s, [, v]) => s + v.length, 0);
+    return `<dt>${n}</dt><dd>${p.masters.length} de referencia, ${ok} buenas y ${bad} con defecto para inspeccionar</dd>`;
+  }).join("");
+  $("counts").hidden = false;
+  $("prod").innerHTML = names.map(n => `<option>${n}</option>`).join("");
+  S.prod = names[0];
+  setStep(1, "Listo", true); lock(2, false);
+  invalidateCalibration();
+  $("btn-cal").focus();
+}
+
+async function runCalibration() {
+  const btn = $("btn-cal"), all = Object.values(S.products).flatMap(p => [...p.masters, ...Object.values(p.tests).flat()]);
+  btn.disabled = true; btn.textContent = "Calibrando…";
+  setStep(2, "Calibrando…"); $("profile").hidden = true; $("margin-box").hidden = true; $("err2").hidden = true;
+  $("cal-run").hidden = false; $("cal-strip").innerHTML = "";
+  const msg = t => $("cal-msg").textContent = t, bar = p => $("cal-bar").style.width = (p * 100) + "%";
+
+  if (S.model === "dino") {
+    try {
+      bar(0); await loadDino(msg);
+      const todo = all.filter(it => !it.emb.dino);
+      for (let i = 0; i < todo.length; i++) {
+        msg(`DINOv2 está mirando las fotos del banco: ${i + 1} de ${todo.length}…`); bar((i + 1) / todo.length);
+        todo[i].emb.dino = await dinoEmbed(todo[i].url);
+      }
+    } catch (e) {
+      $("err2").hidden = false;
+      $("err2").textContent = "No se pudo cargar DINOv2 (revisa la conexión a internet). Se usa la huella rápida.";
+      document.querySelector('input[name=model][value=simple]').checked = true; S.model = "simple";
+    }
+  }
+
+  const M = P().masters;
+  const shown = Math.min(M.length, 48), every = M.length / shown;
+  $("cal-strip").innerHTML = Array.from({ length: shown }, (_, i) => `<img src="${M[Math.floor(i * every)].url}" alt="">`).join("");
+  const thumbs = $("cal-strip").children, step = Math.max(6, Math.min(90, 2500 / M.length));
+  for (let k = 0; k < M.length; k++) {
+    const t = thumbs[Math.min(shown - 1, Math.floor(k / every))];
+    t.classList.remove("seen"); t.classList.add("now");
+    msg(`Mirando la botella de referencia ${k + 1} de ${M.length}…`); bar((k + 1) / M.length);
+    await pause(step);
+    t.classList.replace("now", "seen");
+  }
+  msg("Comparando cada referencia con las demás…"); await pause(30);
+
+  S.cal = calibrate(); applyMargin(); await drawProfile();
+  $("cal-run").hidden = true; $("profile").hidden = false; $("margin-box").hidden = false;
+  $("cal-done").textContent = `Máquina calibrada para ${S.prod} con ${M.length} botellas buenas, usando ${S.model === "dino" ? "DINOv2" : "la huella rápida"}.`;
+  btn.disabled = false; btn.textContent = "Volver a calibrar"; btn.classList.remove("primary");
+  setStep(2, "Listo", true); lock(3, false); $("st3").hidden = false;
+  const others = Object.keys(S.products).length > 1;
+  $("pct-note").textContent = "En la línea real es cerca de 0,1%. Lo subimos para ver rechazos." + (others ? " Entre los defectos también pasan botellas de otros productos." : "");
+  $("lever").disabled = false;
+  $("m-sub").textContent = `Lista para ${S.prod}. Sube la palanca para encenderla.`;
+  resetStats();
+}
+
+/* ---------- línea ---------- */
+function pickNext() {
+  const p = P(), others = Object.keys(S.products).filter(n => n !== S.prod);
+  const types = Object.keys(p.tests).filter(t => t !== "ok");
+  if (others.length) types.push(OTHER);
+  const wantDefect = types.length && (!p.tests.ok || Math.random() * 100 < S.defectPct);
+  if (!wantDefect) return pick(p.tests.ok);
+  const t = pick(types);
+  if (t !== OTHER) return pick(p.tests[t]);
+  const o = S.products[pick(others)], item = pick(o.tests.ok || o.masters);
+  return { ...item, truth: OTHER };
+}
+const pick = a => a[(Math.random() * a.length) | 0];
+
+function setLeverUI(on) {
+  $("machine").classList.toggle("on", on);
+  $("lever").setAttribute("aria-checked", on);
+  $("lever-b").textContent = on ? "Línea en marcha" : "Línea apagada";
+  $("lever-s").textContent = on ? "Baja para detener" : "Sube para activar";
+}
+function startLine() {
+  S.running = true; setLeverUI(true);
+  $("m-sub").textContent = `${S.prod}. Una foto cada ${S.interval} ms.`;
+  $("v-why").textContent = "Esperando la primera botella…";
+  feed(); S.timer = setInterval(feed, S.interval);
+}
+function stopLine() {
+  if (!S.running) return;
+  S.running = false; clearInterval(S.timer); setLeverUI(false);
+  $("m-sub").textContent = "Detenida. Puedes cambiar la configuración y volver a encenderla.";
+}
+
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const BOTTLE = `<svg viewBox="0 0 26 70" aria-hidden="true"><path class="glass" d="M10 1h6v14c6 3 9 7 9 13v41H1V28c0-6 3-10 9-13z"/><rect class="lbl" x="4" y="38" width="18" height="18" rx="1"/></svg>`;
+
+function feed() {
+  const item = pickNext(), id = ++S.n, belt = $("belt"), w = belt.clientWidth;
+  const el = document.createElement("div");
+  el.className = "bottle"; el.innerHTML = `<div class="bottle-in">${BOTTLE}</div>`;
+  belt.appendChild(el);
+
+  if (reduced) {
+    el.style.transform = `translateX(${w * 0.46 - 13}px)`;
+    shoot(item, id, el, 0); setTimeout(() => el.remove(), S.interval); return;
+  }
+  const travel = Math.min(9000, Math.max(1600, S.interval * 5)), from = -30, to = w + 10;
+  const at = x => travel * (x - from) / (to - from);
+  el.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }], { duration: travel, easing: "linear", fill: "forwards" })
+    .onfinish = () => el.remove();
+  const tCam = at(w * 0.46 - 13), tEx = at(w * 0.78 - 13);
+  setTimeout(() => shoot(item, id, el, tEx - tCam), tCam);
+}
+
+function shoot(item, id, el, toExpulsor) {
+  if (!S.cal) return;
+  const f = $("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+  const r = inspect(item);
+  el.classList.add(r.reject ? "reject" : "pass");
+  if (r.reject && toExpulsor) setTimeout(() => el.firstElementChild.animate(
+    [{ transform: "none", opacity: 1 }, { transform: "translateY(40px) rotate(25deg)", opacity: 0 }],
+    { duration: 380, easing: "ease-in", fill: "forwards" }), toExpulsor);
+  record(item, r, id);
+  show(item, r, id);
+}
+
+const tag = id => "B" + String(id).padStart(5, "0");
+const sortTypes = keys => keys.sort((a, b) => a === "ok" ? -1 : b === "ok" ? 1 : a.localeCompare(b));
+const truthText = it => it.truth === "ok" ? "buena" : it.truth === OTHER ? `de otro producto (${it.prod})` : it.truth.toLowerCase();
+
+function record(item, r, id) {
+  const st = S.stats, isBad = item.truth !== "ok", correct = r.reject === isBad;
+  st.reject += r.reject; st.correct += correct;
+  st.falseRej += !isBad && r.reject; st.escaped += isBad && !r.reject;
+  const t = (st.byType[item.truth] ||= { n: 0, ok: 0 }); t.n++; t.ok += correct;
+  S.log.unshift({ id, item, r, correct }); S.log.length = Math.min(S.log.length, 8);
+
+  $("k-n").textContent = S.n.toLocaleString("es-CL");
+  $("k-r").textContent = st.reject;
+  $("k-acc").textContent = (100 * st.correct / S.n).toFixed(1).replace(".", ",") + "%";
+  $("k-fr").textContent = st.falseRej;
+  $("k-esc").textContent = st.escaped;
+
+  $("by-type").innerHTML = `<table><thead><tr><th>Tipo</th><th class="r">Pasaron</th><th class="r">Aciertos</th></tr></thead><tbody>${
+    sortTypes(Object.keys(st.byType)).map(k => {
+      const v = st.byType[k], p = 100 * v.ok / v.n;
+      return `<tr><td>${k === "ok" ? "Buenas (deberían pasar)" : k + " (debería rechazar)"}</td><td class="r">${v.n}</td><td class="r ${p >= 90 ? "ok-t" : "bad-t"}">${p.toFixed(0)}%</td></tr>`;
+    }).join("")}</tbody></table>`;
+
+  $("log").innerHTML = `<table><thead><tr><th>Foto</th><th>Botella</th><th>Decisión</th><th>Era</th></tr></thead><tbody>${
+    S.log.map(l => `<tr><td><img class="thumb" src="${l.item.url}" alt=""></td><td>${tag(l.id)}</td>
+      <td class="${l.r.reject ? "bad-t" : "ok-t"}">${l.r.reject ? "Rechazo" : "Pasa"}</td>
+      <td>${pretty(truthText(l.item))}${l.correct ? "" : ' <span class="bad-t">· error</span>'}</td></tr>`).join("")
+  }</tbody></table>`;
+}
+
+function show(item, r, id) {
+  const c = S.cal, shot = $("shot"), cs = 10;
+  shot.innerHTML = `<img src="${item.url}" alt="Foto de la botella ${tag(id)}"><canvas width="${G_COLS * cs}" height="${G_ROWS * cs}"></canvas>`;
+  const ov = shot.querySelector("canvas").getContext("2d");
+  ov.lineWidth = 1.5;
+  r.ratio.forEach((v, i) => {
+    if (v <= 1) return;
+    const x = (i % G_COLS) * cs, y = ((i / G_COLS) | 0) * cs;
+    ov.fillStyle = "rgba(255,90,95,.18)"; ov.fillRect(x, y, cs, cs);
+    ov.strokeStyle = "#FF5A5F"; ov.strokeRect(x + 1, y + 1, cs - 2, cs - 2);
+  });
+
+  $("v-word").textContent = r.reject ? "Rechazo" : "Pasa";
+  $("v-word").className = "v-word " + (r.reject ? "reject" : "pass");
+  $("v-why").textContent = r.reject ? r.reasons.join(" ") : `Es ${S.prod} y el color calza en todas las zonas. Decidió en ${r.ms.toFixed(1)} ms.`;
+
+  const isBad = item.truth !== "ok", correct = r.reject === isBad;
+  $("v-truth").hidden = false;
+  $("v-truth").innerHTML = `Botella ${tag(id)}. En realidad era: <b>${truthText(item)}</b>. ` +
+    (correct ? '<b class="ok">El sistema acertó.</b>' : `<b class="bad">El sistema se equivocó: ${isBad ? "dejó pasar un defecto" : "rechazó una buena"}.</b>`);
+
+  $("checks").hidden = false;
+  const gap = Math.max(0.01, 1 - c.thrSim), lo = Math.min(c.thrSim - gap, r.simOwn), pos = v => Math.max(0, Math.min(1, (v - lo) / (1 - lo))) * 100;
+  setMeter("c-sim", pos(r.simOwn), pos(c.thrSim), !r.simOk, `${r.simOwn.toFixed(3)} · mínimo ${c.thrSim.toFixed(3)}`);
+  $("c-sim-note").textContent = `Se parece más a: ${r.bestProd}. La barra muestra cuánto se parece a la referencia más cercana de ${S.prod} (1 es idéntica).`;
+  setMeter("c-col", Math.min(100, r.worstRatio / 3 * 100), 100 / 3, !r.colOk, `ΔE ${r.worstDE.toFixed(1)} · límite de esa zona ${r.worstThr.toFixed(1)}`);
+}
+
+function setMeter(id, val, th, bad, text) {
+  const m = $(id).querySelector(".meter");
+  m.classList.toggle("bad", bad);
+  m.querySelector("i").style.width = val + "%";
+  m.querySelector(".th").style.left = th + "%";
+  $(id + "-v").textContent = text;
+}
+
+function resetStats() {
+  S.n = 0; S.log = []; S.stats = { reject: 0, correct: 0, falseRej: 0, escaped: 0, byType: {} };
+  ["k-n", "k-r", "k-fr", "k-esc"].forEach(k => $(k).textContent = "0"); $("k-acc").textContent = "—";
+  $("by-type").innerHTML = EMPTY.byType; $("log").innerHTML = EMPTY.log; $("shot").innerHTML = EMPTY.shot;
+  $("checks").hidden = true; $("v-truth").hidden = true;
+  $("v-word").textContent = "—"; $("v-word").className = "v-word";
+  $("v-why").textContent = "La máquina está apagada.";
+}
+
+/* ---------- eventos ---------- */
+$("btn-demo").onclick = loadDemo;
+$("pick").onchange = e => e.target.files.length && loadFolder(e.target.files);
+$("btn-cal").onclick = runCalibration;
+$("prod").onchange = e => { S.prod = e.target.value; invalidateCalibration(); };
+document.querySelectorAll("input[name=model]").forEach(r => r.onchange = e => { S.model = e.target.value; if (S.prod) invalidateCalibration(); });
+$("lever").onclick = () => S.running ? stopLine() : startLine();
+$("ms").oninput = e => {
+  S.interval = +e.target.value;
+  $("ms-v").textContent = S.interval + " ms";
+  $("bph").textContent = `≈ ${Math.round(3600000 / S.interval).toLocaleString("es-CL")} botellas por hora. La línea real va a 10.000 (una cada 360 ms).`;
+  if (S.running) { clearInterval(S.timer); S.timer = setInterval(feed, S.interval); $("m-sub").textContent = `${S.prod}. Una foto cada ${S.interval} ms.`; }
+};
+$("margin").oninput = e => { S.margin = +e.target.value; $("margin-v").textContent = S.margin + "%"; if (S.cal) applyMargin(); };
+$("pct").oninput = e => { S.defectPct = +e.target.value; $("pct-v").textContent = S.defectPct + "%"; };
+
+resetStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+line:
+  bottles_per_hour: 10000
+  mode: shadow                   # shadow = solo registra, no rechaza | active = manda señal de rechazo
+
+methods:
+  sku_check: true                # embedding + kNN
+  color_check: true              # ΔE por zonas
+
+embedder:
+  backend: auto                  # auto | dinov2 | simple
+  dinov2_model: dinov2_vits14
+
+paths:
+  references: data/references
+  gallery: outputs/gallery.npz
+  results: outputs/results.csv

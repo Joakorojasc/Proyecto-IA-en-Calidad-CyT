@@ -1,0 +1,7 @@
+numpy
+pillow
+pyyaml
+scikit-image
+# Para DINOv2:
+# torch
+# torchvision

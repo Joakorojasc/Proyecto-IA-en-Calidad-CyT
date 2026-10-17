@@ -1,0 +1,21 @@
+sku: FRONTERA_CHARD
+description: FRONTERA CHARDONNAY (sintético)
+zone_names:
+- fondo
+- franja
+- montana
+zones:
+- - 0.05
+  - 0.05
+  - 0.12
+  - 0.95
+- - 0.72
+  - 0.13
+  - 0.78
+  - 0.28
+- - 0.5
+  - 0.4
+  - 0.58
+  - 0.6
+delta_e_max: 5.17
+sim_min: 0.947

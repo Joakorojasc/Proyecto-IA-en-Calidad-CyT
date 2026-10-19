@@ -86,7 +86,7 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 .lever-track{position:relative;width:34px;height:66px;border-radius:17px;border:1px solid var(--line-strong);background:#0d0c0f}
 .lever-knob{position:absolute;left:3px;top:35px;width:26px;height:26px;border-radius:50%;background:var(--muted);transition:top .25s cubic-bezier(.3,1.4,.5,1),background .2s}
 .lever[aria-checked=true] .lever-knob{top:3px;background:var(--pass)}
-.lever-text{display:grid;text-align:left;font-size:13px}
+.lever-text{display:grid;text-align:left;font-size:13px;white-space:nowrap}
 .lever-text b{font-size:15px}
 
 .belt-wrap{padding:30px 22px 18px}
@@ -212,7 +212,7 @@ button,input,select{font:inherit;color:inherit}
 .presets{display:flex;gap:6px}
 #curve{width:100%;height:auto;display:block}
 #curve text{font:11px Geist,system-ui,sans-serif}
-.stat-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 22px;border-top:1px solid var(--line)}
+.m-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 #hist table td,#hist table th{white-space:nowrap}
 #hist{overflow-x:auto}
 </style>
@@ -322,6 +322,11 @@ tal como se descarga.</pre>
       <span class="lamp" aria-hidden="true"></span>
       <div class="m-title"><h2 id="m-h">Línea QE05 simulada</h2><span class="small muted" id="m-sub">Agrega el banco de imágenes y calibra para poder encenderla.</span></div>
       <div class="spacer"></div>
+      <div class="m-actions">
+        <button class="btn sm" id="btn-save" disabled>Guardar prueba</button>
+        <button class="btn sm" id="btn-dl" disabled>Descargar historial</button>
+        <button class="btn sm" id="btn-reset">Reiniciar estadísticas</button>
+      </div>
       <button class="lever" id="lever" role="switch" aria-checked="false" disabled>
         <span class="lever-track"><span class="lever-knob"></span></span>
         <span class="lever-text"><b id="lever-b">Línea apagada</b><span class="muted" id="lever-s">Sube para activar</span></span>
@@ -371,11 +376,6 @@ tal como se descarga.</pre>
       <div class="stat"><div class="v" id="k-fr">0</div><div class="l">Buenas rechazadas</div></div>
       <div class="stat"><div class="v" id="k-esc">0</div><div class="l">Defectos que pasaron</div></div>
     </div>
-    <div class="stat-actions">
-      <button class="btn sm" id="btn-reset">Reiniciar estadísticas</button>
-      <button class="btn sm" id="btn-save" disabled>Guardar en el historial</button>
-      <span class="small muted" id="save-msg" aria-live="polite"></span>
-    </div>
   </section>
 
   <div class="lower">
@@ -390,7 +390,7 @@ tal como se descarga.</pre>
     </section>
     <section style="grid-column:1/-1">
       <div class="panel-h"><h2>Historial de pruebas</h2>
-        <span class="row"><button class="btn sm" id="btn-dl" disabled>Descargar (CSV, se abre en Excel)</button><button class="btn sm" id="btn-clear" disabled>Borrar historial</button></span></div>
+        <span class="row"><span class="small muted" id="save-msg" aria-live="polite"></span><button class="btn sm" id="btn-clear" disabled>Borrar historial</button></span></div>
       <div id="hist"></div>
     </section>
     <section style="grid-column:1/-1">
@@ -1021,7 +1021,7 @@ function histCols() {
 }
 function renderHist() {
   $("btn-dl").disabled = $("btn-clear").disabled = !S.hist.length;
-  if (!S.hist.length) { $("hist").innerHTML = '<p class="empty">Cuando una prueba te sirva, apreta «Guardar en el historial». Queda guardada en este navegador y la puedes descargar.</p>'; return; }
+  if (!S.hist.length) { $("hist").innerHTML = '<p class="empty">Cuando una prueba te sirva, apreta «Guardar prueba» arriba, al lado de la palanca. Queda guardada en este navegador y con «Descargar historial» la bajas como CSV, que se abre en Excel.</p>'; return; }
   const [base, types] = histCols();
   $("hist").innerHTML = `<table><thead><tr>${base.map(c => `<th>${c}</th>`).join("")}${types.map(t => `<th>${t}: detectadas</th>`).join("")}</tr></thead><tbody>${
     S.hist.map(h => `<tr>${base.map(c => `<td>${h[c]}</td>`).join("")}${types.map(t => `<td>${h.types[t] || "—"}</td>`).join("")}</tr>`).join("")}</tbody></table>`;

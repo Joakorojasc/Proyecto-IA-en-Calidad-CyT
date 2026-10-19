@@ -215,6 +215,19 @@ button,input,select{font:inherit;color:inherit}
 .m-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 #hist table td,#hist table th{white-space:nowrap}
 #hist{overflow-x:auto}
+.tabs{display:flex;gap:6px;margin-left:auto}
+.tab{background:none;border:1px solid var(--line);border-radius:99px;padding:5px 14px;font-size:13px;color:var(--muted);cursor:pointer}
+.tab.on{border-color:var(--brass);color:var(--ink)}
+.hist-wrap{max-width:1500px;margin:0 auto;padding:0 28px 40px}
+.shots2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.side{display:grid;gap:8px;align-content:start}
+.side-h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.side p{font-size:12px;color:var(--muted);min-height:3em}
+.view2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;padding:6px 22px 22px}
+.side-sum{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;font-size:13px}
+.side-sum dt{color:var(--muted)}
+@media (max-width:1100px){ .view2{grid-template-columns:1fr} }
+@media (max-width:640px){ .hist-wrap{padding:0 16px 32px} .tabs{margin-left:0} }
 </style>
 </head>
 <body>
@@ -222,9 +235,13 @@ button,input,select{font:inherit;color:inherit}
 <header class="bar">
   <span class="wordmark">Quality AI</span>
   <span class="client"><em>Viña Concha y Toro</em> &nbsp;Simulador de inspección de etiquetas</span>
+  <nav class="tabs" aria-label="Módulos">
+    <button class="tab on" data-mode="uno">Una foto por botella</button>
+    <button class="tab" data-mode="dos">Frente y atrás</button>
+  </nav>
 </header>
 
-<div class="wrap">
+<div class="wrap" id="mode-uno">
   <div class="steps">
 
     <section class="step" id="s1">
@@ -291,11 +308,13 @@ tal como se descarga.</pre>
             <button class="btn sm" data-m="0">Estricto</button><button class="btn sm" data-m="30">Equilibrado</button><button class="btn sm" data-m="60">Holgado</button>
           </span>
         </div>
-        <label class="slider"><span>Color <b id="margin-v">30%</b></span>
+        <label class="slider"><span>Tolerancia de color <b id="margin-v">30%</b></span>
           <input type="range" id="margin" min="0" max="100" step="5" value="30">
+          <small class="muted">(cuánta diferencia de color acepta en cada zona: 0% = solo lo que varían las buenas; 100% = el doble)</small>
         </label>
-        <label class="slider"><span>Parecido con las buenas <b id="msim-v">30%</b></span>
+        <label class="slider"><span>Tolerancia de parecido <b id="msim-v">30%</b></span>
           <input type="range" id="msim" min="0" max="100" step="5" value="30">
+          <small class="muted">(cuánto menos parecida a las buenas puede ser una botella: 0% = tan parecida como la peor buena; 100% = bastante menos)</small>
         </label>
         <svg id="curve" viewBox="0 0 340 164" role="img" aria-label="Curva de buenas rechazadas y defectos detectados según el margen de color"></svg>
         <small class="muted">Más margen: bota menos buenas, pero se le escapan más defectos. Menos margen: al revés. La curva sale de pasar una vez todas las fotos de prueba por la máquina con cada margen de color; el punto es el margen actual. Se puede mover con la línea andando.</small>
@@ -389,11 +408,6 @@ tal como se descarga.</pre>
       <div id="log"></div>
     </section>
     <section style="grid-column:1/-1">
-      <div class="panel-h"><h2>Historial de pruebas</h2>
-        <span class="row"><span class="small muted" id="save-msg" aria-live="polite"></span><button class="btn sm" id="btn-clear" disabled>Borrar historial</button></span></div>
-      <div id="hist"></div>
-    </section>
-    <section style="grid-column:1/-1">
       <div class="panel-h"><h2>Qué hace el sistema con cada foto</h2></div>
       <ol class="how">
         <li><strong>1. Toma la foto</strong>Aquí la foto sale del banco de imágenes. En la línea, la tomaría una cámara a color disparada por un sensor al pasar cada botella.</li>
@@ -404,6 +418,159 @@ tal como se descarga.</pre>
     </section>
   </div>
   </div>
+</div>
+
+<div class="wrap" id="mode-dos" hidden>
+  <div class="steps">
+
+    <section class="step" id="d1">
+      <div class="step-h"><h2>1. Agrega fotos de frente y atrás</h2><span class="state" id="dst1">Pendiente</span></div>
+      <p>En la línea cada botella tiene dos fotos: el frente (etiqueta) y atrás (contraetiqueta, con el SKU). Aquí cada lado se calibra por separado y la botella pasa solo si <b>los dos lados</b> están bien y son del mismo producto.</p>
+      <div class="row">
+        <span class="btn primary file">Agregar banco de frente y atrás<input type="file" id="dpick" webkitdirectory directory multiple aria-label="Agregar banco de frente y atrás"></span>
+      </div>
+      <details>
+        <summary>Cómo ordenar la carpeta</summary>
+        <pre>banco/
+  Frontera Chardonnay/
+    maestras/
+      frente/   001.jpg  002.jpg ...
+      atras/    001.jpg  002.jpg ...
+    test/
+      ok/
+        frente/  b01.jpg ...
+        atras/   b01.jpg ...
+      &lt;defecto&gt;/
+        frente/  ...
+        atras/   ...
+
+Las dos fotos de una misma botella
+llevan el mismo nombre de archivo en
+frente/ y en atras/. Así el sistema
+sabe que son la misma botella.</pre>
+      </details>
+      <button class="link" id="dbtn-demo">¿Aún no tienes fotos? Prueba con un banco de ejemplo</button>
+      <div class="progress" hidden id="dprog"><i></i></div>
+      <dl class="counts" id="dcounts" hidden></dl>
+      <p class="err" id="derr1" hidden></p>
+    </section>
+
+    <section class="step" id="d2" aria-disabled="true">
+      <div class="step-h"><h2>2. Elige el producto y calibra</h2><span class="state" id="dst2">Pendiente</span></div>
+      <label class="field">Producto que corre en la línea
+        <select id="dprod"></select>
+      </label>
+      <fieldset class="models">
+        <legend>Modelo que mira las botellas</legend>
+        <label class="model"><input type="radio" name="dmodel" value="simple" checked><span><b>Huella rápida</b><small>Grises y bordes. Instantánea.</small></span></label>
+        <label class="model"><input type="radio" name="dmodel" value="dino"><span><b>DINOv2 de Meta</b><small>Red neuronal de visión. Se descarga una vez.</small></span></label>
+      </fieldset>
+      <p>Se calibran los dos lados, cada uno con sus propias fotos buenas: el frente aprende cómo varía la etiqueta y atrás cómo varía la contraetiqueta.</p>
+      <div class="row"><button class="btn primary" id="dbtn-cal">Calibrar los dos lados</button></div>
+      <div class="cal-run" id="dcal-run" hidden>
+        <span class="small" id="dcal-msg" aria-live="polite"></span>
+        <div class="progress"><i id="dcal-bar"></i></div>
+      </div>
+      <p class="err" id="derr2" hidden></p>
+      <dl class="side-sum" id="dcal-out" hidden></dl>
+      <div class="tol" id="dmargin-box" hidden>
+        <div class="tol-h"><b>Margen de tolerancia</b>
+          <span class="presets" id="dpresets" role="group" aria-label="Atajos de margen">
+            <button class="btn sm" data-m="0">Estricto</button><button class="btn sm" data-m="30">Equilibrado</button><button class="btn sm" data-m="60">Holgado</button>
+          </span>
+        </div>
+        <label class="slider"><span>Tolerancia de color <b id="dmargin-v">30%</b></span>
+          <input type="range" id="dmargin" min="0" max="100" step="5" value="30">
+          <small class="muted">(cuánta diferencia de color acepta en cada zona: 0% = solo lo que varían las buenas; 100% = el doble)</small>
+        </label>
+        <label class="slider"><span>Tolerancia de parecido <b id="dmsim-v">30%</b></span>
+          <input type="range" id="dmsim" min="0" max="100" step="5" value="30">
+          <small class="muted">(cuánto menos parecida a las buenas puede ser una botella: 0% = tan parecida como la peor buena; 100% = bastante menos)</small>
+        </label>
+        <small class="muted">El mismo margen se aplica al frente y a atrás.</small>
+      </div>
+    </section>
+
+    <section class="step" id="d3" aria-disabled="true">
+      <div class="step-h"><h2>3. Configura la línea</h2></div>
+      <label class="slider"><span>Una botella cada <b id="dms-v">800 ms</b></span>
+        <input type="range" id="dms" min="150" max="3000" step="50" value="800">
+        <small class="muted">Las dos cámaras disparan juntas cuando pasa la botella. La línea real va a una cada 360 ms.</small>
+      </label>
+      <label class="slider"><span>Botellas con defecto <b id="dpct-v">10%</b></span>
+        <input type="range" id="dpct" min="0" max="9" step="1" value="6">
+        <small class="muted">En la línea real es cerca de 0,1%. Lo subimos para ver rechazos.</small>
+      </label>
+    </section>
+  </div>
+
+  <div class="main-col">
+    <section class="machine" id="dmachine" aria-labelledby="dm-h">
+      <div class="m-head">
+        <span class="lamp" aria-hidden="true"></span>
+        <div class="m-title"><h2 id="dm-h">Línea QE05 con dos cámaras</h2><span class="small muted" id="dm-sub">Agrega el banco y calibra los dos lados para poder encenderla.</span></div>
+        <div class="spacer"></div>
+        <div class="m-actions">
+          <button class="btn sm" id="dbtn-save" disabled>Guardar prueba</button>
+          <button class="btn sm" id="dbtn-reset">Reiniciar estadísticas</button>
+        </div>
+        <button class="lever" id="dlever" role="switch" aria-checked="false" disabled>
+          <span class="lever-track"><span class="lever-knob"></span></span>
+          <span class="lever-text"><b id="dlever-b">Línea apagada</b><span class="muted" id="dlever-s">Sube para activar</span></span>
+        </button>
+      </div>
+
+      <div class="belt-wrap">
+        <div class="belt">
+          <div class="belt-clip" id="dbelt"></div>
+          <div class="station cam-st"><span>Cámaras frente y atrás</span></div>
+          <div class="station ex-st"><span>Expulsor</span></div>
+          <div class="flash" id="dflash"></div>
+        </div>
+        <div class="belt-legend"><span>Las botellas entran por la izquierda</span><span>Basta que falle un lado para que caiga</span></div>
+      </div>
+
+      <div class="view2">
+        <div class="shots2">
+          <div class="side"><div class="side-h"><b>Cámara frente</b><span class="pill" id="dp-frente" hidden></span></div><div class="shot" id="dshot-frente"></div><p id="dwhy-frente"></p></div>
+          <div class="side"><div class="side-h"><b>Cámara atrás</b><span class="pill" id="dp-atras" hidden></span></div><div class="shot" id="dshot-atras"></div><p id="dwhy-atras"></p></div>
+        </div>
+        <div class="verdict" aria-live="polite">
+          <div class="v-word" id="dv-word">—</div>
+          <div id="dv-why">La máquina está apagada.</div>
+          <div class="v-truth" id="dv-truth" hidden></div>
+          <p class="small muted">Cada lado se revisa por separado, con las dos preguntas de siempre: ¿es el producto correcto? y ¿el color calza? La botella pasa solo si los dos lados pasan y los dos son del producto que corre en la línea. En la planta, cada cámara tendría su propio proceso corriendo en paralelo.</p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="v" id="dk-n">0</div><div class="l">Botellas inspeccionadas</div></div>
+        <div class="stat"><div class="v" id="dk-acc">—</div><div class="l">Aciertos</div></div>
+        <div class="stat"><div class="v" id="dk-fr">0</div><div class="l">Buenas rechazadas</div></div>
+        <div class="stat"><div class="v" id="dk-esc">0</div><div class="l">Defectos que pasaron</div></div>
+        <div class="stat"><div class="v" id="dk-side">0 · 0</div><div class="l">Rechazos por frente · por atrás</div></div>
+      </div>
+    </section>
+
+    <div class="lower">
+      <section>
+        <div class="panel-h"><h2>Resultado por tipo de botella</h2><span class="small muted">Qué lado lo pilló</span></div>
+        <div id="dby-type"></div>
+      </section>
+      <section>
+        <div class="panel-h"><h2>Últimas botellas</h2><span class="small muted">Lo más reciente arriba</span></div>
+        <div id="dlog"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="hist-wrap">
+  <section>
+    <div class="panel-h"><h2>Historial de pruebas</h2>
+      <span class="row"><span class="small muted" id="save-msg" aria-live="polite"></span><button class="btn sm" id="btn-clear" disabled>Borrar historial</button></span></div>
+    <div id="hist"></div>
+  </section>
 </div>
 
 <footer>Prototipo Quality AI. Con el banco de ejemplo los resultados no representan el desempeño real.</footer>
@@ -521,13 +688,17 @@ function calibrate() {
   return { goodMax, minSimGood: Math.min(...sim), medoid, prod: S.prod, model: S.model };
 }
 
+function setLimits(c, mCol, mSim) {
+  const gap = Math.max(0.005, 1 - c.minSimGood);
+  c.thr = c.goodMax.map(v => Math.max(3, v * (1 + mCol / 100)));
+  c.thrSim = c.minSimGood - gap * (0.1 + 0.5 * mSim / 100);
+}
 function applyMargin() {
-  const c = S.cal, k = 1 + S.mCol / 100, gap = Math.max(0.005, 1 - c.minSimGood);
-  c.thr = c.goodMax.map(v => Math.max(3, v * k));
-  c.thrSim = c.minSimGood - gap * (0.1 + 0.5 * S.mSim / 100);
+  const c = S.cal;
+  setLimits(c, S.mCol, S.mSim);
   $("margin").value = S.mCol; $("margin-v").textContent = S.mCol + "%";
   $("msim").value = S.mSim; $("msim-v").textContent = S.mSim + "%";
-  document.querySelectorAll(".presets button").forEach(b => b.classList.toggle("on", +b.dataset.m === S.mCol && +b.dataset.m === S.mSim));
+  document.querySelectorAll("#margin-box .presets button").forEach(b => b.classList.toggle("on", +b.dataset.m === S.mCol && +b.dataset.m === S.mSim));
   drawCurve();
   const sorted = [...c.thr].sort((a, b) => a - b);
   $("cal-out").innerHTML =
@@ -949,17 +1120,22 @@ function renderInsights() {
   $("insights").hidden = !out.length;
 }
 
-function show(item, r, id) {
-  const c = S.cal, shot = $("shot"), cs = 10;
-  shot.innerHTML = `<img src="${item.url}" alt="Foto de la botella ${tag(id)}"><canvas width="${G_COLS * cs}" height="${G_ROWS * cs}"></canvas>`;
+function drawShot(shot, item, ratio, alt) {
+  const cs = 10;
+  shot.innerHTML = `<img src="${item.url}" alt="${alt}"><canvas width="${G_COLS * cs}" height="${G_ROWS * cs}"></canvas>`;
   const ov = shot.querySelector("canvas").getContext("2d");
   ov.lineWidth = 1.5;
-  r.ratio.forEach((v, i) => {
+  ratio.forEach((v, i) => {
     if (v <= 1) return;
     const x = (i % G_COLS) * cs, y = ((i / G_COLS) | 0) * cs;
     ov.fillStyle = "rgba(255,90,95,.18)"; ov.fillRect(x, y, cs, cs);
     ov.strokeStyle = "#FF5A5F"; ov.strokeRect(x + 1, y + 1, cs - 2, cs - 2);
   });
+}
+
+function show(item, r, id) {
+  const c = S.cal;
+  drawShot($("shot"), item, r.ratio, `Foto de la botella ${tag(id)}`);
 
   $("v-word").textContent = r.reject ? "Rechazo" : "Pasa";
   $("v-word").className = "v-word " + (r.reject ? "reject" : "pass");
@@ -1002,18 +1178,19 @@ function resetStats() {
 const HIST_KEY = "quality-ai-historial";
 const fmtPct = v => String(v).replace(".", ",") + "%";
 const share = (a, b) => b ? Math.round(100 * a / b) + "%" : "—";
-function saveRun() {
-  const st = S.stats, ok = st.byType.ok, types = {};
+// ctx = el módulo que guarda: S (una foto) o D (frente y atrás).
+function saveRun(ctx, model, sides) {
+  const st = ctx.stats, ok = st.byType.ok, types = {};
   for (const [k, v] of Object.entries(st.byType)) if (k !== "ok") types[k] = `${share(v.ok, v.n)} (${v.ok}/${v.n})`;
-  const marg = v => S.mixed ? `varió, terminó en ${v}%` : v + "%";
+  const marg = v => ctx.mixed ? `varió, terminó en ${v}%` : v + "%";
   S.hist.unshift({
-    Fecha: new Date().toLocaleString("es-CL"), Producto: S.prod, Modelo: S.cal.model === "dino" ? "DINOv2" : "Huella rápida",
-    "Margen color": marg(S.mCol), "Margen parecido": marg(S.mSim), "% con defecto": fmtPct(S.defectPct),
+    Fecha: new Date().toLocaleString("es-CL"), Producto: ctx.prod, Modelo: (model === "dino" ? "DINOv2" : "Huella rápida") + (sides ? " · frente y atrás" : ""),
+    "Margen color": marg(ctx.mCol), "Margen parecido": marg(ctx.mSim), "% con defecto": fmtPct(ctx.defectPct),
     Fotos: st.seen, Aciertos: share(st.correct, st.seen),
     "Buenas rechazadas": ok ? `${share(ok.n - ok.ok, ok.n)} (${ok.n - ok.ok}/${ok.n})` : "—", types,
   });
   storeHist(); renderHist();
-  $("save-msg").textContent = `Guardado: ${S.stats.seen} fotos. Puedes reiniciar las estadísticas y probar otro ajuste.`;
+  $("save-msg").textContent = `Guardado: ${st.seen} ${sides ? "botellas" : "fotos"}. Puedes reiniciar las estadísticas y probar otro ajuste.`;
 }
 function histCols() {
   const types = [...new Set(S.hist.flatMap(h => Object.keys(h.types)))].sort();
@@ -1037,6 +1214,295 @@ function downloadHist() {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
+/* ---------- módulo frente y atrás ---------- */
+// Cada lado es un banco aparte (sus propias maestras y su propia calibración).
+// withSide cambia el contexto para que calibrate() e inspect() trabajen sobre ese lado.
+const SIDES = ["frente", "atras"], SIDE_NAME = { frente: "Frente", atras: "Atrás" };
+const SIDE_WORDS = { frente: "frente", front: "frente", delantera: "frente", atras: "atras", back: "atras", trasera: "atras", contraetiqueta: "atras" };
+const plain = t => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const D = {
+  prods: {}, views: {}, prod: null, model: "simple", cal: null, mCol: 30, mSim: 30, mixed: false,
+  running: false, interval: 800, defectPct: 10, timer: null, n: 0, stats: null, log: [],
+};
+
+function withSide(side, fn) {
+  const keep = { products: S.products, cal: S.cal, prod: S.prod, model: S.model };
+  Object.assign(S, { products: D.views[side], cal: D.cal?.[side] || null, prod: D.prod, model: D.model });
+  try { return fn(); } finally { Object.assign(S, keep); }
+}
+
+function classifyDual(path) {
+  const parts = path.replace(/\\/g, "/").split("/"), i = parts.findIndex(p => SIDE_WORDS[plain(p)]);
+  if (i < 0) return null;
+  const c = classify([...parts.slice(0, i), ...parts.slice(i + 1)].join("/"));
+  return c && { ...c, side: SIDE_WORDS[plain(parts[i])], key: parts.at(-1).replace(/\.[^.]+$/, "").toLowerCase() };
+}
+
+function dProgress(p) { $("dprog").hidden = false; $("dprog").firstElementChild.style.width = (p * 100) + "%"; }
+function dErr(msg) { $("dprog").hidden = true; $("derr1").hidden = false; $("derr1").textContent = msg; setD(1, "Pendiente"); }
+function setD(n, text, done = false) { const s = $("dst" + n); s.textContent = text; s.classList.toggle("done", done); }
+
+function resetDual() {
+  stopDual();
+  D.prods = {}; D.views = {}; D.prod = null;
+  $("derr1").hidden = true; $("dcounts").hidden = true;
+  setD(1, "Cargando…"); $("d2").setAttribute("aria-disabled", true);
+  invalidateDual();
+}
+function invalidateDual() {
+  stopDual(); D.cal = null;
+  setD(2, "Pendiente"); $("d3").setAttribute("aria-disabled", true);
+  $("dcal-out").hidden = true; $("dmargin-box").hidden = true; $("derr2").hidden = true;
+  $("dbtn-cal").disabled = false; $("dbtn-cal").textContent = "Calibrar los dos lados"; $("dbtn-cal").classList.add("primary");
+  $("dlever").disabled = true;
+  $("dm-sub").textContent = D.prod ? "Calibra los dos lados para poder encenderla." : "Agrega el banco y calibra los dos lados para poder encenderla.";
+  resetDualStats();
+}
+
+async function loadFolderDual(files) {
+  resetDual();
+  const list = [...files].filter(f => IMG.test(f.name)).map(f => ({ f, c: classifyDual(f.webkitRelativePath) })).filter(x => x.c);
+  if (!list.length) return dErr("No encontré carpetas «frente» y «atras». Revisa «Cómo ordenar la carpeta».");
+  const items = [];
+  for (let i = 0; i < list.length; i++) {
+    const { f, c } = list[i];
+    try {
+      const bmp = await createImageBitmap(f);
+      items.push({ ...features(bmp), url: URL.createObjectURL(f), ...c, truth: c.truth ?? null });
+      bmp.close();
+    } catch { }
+    if (i % 8 === 0) { dProgress(i / list.length); await pause(); }
+  }
+  finishDual(items, `Carpeta «${files[0].webkitRelativePath.split("/")[0]}»`);
+}
+
+function finishDual(items, label) {
+  $("dprog").hidden = true;
+  const loose = {};
+  for (const it of items) {
+    const p = (D.prods[it.prod] ||= { masters: { frente: [], atras: [] }, tests: {} });
+    if (it.master) p.masters[it.side].push(it);
+    else (((loose[it.prod] ||= {})[it.truth] ||= {})[it.key] ||= {})[it.side] = it;
+  }
+  let unpaired = 0;
+  for (const [prod, byTruth] of Object.entries(loose)) for (const [truth, byKey] of Object.entries(byTruth)) for (const pair of Object.values(byKey)) {
+    if (pair.frente && pair.atras) (D.prods[prod].tests[truth] ||= []).push({ frente: pair.frente, atras: pair.atras, truth });
+    else unpaired++;
+  }
+  for (const [k, p] of Object.entries(D.prods)) {
+    if (p.masters.frente.length < 3 || p.masters.atras.length < 3) { delete D.prods[k]; continue; }
+    for (const s of SIDES) p.masters[s] = p.masters[s].sort(() => Math.random() - .5).slice(0, MAX_MASTERS);
+  }
+  const names = Object.keys(D.prods).sort();
+  if (!names.length || !names.some(n => Object.keys(D.prods[n].tests).length))
+    return dErr("Cada producto necesita al menos 3 fotos buenas de frente y 3 de atrás en maestras/, y botellas para inspeccionar en test/ con su foto de frente y de atrás.");
+  for (const s of SIDES) D.views[s] = Object.fromEntries(names.map(n => [n, { masters: D.prods[n].masters[s], tests: {} }]));
+
+  $("dcounts").innerHTML = `<dt>Banco</dt><dd>${label}</dd>` + names.map(n => {
+    const p = D.prods[n], ok = p.tests.ok?.length || 0;
+    const bad = Object.entries(p.tests).filter(([t]) => t !== "ok").reduce((s, [, v]) => s + v.length, 0);
+    return `<dt>${n}</dt><dd>${p.masters.frente.length} de referencia de frente y ${p.masters.atras.length} de atrás; ${ok} buenas y ${bad} con defecto para inspeccionar</dd>`;
+  }).join("") + (unpaired ? `<dt>Sin pareja</dt><dd>${unpaired} fotos de prueba no tienen su otro lado (mismo nombre en frente/ y atras/) y no se usan</dd>` : "");
+  $("dcounts").hidden = false;
+  $("dprod").innerHTML = names.map(n => `<option>${n}</option>`).join("");
+  D.prod = names[0];
+  setD(1, "Listo", true); $("d2").setAttribute("aria-disabled", false);
+  invalidateDual();
+}
+
+/* banco de ejemplo con contraetiqueta */
+const hashOf = t => [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+function drawBack(name, kind) {
+  const spec = DEMO[name], cv = drawDemo(spec, "missing"), x = cv.getContext("2d");
+  if (kind === "missing") return cv;
+  const dx = rnd(-2, 2), dy = rnd(-2, 2), dark = spec.bg === "#1a1a1f";
+  x.fillStyle = dark ? "#26262c" : "#efece2"; x.fillRect(66 + dx, 176 + dy, 108, 140);
+  x.fillStyle = rgb(spec.band); x.fillRect(66 + dx, 176 + dy, 108, 10);
+  x.fillStyle = dark ? "#9a9aa2" : "#55555c";
+  for (let i = 0; i < 7; i++) x.fillRect(76 + dx, 198 + dy + i * 9, 88 - (i % 3) * 14, 3);
+  x.font = "600 9px Geist, sans-serif"; x.textAlign = "center"; x.fillStyle = dark ? "#ddd" : "#222";
+  x.fillText(`${spec.title} ${spec.sub}`, 120 + dx, 272 + dy);
+  let h = hashOf(name);
+  for (let bx = 80; bx < 160; bx += 3) { h = (h * 1103515245 + 12345) >>> 0; if (h % 3) { x.fillStyle = dark ? "#eee" : "#111"; x.fillRect(bx + dx, 282 + dy, 1 + (h % 2), 24); } }
+  return cv;
+}
+async function loadDemoDual() {
+  resetDual();
+  const names = Object.keys(DEMO), plan = [["master", 80], ["ok", 30], ["front-color", 8], ["front-torn", 8], ["back-other", 8], ["back-missing", 8]];
+  const TRUTH = { "front-color": "Frente con color alterado", "front-torn": "Frente roto", "back-other": "Contraetiqueta de otro producto", "back-missing": "Sin contraetiqueta" };
+  const total = names.length * plan.reduce((s, [, n]) => s + n, 0), items = [];
+  let k = 0;
+  const add = (cv, prod, side, master, truth, key) => items.push({ ...features(cv), url: cv.toDataURL("image/jpeg", .8), prod, side, master, truth, key });
+  for (const name of names) for (const [kind, n] of plan) for (let i = 0; i < n; i++) {
+    const master = kind === "master", key = `${kind}-${i}`, truth = master ? null : kind === "ok" ? "ok" : TRUTH[kind];
+    const front = drawDemo(DEMO[name], kind === "front-color" ? "color" : kind === "front-torn" ? "torn" : "ok");
+    const backOf = kind === "back-other" ? pick(names.filter(o => o !== name)) : name;
+    add(front, name, "frente", master, truth, key);
+    add(drawBack(backOf, kind === "back-missing" ? "missing" : "ok"), name, "atras", master, truth, key);
+    if (++k % 10 === 0) { dProgress(k / total); await pause(); }
+  }
+  finishDual(items, "Banco de ejemplo (dibujos, no fotos reales)");
+}
+
+/* calibración de los dos lados */
+async function calibrateDual() {
+  const btn = $("dbtn-cal"), msg = t => $("dcal-msg").textContent = t, bar = p => $("dcal-bar").style.width = (p * 100) + "%";
+  btn.disabled = true; btn.textContent = "Calibrando…"; setD(2, "Calibrando…");
+  $("dcal-run").hidden = false; $("dcal-out").hidden = true; $("dmargin-box").hidden = true; $("derr2").hidden = true;
+  const all = Object.values(D.prods).flatMap(p => [...p.masters.frente, ...p.masters.atras, ...Object.values(p.tests).flat().flatMap(t => [t.frente, t.atras])]);
+  if (D.model === "dino") {
+    try {
+      bar(0); await loadDino(msg);
+      const todo = [...new Set(all)].filter(it => !it.emb.dino);
+      for (let i = 0; i < todo.length; i++) {
+        msg(`DINOv2 está mirando las fotos del banco: ${i + 1} de ${todo.length}…`); bar((i + 1) / todo.length);
+        todo[i].emb.dino = await dinoEmbed(todo[i].url);
+      }
+    } catch {
+      $("derr2").hidden = false; $("derr2").textContent = "No se pudo cargar DINOv2 (revisa la conexión a internet). Se usa la huella rápida.";
+      document.querySelector("input[name=dmodel][value=simple]").checked = true; D.model = "simple";
+    }
+  }
+  D.cal = {};
+  for (const [i, side] of SIDES.entries()) {
+    msg(`Comparando entre sí las referencias de ${SIDE_NAME[side].toLowerCase()}…`); bar((i + 1) / 2); await pause(30);
+    D.cal[side] = withSide(side, calibrate);
+  }
+  applyDualMargin();
+  $("dcal-run").hidden = true; $("dcal-out").hidden = false; $("dmargin-box").hidden = false;
+  btn.disabled = false; btn.textContent = "Volver a calibrar"; btn.classList.remove("primary");
+  setD(2, "Listo", true); $("d3").setAttribute("aria-disabled", false); $("dlever").disabled = false;
+  $("dm-sub").textContent = `Lista para ${D.prod}. Sube la palanca para encenderla.`;
+  resetDualStats();
+}
+
+function applyDualMargin() {
+  if (!D.cal) return;
+  for (const s of SIDES) setLimits(D.cal[s], D.mCol, D.mSim);
+  $("dmargin").value = D.mCol; $("dmargin-v").textContent = D.mCol + "%";
+  $("dmsim").value = D.mSim; $("dmsim-v").textContent = D.mSim + "%";
+  document.querySelectorAll("#dpresets button").forEach(b => b.classList.toggle("on", +b.dataset.m === D.mCol && +b.dataset.m === D.mSim));
+  $("dcal-out").innerHTML = `<dt>Modelo</dt><dd>${D.model === "dino" ? "DINOv2" : "Huella rápida"}</dd>` + SIDES.map(s => {
+    const c = D.cal[s], t = [...c.thr].sort((a, b) => a - b);
+    return `<dt>${SIDE_NAME[s]}</dt><dd>${D.prods[D.prod].masters[s].length} buenas · parecido mínimo ${c.thrSim.toFixed(3).replace(".", ",")} · límites de color ΔE ${t[0].toFixed(1).replace(".", ",")} a ${t.at(-1).toFixed(1).replace(".", ",")}</dd>`;
+  }).join("");
+}
+
+/* línea con dos cámaras */
+function pickDual() {
+  const p = D.prods[D.prod], others = Object.keys(D.prods).filter(n => n !== D.prod);
+  const types = Object.keys(p.tests).filter(t => t !== "ok");
+  if (others.length) types.push(OTHER);
+  if (!types.length || (p.tests.ok && Math.random() * 100 >= D.defectPct)) return pick(p.tests.ok || p.tests[pick(types)]);
+  const t = pick(types);
+  if (t !== OTHER) return pick(p.tests[t]);
+  const o = D.prods[pick(others)];
+  return { ...(o.tests.ok ? pick(o.tests.ok) : { frente: pick(o.masters.frente), atras: pick(o.masters.atras) }), truth: OTHER, prod: o };
+}
+
+function setDualLever(on) {
+  $("dmachine").classList.toggle("on", on); $("dlever").setAttribute("aria-checked", on);
+  $("dlever-b").textContent = on ? "Línea en marcha" : "Línea apagada";
+  $("dlever-s").textContent = on ? "Baja para detener" : "Sube para activar";
+}
+function startDual() {
+  D.running = true; setDualLever(true);
+  $("dm-sub").textContent = `${D.prod}. Una botella cada ${D.interval} ms, dos fotos por botella.`;
+  feedDual(); D.timer = setInterval(feedDual, D.interval);
+}
+function stopDual() {
+  if (!D.running) return;
+  D.running = false; clearInterval(D.timer); setDualLever(false);
+  $("dm-sub").textContent = "Detenida. Puedes cambiar la configuración y volver a encenderla.";
+}
+
+function feedDual() {
+  const pair = pickDual(), id = ++D.n, belt = $("dbelt"), w = belt.clientWidth, el = document.createElement("div");
+  el.className = "bottle"; el.innerHTML = `<div class="bottle-in">${BOTTLE}</div>`; belt.appendChild(el);
+  if (reduced) { el.style.transform = `translateX(${w * 0.46 - 13}px)`; shootDual(pair, id, el, 0); setTimeout(() => el.remove(), D.interval); return; }
+  const travel = Math.min(9000, Math.max(1600, D.interval * 5)), from = -30, to = w + 10, at = x => travel * (x - from) / (to - from);
+  el.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${to}px)` }], { duration: travel, easing: "linear", fill: "forwards" }).onfinish = () => el.remove();
+  const tCam = at(w * 0.46 - 13), tEx = at(w * 0.78 - 13);
+  setTimeout(() => shootDual(pair, id, el, tEx - tCam), tCam);
+}
+
+function inspectDual(pair) {
+  const r = Object.fromEntries(SIDES.map(s => [s, withSide(s, () => inspect(pair[s]))]));
+  return { ...r, reject: SIDES.some(s => r[s].reject) };
+}
+
+function shootDual(pair, id, el, toExpulsor) {
+  if (!D.cal) return;
+  const f = $("dflash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+  const r = inspectDual(pair);
+  el.classList.add(r.reject ? "reject" : "pass");
+  if (r.reject && toExpulsor) setTimeout(() => el.firstElementChild.animate(
+    [{ transform: "none", opacity: 1 }, { transform: "translateY(40px) rotate(25deg)", opacity: 0 }],
+    { duration: 380, easing: "ease-in", fill: "forwards" }), toExpulsor);
+  recordDual(pair, r, id); showDual(pair, r, id);
+}
+
+const dualTruth = p => p.truth === "ok" ? "buena" : p.truth === OTHER ? `de otro producto (${Object.keys(D.prods).find(n => D.prods[n] === p.prod) || "otro"})` : p.truth.toLowerCase();
+
+function showDual(pair, r, id) {
+  for (const s of SIDES) {
+    drawShot($("dshot-" + s), pair[s], r[s].ratio, `Foto de ${SIDE_NAME[s].toLowerCase()} de la botella ${tag(id)}`);
+    const p = $("dp-" + s); p.hidden = false;
+    p.textContent = r[s].reject ? "Falla" : "OK"; p.className = "pill " + (r[s].reject ? "reject" : "pass");
+    $("dwhy-" + s).textContent = r[s].reject ? r[s].reasons.join(" ") : `Producto correcto y color dentro del límite. ${r[s].ms.toFixed(1)} ms.`;
+  }
+  const bad = SIDES.filter(s => r[s].reject).map(s => SIDE_NAME[s].toLowerCase());
+  $("dv-word").textContent = r.reject ? "Rechazo" : "Pasa";
+  $("dv-word").className = "v-word " + (r.reject ? "reject" : "pass");
+  $("dv-why").textContent = r.reject ? `Falló ${bad.join(" y ")}.` : `Los dos lados son ${D.prod} y el color calza en todas las zonas.`;
+  const isBad = pair.truth !== "ok", correct = r.reject === isBad;
+  $("dv-truth").hidden = false;
+  $("dv-truth").innerHTML = `Botella ${tag(id)}. En realidad era: <b>${dualTruth(pair)}</b>. ` +
+    (correct ? '<b class="ok">El sistema acertó.</b>' : `<b class="bad">El sistema se equivocó: ${isBad ? "dejó pasar un defecto" : "rechazó una buena"}.</b>`);
+}
+
+function recordDual(pair, r, id) {
+  const st = D.stats, isBad = pair.truth !== "ok", correct = r.reject === isBad;
+  st.seen++; st.correct += correct; st.falseRej += !isBad && r.reject; st.escaped += isBad && !r.reject;
+  st.front += r.frente.reject; st.back += r.atras.reject;
+  const t = (st.byType[pair.truth] ||= { n: 0, ok: 0, front: 0, back: 0 });
+  t.n++; t.ok += correct; t.front += r.frente.reject; t.back += r.atras.reject;
+  D.log.unshift({ id, pair, r, correct }); D.log.length = Math.min(D.log.length, 8);
+
+  $("dk-n").textContent = st.seen.toLocaleString("es-CL");
+  $("dk-acc").textContent = (100 * st.correct / st.seen).toFixed(1).replace(".", ",") + "%";
+  $("dk-fr").textContent = st.falseRej; $("dk-esc").textContent = st.escaped;
+  $("dk-side").textContent = `${st.front} · ${st.back}`;
+  $("dbtn-save").disabled = false;
+  $("dby-type").innerHTML = `<table><thead><tr><th>Tipo</th><th class="r">Pasaron</th><th class="r">Aciertos</th><th class="r">Falló frente</th><th class="r">Falló atrás</th></tr></thead><tbody>${
+    sortTypes(Object.keys(st.byType)).map(k => {
+      const v = st.byType[k], p = 100 * v.ok / v.n;
+      return `<tr><td>${k === "ok" ? "Buenas (deberían pasar)" : k + " (debería rechazar)"}</td><td class="r">${v.n}</td><td class="r ${p >= 90 ? "ok-t" : "bad-t"}">${p.toFixed(0)}%</td><td class="r">${v.front}</td><td class="r">${v.back}</td></tr>`;
+    }).join("")}</tbody></table>`;
+  $("dlog").innerHTML = `<table><thead><tr><th>Frente</th><th>Atrás</th><th>Botella</th><th>Decisión</th><th>Era</th></tr></thead><tbody>${
+    D.log.map(l => `<tr><td><img class="thumb" src="${l.pair.frente.url}" alt=""></td><td><img class="thumb" src="${l.pair.atras.url}" alt=""></td><td>${tag(l.id)}</td>
+      <td class="${l.r.reject ? "bad-t" : "ok-t"}">${l.r.reject ? "Rechazo" : "Pasa"}</td>
+      <td>${pretty(dualTruth(l.pair))}${l.correct ? "" : ' <span class="bad-t">· error</span>'}</td></tr>`).join("")}</tbody></table>`;
+}
+
+function resetDualStats() {
+  D.n = 0; D.log = []; D.mixed = false; D.stats = { seen: 0, correct: 0, falseRej: 0, escaped: 0, front: 0, back: 0, byType: {} };
+  ["dk-n", "dk-fr", "dk-esc"].forEach(k => $(k).textContent = "0"); $("dk-acc").textContent = "—"; $("dk-side").textContent = "0 · 0";
+  $("dbtn-save").disabled = true;
+  $("dby-type").innerHTML = '<p class="empty">Enciende la línea para ver cómo le va con cada tipo de botella y qué lado lo pilló.</p>';
+  $("dlog").innerHTML = EMPTY.log;
+  for (const s of SIDES) { $("dshot-" + s).innerHTML = '<span class="ph">Aquí aparece la foto de esta cámara.</span>'; $("dp-" + s).hidden = true; $("dwhy-" + s).textContent = ""; }
+  $("dv-word").textContent = "—"; $("dv-word").className = "v-word"; $("dv-why").textContent = "La máquina está apagada."; $("dv-truth").hidden = true;
+}
+
+/* pestañas */
+function setMode(mode) {
+  stopLine(); stopDual();
+  $("mode-uno").hidden = mode !== "uno"; $("mode-dos").hidden = mode !== "dos";
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.mode === mode));
+  history.replaceState(null, "", mode === "dos" ? "#frente-y-atras" : location.pathname);
+}
+
 /* ---------- eventos ---------- */
 $("btn-demo").onclick = loadDemo;
 $("pick").onchange = e => e.target.files.length && loadFolder(e.target.files);
@@ -1053,16 +1519,38 @@ $("ms").oninput = e => {
 const setMargins = (col, sim) => { if (S.stats.seen) S.mixed = true; S.mCol = col; S.mSim = sim; if (S.cal) applyMargin(); };
 $("margin").oninput = e => setMargins(+e.target.value, S.mSim);
 $("msim").oninput = e => setMargins(S.mCol, +e.target.value);
-document.querySelectorAll(".presets button").forEach(b => b.onclick = () => setMargins(+b.dataset.m, +b.dataset.m));
+document.querySelectorAll("#margin-box .presets button").forEach(b => b.onclick = () => setMargins(+b.dataset.m, +b.dataset.m));
 const PCTS = [0, 0.1, 0.5, 1, 2, 5, 10, 20, 30, 50];
 $("pct").oninput = e => { S.defectPct = PCTS[+e.target.value]; $("pct-v").textContent = fmtPct(S.defectPct); };
 $("btn-reset").onclick = () => { resetStats(); $("save-msg").textContent = ""; if (S.running) $("v-why").textContent = "Estadísticas en cero. Esperando la siguiente botella…"; };
-$("btn-save").onclick = saveRun;
+$("btn-save").onclick = () => saveRun(S, S.cal.model, false);
 $("btn-dl").onclick = downloadHist;
 $("btn-clear").onclick = () => { if (confirm("¿Borrar todo el historial guardado en este navegador?")) { S.hist = []; storeHist(); renderHist(); } };
 
+
+$("dbtn-demo").onclick = loadDemoDual;
+$("dpick").onchange = e => e.target.files.length && loadFolderDual(e.target.files);
+$("dbtn-cal").onclick = calibrateDual;
+$("dprod").onchange = e => { D.prod = e.target.value; invalidateDual(); };
+document.querySelectorAll("input[name=dmodel]").forEach(r => r.onchange = e => { D.model = e.target.value; if (D.prod) invalidateDual(); });
+$("dlever").onclick = () => D.running ? stopDual() : startDual();
+const setDualMargins = (col, sim) => { if (D.stats.seen) D.mixed = true; D.mCol = col; D.mSim = sim; applyDualMargin(); $("dmargin-v").textContent = col + "%"; $("dmsim-v").textContent = sim + "%"; };
+$("dmargin").oninput = e => setDualMargins(+e.target.value, D.mSim);
+$("dmsim").oninput = e => setDualMargins(D.mCol, +e.target.value);
+document.querySelectorAll("#dpresets button").forEach(b => b.onclick = () => setDualMargins(+b.dataset.m, +b.dataset.m));
+$("dms").oninput = e => {
+  D.interval = +e.target.value; $("dms-v").textContent = D.interval + " ms";
+  if (D.running) { clearInterval(D.timer); D.timer = setInterval(feedDual, D.interval); }
+};
+$("dpct").oninput = e => { D.defectPct = PCTS[+e.target.value]; $("dpct-v").textContent = fmtPct(D.defectPct); };
+$("dbtn-reset").onclick = resetDualStats;
+$("dbtn-save").onclick = () => saveRun(D, D.model, true);
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => setMode(t.dataset.mode));
+
 resetStats();
+resetDualStats();
 loadHist();
+if (location.hash === "#frente-y-atras") setMode("dos");
 </script>
 </body>
 </html>

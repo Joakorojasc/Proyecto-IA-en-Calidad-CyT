@@ -205,6 +205,16 @@ button,input,select{font:inherit;color:inherit}
 .insights h3{font-size:14px;font-weight:500;margin-bottom:8px}
 .insights ul{padding-left:18px;display:grid;gap:8px;font-size:13px;color:var(--muted)}
 .insights b{color:var(--ink)}
+.btn.sm{padding:4px 10px;font-size:12px}
+.btn.on{border-color:var(--brass);color:var(--brass)}
+.tol{display:grid;gap:10px;font-size:13px}
+.tol-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.presets{display:flex;gap:6px}
+#curve{width:100%;height:auto;display:block}
+#curve text{font:11px Geist,system-ui,sans-serif}
+.stat-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 22px;border-top:1px solid var(--line)}
+#hist table td,#hist table th{white-space:nowrap}
+#hist{overflow-x:auto}
 </style>
 </head>
 <body>
@@ -275,10 +285,21 @@ tal como se descarga.</pre>
         <p>La botella típica es la referencia que más se parece a todas las demás. En el mapa, las zonas más doradas cambian más entre botellas buenas (bordes, reflejos, nivel del líquido), así que ahí tolera más diferencia; en las oscuras exige más.</p>
         <details><summary>Ver los límites calculados</summary><dl class="counts" id="cal-out" style="margin-top:8px"></dl></details>
       </div>
-      <label class="slider" id="margin-box" hidden><span>Margen de tolerancia <b id="margin-v">30%</b></span>
-        <input type="range" id="margin" min="0" max="100" step="5" value="30">
-        <small class="muted">Más margen: bota menos buenas, pero se le escapan más defectos. Menos margen: al revés. Se puede mover con la línea andando.</small>
-      </label>
+      <div class="tol" id="margin-box" hidden>
+        <div class="tol-h"><b>Margen de tolerancia</b>
+          <span class="presets" role="group" aria-label="Atajos de margen">
+            <button class="btn sm" data-m="0">Estricto</button><button class="btn sm" data-m="30">Equilibrado</button><button class="btn sm" data-m="60">Holgado</button>
+          </span>
+        </div>
+        <label class="slider"><span>Color <b id="margin-v">30%</b></span>
+          <input type="range" id="margin" min="0" max="100" step="5" value="30">
+        </label>
+        <label class="slider"><span>Parecido con las buenas <b id="msim-v">30%</b></span>
+          <input type="range" id="msim" min="0" max="100" step="5" value="30">
+        </label>
+        <svg id="curve" viewBox="0 0 340 164" role="img" aria-label="Curva de buenas rechazadas y defectos detectados según el margen de color"></svg>
+        <small class="muted">Más margen: bota menos buenas, pero se le escapan más defectos. Menos margen: al revés. La curva sale de pasar una vez todas las fotos de prueba por la máquina con cada margen de color; el punto es el margen actual. Se puede mover con la línea andando.</small>
+      </div>
     </section>
 
     <section class="step" id="s3" aria-disabled="true">
@@ -288,7 +309,7 @@ tal como se descarga.</pre>
         <small class="muted" id="bph">≈ 4.500 botellas por hora. La línea real va a 10.000 (una cada 360 ms).</small>
       </label>
       <label class="slider"><span>Botellas con defecto <b id="pct-v">10%</b></span>
-        <input type="range" id="pct" min="0" max="50" step="1" value="10">
+        <input type="range" id="pct" min="0" max="9" step="1" value="6">
         <small class="muted" id="pct-note">En la línea real es cerca de 0,1%. Lo subimos para ver rechazos.</small>
       </label>
       <p>Cuando esté listo, sube la palanca de la máquina.</p>
@@ -350,6 +371,11 @@ tal como se descarga.</pre>
       <div class="stat"><div class="v" id="k-fr">0</div><div class="l">Buenas rechazadas</div></div>
       <div class="stat"><div class="v" id="k-esc">0</div><div class="l">Defectos que pasaron</div></div>
     </div>
+    <div class="stat-actions">
+      <button class="btn sm" id="btn-reset">Reiniciar estadísticas</button>
+      <button class="btn sm" id="btn-save" disabled>Guardar en el historial</button>
+      <span class="small muted" id="save-msg" aria-live="polite"></span>
+    </div>
   </section>
 
   <div class="lower">
@@ -361,6 +387,11 @@ tal como se descarga.</pre>
     <section>
       <div class="panel-h"><h2>Últimas botellas</h2><span class="small muted">Lo más reciente arriba</span></div>
       <div id="log"></div>
+    </section>
+    <section style="grid-column:1/-1">
+      <div class="panel-h"><h2>Historial de pruebas</h2>
+        <span class="row"><button class="btn sm" id="btn-dl" disabled>Descargar (CSV, se abre en Excel)</button><button class="btn sm" id="btn-clear" disabled>Borrar historial</button></span></div>
+      <div id="hist"></div>
     </section>
     <section style="grid-column:1/-1">
       <div class="panel-h"><h2>Qué hace el sistema con cada foto</h2></div>
@@ -391,7 +422,7 @@ const EMPTY = {
 
 const S = {
   products: {}, prod: null, model: "simple", cal: null, dino: null,
-  running: false, interval: 800, defectPct: 10, margin: 30, timer: null, n: 0, stats: null, log: [],
+  running: false, interval: 800, defectPct: 10, mCol: 30, mSim: 30, mixed: false, timer: null, n: 0, stats: null, log: [], hist: [],
 };
 const P = () => S.products[S.prod];
 const allMasters = () => Object.values(S.products).flatMap(p => p.masters);
@@ -491,15 +522,55 @@ function calibrate() {
 }
 
 function applyMargin() {
-  const c = S.cal, k = 1 + S.margin / 100, gap = Math.max(0.005, 1 - c.minSimGood);
+  const c = S.cal, k = 1 + S.mCol / 100, gap = Math.max(0.005, 1 - c.minSimGood);
   c.thr = c.goodMax.map(v => Math.max(3, v * k));
-  c.thrSim = c.minSimGood - gap * (0.1 + 0.5 * S.margin / 100);
+  c.thrSim = c.minSimGood - gap * (0.1 + 0.5 * S.mSim / 100);
+  $("margin").value = S.mCol; $("margin-v").textContent = S.mCol + "%";
+  $("msim").value = S.mSim; $("msim-v").textContent = S.mSim + "%";
+  document.querySelectorAll(".presets button").forEach(b => b.classList.toggle("on", +b.dataset.m === S.mCol && +b.dataset.m === S.mSim));
+  drawCurve();
   const sorted = [...c.thr].sort((a, b) => a - b);
   $("cal-out").innerHTML =
-    `<dt>Límite de color</dt><dd>uno por zona: ${S.margin}% sobre lo que varía esa zona en las buenas (mínimo ΔE 3)</dd>` +
+    `<dt>Límite de color</dt><dd>uno por zona: ${S.mCol}% sobre lo que varía esa zona en las buenas (mínimo ΔE 3)</dd>` +
     `<dt>Límites</dt><dd>desde ΔE ${sorted[0].toFixed(1)} en zonas estables hasta ${sorted[sorted.length - 1].toFixed(1)} en bordes</dd>` +
     `<dt>Parecido en buenas</dt><dd>al menos ${c.minSimGood.toFixed(3)}</dd>` +
     `<dt>Parecido mínimo</dt><dd>${c.thrSim.toFixed(3)}</dd>`;
+}
+
+/* ---------- curva de tolerancia ---------- */
+// Cada foto de prueba se mira una sola vez; después cada margen solo cambia los límites.
+function precompute() {
+  const others = Object.entries(S.products).filter(([n]) => n !== S.prod).flatMap(([, p]) => p.tests.ok || []);
+  return [...Object.values(P().tests).flat(), ...others.map(it => ({ ...it, truth: OTHER }))]
+    .map(it => ({ bad: it.truth !== "ok", ...scores(it) }));
+}
+function rates(mCol) {
+  const c = S.cal, thr = c.goodMax.map(v => Math.max(3, v * (1 + mCol / 100)));
+  let good = 0, fr = 0, bad = 0, det = 0;
+  for (const p of c.pre) {
+    let rej = p.bestProd !== S.prod || p.simOwn < c.thrSim;
+    for (let i = 0; !rej && i < thr.length; i++) rej = p.de[i] > thr[i];
+    if (p.bad) { bad++; det += rej; } else { good++; fr += rej; }
+  }
+  return { fr: good ? fr / good : null, det: bad ? det / bad : null };
+}
+function drawCurve() {
+  const svg = $("curve"), c = S.cal;
+  if (!c?.pre?.length) { svg.innerHTML = ""; return; }
+  const X = m => 44 + m * 2.8, Y = p => 118 - p * 100, pc = v => Math.round(v * 100) + "%";
+  const pts = Array.from({ length: 11 }, (_, i) => ({ m: i * 10, ...rates(i * 10) })), now = rates(S.mCol);
+  const series = [["fr", "var(--reject)", "Buenas rechazadas"], ["det", "var(--pass)", "Defectos detectados"]];
+  let h = [0, 0.5, 1].map(p => `<line x1="44" x2="324" y1="${Y(p)}" y2="${Y(p)}" stroke="var(--line)"/><text x="36" y="${Y(p) + 4}" text-anchor="end" fill="var(--muted)">${pc(p)}</text>`).join("");
+  h += [0, 50, 100].map(m => `<text x="${X(m)}" y="134" text-anchor="middle" fill="var(--muted)">${m}%</text>`).join("");
+  h += `<line x1="${X(S.mCol)}" x2="${X(S.mCol)}" y1="14" y2="118" stroke="var(--brass)" stroke-dasharray="3 3"/>`;
+  series.forEach(([k, col, name], i) => {
+    if (now[k] == null) return;
+    const dy = now[k] < 0.2 ? -7 : 14;
+    h += `<path d="${pts.map((p, j) => `${j ? "L" : "M"}${X(p.m)} ${Y(p[k])}`).join("")}" fill="none" stroke="${col}" stroke-width="1.5"/>`;
+    h += `<circle cx="${X(S.mCol)}" cy="${Y(now[k])}" r="3.5" fill="${col}"/><text x="${X(S.mCol) + 6}" y="${Y(now[k]) + dy}" fill="${col}">${pc(now[k])}</text>`;
+    h += `<rect x="${44 + i * 140}" y="152" width="10" height="3" fill="${col}"/><text x="${58 + i * 140}" y="157" fill="var(--muted)">${name}</text>`;
+  });
+  svg.innerHTML = h;
 }
 
 async function drawProfile() {
@@ -519,14 +590,17 @@ async function drawProfile() {
 }
 
 /* ---------- inspección ---------- */
-function inspect(item) {
-  const t0 = performance.now(), c = S.cal, e = emb(item);
-  const de = cellDE(item.grid, knnRef(item.grid, P().masters)), ratio = de.map((v, i) => v / c.thr[i]);
+function scores(item) {
+  const e = emb(item), de = cellDE(item.grid, knnRef(item.grid, P().masters));
   let best = -Infinity, bestProd = S.prod;
   for (const [name, p] of Object.entries(S.products)) for (const m of p.masters) {
     const s = dot(emb(m), e); if (s > best) { best = s; bestProd = name; }
   }
-  const simOwn = maxOf(P().masters.map(m => dot(emb(m), e)));
+  return { de, bestProd, simOwn: maxOf(P().masters.map(m => dot(emb(m), e))) };
+}
+
+function inspect(item) {
+  const t0 = performance.now(), c = S.cal, { de, bestProd, simOwn } = scores(item), ratio = de.map((v, i) => v / c.thr[i]);
   const w = ratio.indexOf(maxOf(ratio)), bad = [...ratio].filter(v => v > 1).length;
   const prodOk = bestProd === S.prod, simOk = prodOk && simOwn >= c.thrSim, colOk = bad === 0;
   const reasons = [];
@@ -731,8 +805,10 @@ async function runCalibration() {
     t.classList.replace("now", "seen");
   }
   msg("Comparando cada referencia con las demás…"); await pause(30);
-
-  S.cal = calibrate(); applyMargin(); await drawProfile();
+  S.cal = calibrate();
+  msg("Pasando las fotos de prueba para dibujar la curva de tolerancia…"); await pause(30);
+  S.cal.pre = precompute();
+  applyMargin(); await drawProfile();
   $("cal-run").hidden = true; $("profile").hidden = false; $("margin-box").hidden = false;
   $("cal-done").textContent = `Máquina calibrada para ${S.prod} con ${M.length} botellas buenas, usando ${S.model === "dino" ? "DINOv2" : "la huella rápida"}.`;
   btn.disabled = false; btn.textContent = "Volver a calibrar"; btn.classList.remove("primary");
@@ -815,17 +891,18 @@ const truthText = it => it.truth === "ok" ? "buena" : it.truth === OTHER ? `de o
 
 function record(item, r, id) {
   const st = S.stats, isBad = item.truth !== "ok", correct = r.reject === isBad;
-  st.reject += r.reject; st.correct += correct;
+  st.seen++; st.reject += r.reject; st.correct += correct;
   st.falseRej += !isBad && r.reject; st.escaped += isBad && !r.reject;
   const t = (st.byType[item.truth] ||= { n: 0, ok: 0, bySim: 0, byCol: 0 }); t.n++; t.ok += correct;
   if (r.reject) { t.bySim += !r.simOk; t.byCol += !r.colOk; }
   S.log.unshift({ id, item, r, correct }); S.log.length = Math.min(S.log.length, 8);
 
-  $("k-n").textContent = S.n.toLocaleString("es-CL");
+  $("k-n").textContent = st.seen.toLocaleString("es-CL");
   $("k-r").textContent = st.reject;
-  $("k-acc").textContent = (100 * st.correct / S.n).toFixed(1).replace(".", ",") + "%";
+  $("k-acc").textContent = (100 * st.correct / st.seen).toFixed(1).replace(".", ",") + "%";
   $("k-fr").textContent = st.falseRej;
   $("k-esc").textContent = st.escaped;
+  $("btn-save").disabled = false;
 
   $("by-type").innerHTML = `<table><thead><tr><th>Tipo</th><th class="r">Pasaron</th><th class="r">Aciertos</th></tr></thead><tbody>${
     sortTypes(Object.keys(st.byType)).map(k => {
@@ -867,7 +944,7 @@ function renderInsights() {
     else if (v.n >= 5) out.push(`<b>${k}:</b> detecta ${p}%. Este defecto cambia bastante la foto, así que alguna de las dos revisiones lo pilla casi siempre.`);
   }
   if (caught) out.push(`De los defectos rechazados, ${pct(byCol, caught)}% los pilló la revisión de color y ${pct(bySim, caught)}% la de producto (algunos fallan las dos). En este banco el color hace la mayor parte del trabajo.`);
-  if (S.n < 40) out.push("Todavía pasaron pocas botellas: los porcentajes van a moverse bastante. Deja correr la línea un rato.");
+  if (st.seen < 40) out.push("Todavía pasaron pocas botellas: los porcentajes van a moverse bastante. Deja correr la línea un rato.");
   $("ins-list").innerHTML = out.map(t => `<li>${t}</li>`).join("");
   $("insights").hidden = !out.length;
 }
@@ -912,13 +989,52 @@ function setMeter(id, val, th, bad) {
 }
 
 function resetStats() {
-  S.n = 0; S.log = []; S.stats = { reject: 0, correct: 0, falseRej: 0, escaped: 0, byType: {} };
+  S.n = 0; S.log = []; S.mixed = false; $("btn-save").disabled = true; S.stats = { seen: 0, reject: 0, correct: 0, falseRej: 0, escaped: 0, byType: {} };
   ["k-n", "k-r", "k-fr", "k-esc"].forEach(k => $(k).textContent = "0"); $("k-acc").textContent = "—";
   $("insights").hidden = true;
   $("by-type").innerHTML = EMPTY.byType; $("log").innerHTML = EMPTY.log; $("shot").innerHTML = EMPTY.shot;
   $("checks").hidden = true; $("v-truth").hidden = true;
   $("v-word").textContent = "—"; $("v-word").className = "v-word";
   $("v-why").textContent = "La máquina está apagada.";
+}
+
+/* ---------- historial ---------- */
+const HIST_KEY = "quality-ai-historial";
+const fmtPct = v => String(v).replace(".", ",") + "%";
+const share = (a, b) => b ? Math.round(100 * a / b) + "%" : "—";
+function saveRun() {
+  const st = S.stats, ok = st.byType.ok, types = {};
+  for (const [k, v] of Object.entries(st.byType)) if (k !== "ok") types[k] = `${share(v.ok, v.n)} (${v.ok}/${v.n})`;
+  const marg = v => S.mixed ? `varió, terminó en ${v}%` : v + "%";
+  S.hist.unshift({
+    Fecha: new Date().toLocaleString("es-CL"), Producto: S.prod, Modelo: S.cal.model === "dino" ? "DINOv2" : "Huella rápida",
+    "Margen color": marg(S.mCol), "Margen parecido": marg(S.mSim), "% con defecto": fmtPct(S.defectPct),
+    Fotos: st.seen, Aciertos: share(st.correct, st.seen),
+    "Buenas rechazadas": ok ? `${share(ok.n - ok.ok, ok.n)} (${ok.n - ok.ok}/${ok.n})` : "—", types,
+  });
+  storeHist(); renderHist();
+  $("save-msg").textContent = `Guardado: ${S.stats.seen} fotos. Puedes reiniciar las estadísticas y probar otro ajuste.`;
+}
+function histCols() {
+  const types = [...new Set(S.hist.flatMap(h => Object.keys(h.types)))].sort();
+  return [["Fecha", "Producto", "Modelo", "Margen color", "Margen parecido", "% con defecto", "Fotos", "Aciertos", "Buenas rechazadas"], types];
+}
+function renderHist() {
+  $("btn-dl").disabled = $("btn-clear").disabled = !S.hist.length;
+  if (!S.hist.length) { $("hist").innerHTML = '<p class="empty">Cuando una prueba te sirva, apreta «Guardar en el historial». Queda guardada en este navegador y la puedes descargar.</p>'; return; }
+  const [base, types] = histCols();
+  $("hist").innerHTML = `<table><thead><tr>${base.map(c => `<th>${c}</th>`).join("")}${types.map(t => `<th>${t}: detectadas</th>`).join("")}</tr></thead><tbody>${
+    S.hist.map(h => `<tr>${base.map(c => `<td>${h[c]}</td>`).join("")}${types.map(t => `<td>${h.types[t] || "—"}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+function storeHist() { try { localStorage.setItem(HIST_KEY, JSON.stringify(S.hist)); } catch { } }
+function loadHist() { try { S.hist = JSON.parse(localStorage.getItem(HIST_KEY)) || []; } catch { S.hist = []; } renderHist(); }
+function downloadHist() {
+  const [base, types] = histCols(), q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const rows = [[...base, ...types.map(t => `${t}: detectadas`)], ...S.hist.map(h => [...base.map(c => h[c]), ...types.map(t => h.types[t] || "")])];
+  const blob = new Blob(["\ufeff" + rows.map(r => r.map(q).join(";")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `quality-ai-historial-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 /* ---------- eventos ---------- */
@@ -934,10 +1050,19 @@ $("ms").oninput = e => {
   $("bph").textContent = `≈ ${Math.round(3600000 / S.interval).toLocaleString("es-CL")} botellas por hora. La línea real va a 10.000 (una cada 360 ms).`;
   if (S.running) { clearInterval(S.timer); S.timer = setInterval(feed, S.interval); $("m-sub").textContent = `${S.prod}. Una foto cada ${S.interval} ms.`; }
 };
-$("margin").oninput = e => { S.margin = +e.target.value; $("margin-v").textContent = S.margin + "%"; if (S.cal) applyMargin(); };
-$("pct").oninput = e => { S.defectPct = +e.target.value; $("pct-v").textContent = S.defectPct + "%"; };
+const setMargins = (col, sim) => { if (S.stats.seen) S.mixed = true; S.mCol = col; S.mSim = sim; if (S.cal) applyMargin(); };
+$("margin").oninput = e => setMargins(+e.target.value, S.mSim);
+$("msim").oninput = e => setMargins(S.mCol, +e.target.value);
+document.querySelectorAll(".presets button").forEach(b => b.onclick = () => setMargins(+b.dataset.m, +b.dataset.m));
+const PCTS = [0, 0.1, 0.5, 1, 2, 5, 10, 20, 30, 50];
+$("pct").oninput = e => { S.defectPct = PCTS[+e.target.value]; $("pct-v").textContent = fmtPct(S.defectPct); };
+$("btn-reset").onclick = () => { resetStats(); $("save-msg").textContent = ""; if (S.running) $("v-why").textContent = "Estadísticas en cero. Esperando la siguiente botella…"; };
+$("btn-save").onclick = saveRun;
+$("btn-dl").onclick = downloadHist;
+$("btn-clear").onclick = () => { if (confirm("¿Borrar todo el historial guardado en este navegador?")) { S.hist = []; storeHist(); renderHist(); } };
 
 resetStats();
+loadHist();
 </script>
 </body>
 </html>

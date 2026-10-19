@@ -189,6 +189,22 @@ select{background:#0d0c0f;border:1px solid var(--line-strong);border-radius:8px;
 .pf-imgs canvas{width:72px;height:144px;border-radius:6px;border:1px solid var(--line);image-rendering:pixelated}
 .pf-imgs figcaption{font-size:12px;color:var(--muted)}
 button,input,select{font:inherit;color:inherit}
+.about{font-size:13px;color:var(--muted);border-left:2px solid var(--brass);padding:2px 0 2px 10px}
+.about b{color:var(--ink)}
+.knn{font-size:13px;color:var(--muted)}
+.knn b{color:var(--ink)}
+.legend{display:flex;gap:18px;font-size:12px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.lg-fill{display:inline-block;width:18px;height:6px;border-radius:3px;background:var(--ink)}
+.lg-mark{display:inline-block;width:2px;height:12px;background:var(--brass)}
+.scale{display:flex;justify-content:space-between;font-size:11px;color:var(--faint)}
+.chk-v{font-size:13px;color:var(--ink)}
+.pill{font-size:12px;padding:1px 9px;border-radius:99px;border:1px solid currentColor}
+.pill.pass{color:var(--pass)} .pill.reject{color:var(--reject)}
+.insights{padding:14px 20px 20px;border-top:1px solid var(--line)}
+.insights h3{font-size:14px;font-weight:500;margin-bottom:8px}
+.insights ul{padding-left:18px;display:grid;gap:8px;font-size:13px;color:var(--muted)}
+.insights b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -203,7 +219,7 @@ button,input,select{font:inherit;color:inherit}
 
     <section class="step" id="s1">
       <div class="step-h"><h2>1. Agrega el banco de imágenes</h2><span class="state" id="st1">Pendiente</span></div>
-      <p>Fotos reales de botellas en línea, ordenadas por producto: algunas buenas que sirven de referencia y otras para que la máquina las inspeccione. Las fotos se quedan en este computador.</p>
+      <p>Fotos reales de botellas en línea, ordenadas por producto: algunas buenas que sirven de referencia y otras para que la máquina las inspeccione. Mientras llegan las fotos de Concha y Toro usamos el banco público <b>MVTec LOCO, juice_bottle</b> (carpeta <i>Banco de imagenes</i>). Las fotos se quedan en este computador.</p>
       <div class="row">
         <span class="btn primary file">Agregar banco de imágenes<input type="file" id="pick" webkitdirectory directory multiple aria-label="Agregar banco de imágenes"></span>
       </div>
@@ -224,6 +240,7 @@ tal como se descarga.</pre>
       </details>
       <button class="link" id="btn-demo">¿Aún no tienes fotos? Prueba con un banco de ejemplo</button>
       <div class="progress" hidden id="prog"><i></i></div>
+      <p class="about" id="about" hidden></p>
       <dl class="counts" id="counts" hidden></dl>
       <p class="err" id="err1" hidden></p>
     </section>
@@ -236,10 +253,11 @@ tal como se descarga.</pre>
       <fieldset class="models">
         <legend>Modelo que mira las botellas</legend>
         <label class="model"><input type="radio" name="model" value="simple" checked>
-          <span><b>Huella rápida</b><small>Compara forma y bordes de la etiqueta. Instantáneo. Sirve para probar el flujo.</small></span></label>
+          <span><b>Huella rápida</b><small>No es IA. Achica la foto, la pasa a tonos de gris y marca los bordes (los lugares donde la luz cambia de golpe, como el contorno de la etiqueta o del texto). Esos valores forman una lista de unos 2.300 números: la huella. Instantánea, pero se confunde si la foto se corre o cambia la luz.</small></span></label>
         <label class="model"><input type="radio" name="model" value="dino">
-          <span><b>DINOv2 de Meta</b><small>Modelo de visión ya entrenado, el que proponemos para la línea. Se descarga una vez (unos 25 MB) y corre en este computador.</small></span></label>
+          <span><b>DINOv2 de Meta</b><small>Red neuronal de visión entrenada por Meta con 142 millones de imágenes. Mira la foto y la resume en 384 números que describen lo que hay (formas, dibujos, texto), no los píxeles exactos. No la entrenamos nosotros. Se descarga una vez (unos 25 MB) y corre en este computador.</small></span></label>
       </fieldset>
+      <p class="knn"><b>Las dos usan kNN.</b> El modelo solo cambia cómo se calcula la huella. La decisión es siempre la misma: buscar las botellas de referencia con la huella más parecida (los "vecinos más cercanos") y ver si son del producto correcto.</p>
       <p>Al calibrar, la máquina mira las botellas de referencia del producto una por una y aprende cómo se ve una botella buena y cuánto varía normalmente.</p>
       <div class="row"><button class="btn primary" id="btn-cal">Calibrar</button></div>
       <div class="cal-run" id="cal-run" hidden>
@@ -306,15 +324,20 @@ tal como se descarga.</pre>
         <div id="v-why">La máquina está apagada.</div>
         <div class="v-truth" id="v-truth" hidden></div>
         <div class="checks" id="checks" hidden>
+          <div class="legend"><span><i class="lg-fill"></i>Esta botella</span><span><i class="lg-mark"></i>Límite que puso la calibración</span></div>
           <div class="chk" id="c-sim">
-            <div class="chk-h"><b>¿Es el producto correcto?</b><span id="c-sim-v"></span></div>
+            <div class="chk-h"><b>1. ¿Es el producto correcto?</b><span class="pill" id="c-sim-p"></span></div>
             <div class="meter"><i></i><span class="th"></span></div>
-            <small id="c-sim-note"></small>
+            <div class="scale"><span>Nada parecida</span><span>Idéntica (1)</span></div>
+            <p class="chk-v" id="c-sim-v"></p>
+            <small>Parecido entre la huella de esta foto y la de su referencia más cercana: 1 es idéntica. Si la barra no llega a la marca dorada, la botella se parece demasiado poco a las buenas.</small>
           </div>
           <div class="chk" id="c-col">
-            <div class="chk-h"><b>¿El color calza en todas las zonas?</b><span id="c-col-v"></span></div>
+            <div class="chk-h"><b>2. ¿El color calza en todas las zonas?</b><span class="pill" id="c-col-p"></span></div>
             <div class="meter"><i></i><span class="th"></span></div>
-            <small>Busca las 3 botellas de referencia más parecidas y compara el color de cada zona contra ellas (ΔE). Cada zona tiene su propio límite. Se muestra la zona más cerca de pasarse; la línea dorada es su límite.</small>
+            <div class="scale"><span>Mismo color</span><span>3 veces el límite</span></div>
+            <p class="chk-v" id="c-col-v"></p>
+            <small><b>ΔE</b> mide cuánto cambió el color de una zona respecto de las 3 referencias más parecidas: 0 es el mismo color, sobre 2 el ojo empieza a notarlo y sobre 10 ya es otro color. Cada zona tiene su propio límite; aquí se muestra la zona más cerca de pasarse. Si la barra pasa la marca dorada, se rechaza.</small>
           </div>
         </div>
       </div>
@@ -333,6 +356,7 @@ tal como se descarga.</pre>
     <section>
       <div class="panel-h"><h2>Resultado por tipo de foto</h2><span class="small muted">Acierto = rechaza un defecto o deja pasar una buena</span></div>
       <div id="by-type"></div>
+      <div class="insights" id="insights" hidden><h3>Qué está pasando</h3><ul id="ins-list"></ul></div>
     </section>
     <section>
       <div class="panel-h"><h2>Últimas botellas</h2><span class="small muted">Lo más reciente arriba</span></div>
@@ -629,7 +653,7 @@ function lock(n, v) { $("s" + n).setAttribute("aria-disabled", v); }
 function resetBank() {
   stopLine();
   S.products = {}; S.prod = null;
-  $("err1").hidden = true; $("counts").hidden = true;
+  $("err1").hidden = true; $("counts").hidden = true; $("about").hidden = true;
   setStep(1, "Cargando…"); lock(2, true);
   invalidateCalibration();
 }
@@ -659,6 +683,13 @@ function finishBank(items, label) {
     return `<dt>${n}</dt><dd>${p.masters.length} de referencia, ${ok} buenas y ${bad} con defecto para inspeccionar</dd>`;
   }).join("");
   $("counts").hidden = false;
+  const root = label.toLowerCase(), about = $("about");
+  about.innerHTML = root.includes("ejemplo")
+    ? "<b>Banco de ejemplo.</b> Etiquetas dibujadas por la página con ruido y reflejos, con tres productos inventados. Sirve para ver el flujo, no para medir qué tan bien funciona."
+    : root.includes("juice_bottle")
+    ? "<b>Banco en uso: MVTec LOCO AD, juice_bottle.</b> Fotos públicas tomadas con cámara industrial por MVTec (2022) para probar inspección visual. Son botellas de jugo de naranja, plátano y cereza con su etiqueta de fruta. Los defectos son reales: <i>anomalía lógica</i> = algo que no calza (etiqueta de otra fruta, etiqueta faltante, nivel de jugo incorrecto) y <i>anomalía estructural</i> = daño físico (etiqueta rota o corrida, contaminación). Es el reemplazo mientras llegan las fotos de la línea."
+    : "<b>Banco propio.</b> Fotos cargadas desde tu carpeta.";
+  about.hidden = false;
   $("prod").innerHTML = names.map(n => `<option>${n}</option>`).join("");
   S.prod = names[0];
   setStep(1, "Listo", true); lock(2, false);
@@ -786,7 +817,8 @@ function record(item, r, id) {
   const st = S.stats, isBad = item.truth !== "ok", correct = r.reject === isBad;
   st.reject += r.reject; st.correct += correct;
   st.falseRej += !isBad && r.reject; st.escaped += isBad && !r.reject;
-  const t = (st.byType[item.truth] ||= { n: 0, ok: 0 }); t.n++; t.ok += correct;
+  const t = (st.byType[item.truth] ||= { n: 0, ok: 0, bySim: 0, byCol: 0 }); t.n++; t.ok += correct;
+  if (r.reject) { t.bySim += !r.simOk; t.byCol += !r.colOk; }
   S.log.unshift({ id, item, r, correct }); S.log.length = Math.min(S.log.length, 8);
 
   $("k-n").textContent = S.n.toLocaleString("es-CL");
@@ -801,11 +833,43 @@ function record(item, r, id) {
       return `<tr><td>${k === "ok" ? "Buenas (deberían pasar)" : k + " (debería rechazar)"}</td><td class="r">${v.n}</td><td class="r ${p >= 90 ? "ok-t" : "bad-t"}">${p.toFixed(0)}%</td></tr>`;
     }).join("")}</tbody></table>`;
 
+  renderInsights();
   $("log").innerHTML = `<table><thead><tr><th>Foto</th><th>Botella</th><th>Decisión</th><th>Era</th></tr></thead><tbody>${
     S.log.map(l => `<tr><td><img class="thumb" src="${l.item.url}" alt=""></td><td>${tag(l.id)}</td>
       <td class="${l.r.reject ? "bad-t" : "ok-t"}">${l.r.reject ? "Rechazo" : "Pasa"}</td>
       <td>${pretty(truthText(l.item))}${l.correct ? "" : ' <span class="bad-t">· error</span>'}</td></tr>`).join("")
   }</tbody></table>`;
+}
+
+const WHY = {
+  "Anomalía estructural": "Los daños físicos chicos (una mancha, una esquina despegada) ocupan una o dos zonas de la grilla y su cambio de color se diluye en el promedio de la zona. Ayudaría una grilla más fina, alinear la etiqueta antes de comparar o un modelo que mire detalles, como DINOv2 o PatchCore.",
+  "Anomalía lógica": "Las que se escapan suelen ser cambios que casi no mueven el color ni la forma general, por ejemplo un nivel de jugo apenas distinto. Para esas hace falta un modelo que entienda el contenido de la imagen, como DINOv2.",
+  [OTHER]: "Si se escapan botellas de otro producto es porque los diseños son casi iguales (mismo fondo y forma, cambia un detalle). Se resuelve con más referencias de cada producto o mirando una zona clave, como la franja de la variedad.",
+  "Color alterado": "Si el cambio de color es leve o cae en una zona de borde, que tolera más, puede pasar. Iluminación controlada y menos margen lo mejoran.",
+  "Etiqueta rota": "Si la parte rota es chica, el cambio en la grilla es pequeño.",
+  "Sin etiqueta": "Una botella sin etiqueta cambia mucho la foto; si se escapa, revisa que haya buenas referencias.",
+};
+function renderInsights() {
+  const st = S.stats, out = [], pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+  const ok = st.byType.ok;
+  if (ok) {
+    const fr = ok.n - ok.ok;
+    out.push(fr
+      ? `Botó ${fr} de ${ok.n} buenas (${pct(fr, ok.n)}%). Casi siempre es por color en bordes, reflejos o el nivel del líquido, que varían entre botellas buenas. Se baja subiendo el margen o con más referencias de distintos turnos.`
+      : `No botó ninguna buena. El margen actual es holgado para las buenas; si se escapan defectos, se puede bajar.`);
+  }
+  let caught = 0, bySim = 0, byCol = 0;
+  for (const [k, v] of Object.entries(st.byType)) {
+    if (k === "ok") continue;
+    caught += v.ok; bySim += v.bySim; byCol += v.byCol;
+    const p = pct(v.ok, v.n);
+    if (p < 90) out.push(`<b>${k}:</b> detecta ${p}%. ${WHY[k] || "Hay defectos que cambian poco la foto y quedan dentro de lo que varía una botella buena."}`);
+    else if (v.n >= 5) out.push(`<b>${k}:</b> detecta ${p}%. Este defecto cambia bastante la foto, así que alguna de las dos revisiones lo pilla casi siempre.`);
+  }
+  if (caught) out.push(`De los defectos rechazados, ${pct(byCol, caught)}% los pilló la revisión de color y ${pct(bySim, caught)}% la de producto (algunos fallan las dos). En este banco el color hace la mayor parte del trabajo.`);
+  if (S.n < 40) out.push("Todavía pasaron pocas botellas: los porcentajes van a moverse bastante. Deja correr la línea un rato.");
+  $("ins-list").innerHTML = out.map(t => `<li>${t}</li>`).join("");
+  $("insights").hidden = !out.length;
 }
 
 function show(item, r, id) {
@@ -831,22 +895,26 @@ function show(item, r, id) {
 
   $("checks").hidden = false;
   const gap = Math.max(0.01, 1 - c.thrSim), lo = Math.min(c.thrSim - gap, r.simOwn), pos = v => Math.max(0, Math.min(1, (v - lo) / (1 - lo))) * 100;
-  setMeter("c-sim", pos(r.simOwn), pos(c.thrSim), !r.simOk, `${r.simOwn.toFixed(3)} · mínimo ${c.thrSim.toFixed(3)}`);
-  $("c-sim-note").textContent = `Se parece más a: ${r.bestProd}. La barra muestra cuánto se parece a la referencia más cercana de ${S.prod} (1 es idéntica).`;
-  setMeter("c-col", Math.min(100, r.worstRatio / 3 * 100), 100 / 3, !r.colOk, `ΔE ${r.worstDE.toFixed(1)} · límite de esa zona ${r.worstThr.toFixed(1)}`);
+  const n2 = v => v.toFixed(2).replace(".", ","), n1 = v => v.toFixed(1).replace(".", ",");
+  setMeter("c-sim", pos(r.simOwn), pos(c.thrSim), !r.simOk);
+  $("c-sim-v").innerHTML = `Parecido: <b>${n2(r.simOwn)}</b> · mínimo exigido: <b>${n2(c.thrSim)}</b>. ` +
+    (r.prodOk ? `La referencia más parecida es de ${r.bestProd}.` : `<span class="bad-t">La referencia más parecida es de ${r.bestProd}.</span>`);
+  setMeter("c-col", Math.min(100, r.worstRatio / 3 * 100), 100 / 3, !r.colOk);
+  $("c-col-v").innerHTML = `Diferencia de color en la peor zona: <b>ΔE ${n1(r.worstDE)}</b> · límite de esa zona: <b>ΔE ${n1(r.worstThr)}</b>.`;
 }
 
-function setMeter(id, val, th, bad, text) {
+function setMeter(id, val, th, bad) {
   const m = $(id).querySelector(".meter");
   m.classList.toggle("bad", bad);
   m.querySelector("i").style.width = val + "%";
   m.querySelector(".th").style.left = th + "%";
-  $(id + "-v").textContent = text;
+  const p = $(id + "-p"); p.textContent = bad ? "Falla" : "OK"; p.className = "pill " + (bad ? "reject" : "pass");
 }
 
 function resetStats() {
   S.n = 0; S.log = []; S.stats = { reject: 0, correct: 0, falseRej: 0, escaped: 0, byType: {} };
   ["k-n", "k-r", "k-fr", "k-esc"].forEach(k => $(k).textContent = "0"); $("k-acc").textContent = "—";
+  $("insights").hidden = true;
   $("by-type").innerHTML = EMPTY.byType; $("log").innerHTML = EMPTY.log; $("shot").innerHTML = EMPTY.shot;
   $("checks").hidden = true; $("v-truth").hidden = true;
   $("v-word").textContent = "—"; $("v-word").className = "v-word";

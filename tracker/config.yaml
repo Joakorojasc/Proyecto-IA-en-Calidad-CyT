@@ -1,0 +1,14 @@
+camara: 1                  # índice de la cámara o ruta a un video; si toma la del iPhone (Cámara de Continuidad), prueba 0 o 1
+ancho: 1280
+alto: 720
+
+linea_x: 0.5               # fotocélula virtual, como fracción del ancho (0 = izquierda, 1 = derecha)
+direccion: ambas           # derecha (cruza de izq. a der.) | izquierda | ambas
+
+area_minima: 0.01          # fracción del cuadro; manchas más chicas se ignoran
+ancho_maximo: 0.6          # fracción del ancho; cajas más anchas se ignoran (cambios de exposición de la cámara)
+max_distancia: 0.15        # fracción del ancho que puede moverse una botella entre dos cuadros
+cuadros_perdida: 10        # cuadros sin verla antes de darla por salida
+
+carpeta_capturas: capturas # relativa a esta carpeta
+margen_recorte: 20         # píxeles extra alrededor de la botella en el recorte

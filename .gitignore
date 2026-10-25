@@ -2,3 +2,5 @@ __pycache__/
 outputs/
 data/
 .venv/
+tracker/capturas/
+.DS_Store

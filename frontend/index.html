@@ -109,6 +109,7 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 .bottle .lbl{fill:#cfc8b8}
 .bottle.pass .glass{stroke:var(--pass);stroke-width:2}
 .bottle.reject .glass{stroke:var(--reject);stroke-width:2}
+.bottle.would .glass{stroke:var(--reject);stroke-width:2;stroke-dasharray:4 3}
 .belt-legend{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted);margin-top:8px}
 
 .view{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:22px;padding:6px 22px 22px}
@@ -345,6 +346,7 @@ tal como se descarga.</pre>
         <button class="btn sm" id="btn-save" disabled>Guardar prueba</button>
         <button class="btn sm" id="btn-dl" disabled>Descargar historial</button>
         <button class="btn sm" id="btn-reset">Reiniciar estadísticas</button>
+        <button class="btn sm" id="btn-shadow" aria-pressed="false">Modo sombra</button>
       </div>
       <button class="lever" id="lever" role="switch" aria-checked="false" disabled>
         <span class="lever-track"><span class="lever-knob"></span></span>
@@ -359,7 +361,7 @@ tal como se descarga.</pre>
         <div class="station ex-st"><span>Expulsor</span></div>
         <div class="flash" id="flash"></div>
       </div>
-      <div class="belt-legend"><span>Las botellas entran por la izquierda</span><span>Las rechazadas caen en el expulsor</span></div>
+      <div class="belt-legend"><span>Las botellas entran por la izquierda</span><span id="belt-note">Las rechazadas caen en el expulsor</span></div>
     </div>
 
     <div class="view">
@@ -513,6 +515,7 @@ sabe que son la misma botella.</pre>
         <div class="m-actions">
           <button class="btn sm" id="dbtn-save" disabled>Guardar prueba</button>
           <button class="btn sm" id="dbtn-reset">Reiniciar estadísticas</button>
+          <button class="btn sm" id="dbtn-shadow" aria-pressed="false">Modo sombra</button>
         </div>
         <button class="lever" id="dlever" role="switch" aria-checked="false" disabled>
           <span class="lever-track"><span class="lever-knob"></span></span>
@@ -527,7 +530,7 @@ sabe que son la misma botella.</pre>
           <div class="station ex-st"><span>Expulsor</span></div>
           <div class="flash" id="dflash"></div>
         </div>
-        <div class="belt-legend"><span>Las botellas entran por la izquierda</span><span>Basta que falle un lado para que caiga</span></div>
+        <div class="belt-legend"><span>Las botellas entran por la izquierda</span><span id="dbelt-note">Basta que falle un lado para que caiga</span></div>
       </div>
 
       <div class="view2">
@@ -589,7 +592,7 @@ const EMPTY = {
 
 const S = {
   products: {}, prod: null, model: "simple", cal: null, dino: null,
-  running: false, interval: 800, defectPct: 10, mCol: 30, mSim: 30, mixed: false, timer: null, n: 0, stats: null, log: [], hist: [],
+  running: false, interval: 800, defectPct: 10, mCol: 30, mSim: 30, mixed: false, shadow: false, timer: null, n: 0, stats: null, log: [], hist: [],
 };
 const P = () => S.products[S.prod];
 const allMasters = () => Object.values(S.products).flatMap(p => p.masters);
@@ -1048,8 +1051,8 @@ function shoot(item, id, el, toExpulsor) {
   if (!S.cal) return;
   const f = $("flash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
   const r = inspect(item);
-  el.classList.add(r.reject ? "reject" : "pass");
-  if (r.reject && toExpulsor) setTimeout(() => el.firstElementChild.animate(
+  el.classList.add(r.reject ? (S.shadow ? "would" : "reject") : "pass");
+  if (r.reject && toExpulsor && !S.shadow) setTimeout(() => el.firstElementChild.animate(
     [{ transform: "none", opacity: 1 }, { transform: "translateY(40px) rotate(25deg)", opacity: 0 }],
     { duration: 380, easing: "ease-in", fill: "forwards" }), toExpulsor);
   record(item, r, id);
@@ -1137,9 +1140,11 @@ function show(item, r, id) {
   const c = S.cal;
   drawShot($("shot"), item, r.ratio, `Foto de la botella ${tag(id)}`);
 
-  $("v-word").textContent = r.reject ? "Rechazo" : "Pasa";
+  const sombra = S.shadow && r.reject;
+  $("v-word").textContent = r.reject ? (S.shadow ? "Marcada" : "Rechazo") : "Pasa";
   $("v-word").className = "v-word " + (r.reject ? "reject" : "pass");
-  $("v-why").textContent = r.reject ? r.reasons.join(" ") : `Es ${S.prod} y el color calza en todas las zonas. Decidió en ${r.ms.toFixed(1)} ms.`;
+  const speed = ` Decidió en ${r.ms.toFixed(1)} ms (la línea da 360 ms por botella).`;
+  $("v-why").textContent = (sombra ? "Modo sombra: se habría expulsado. " : "") + (r.reject ? r.reasons.join(" ") : `Es ${S.prod} y el color calza en todas las zonas.`) + speed;
 
   const isBad = item.truth !== "ok", correct = r.reject === isBad;
   $("v-truth").hidden = false;
@@ -1222,7 +1227,7 @@ const SIDE_WORDS = { frente: "frente", front: "frente", delantera: "frente", atr
 const plain = t => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 const D = {
   prods: {}, views: {}, prod: null, model: "simple", cal: null, mCol: 30, mSim: 30, mixed: false,
-  running: false, interval: 800, defectPct: 10, timer: null, n: 0, stats: null, log: [],
+  running: false, interval: 800, defectPct: 10, shadow: false, timer: null, n: 0, stats: null, log: [],
 };
 
 function withSide(side, fn) {
@@ -1435,8 +1440,8 @@ function shootDual(pair, id, el, toExpulsor) {
   if (!D.cal) return;
   const f = $("dflash"); f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
   const r = inspectDual(pair);
-  el.classList.add(r.reject ? "reject" : "pass");
-  if (r.reject && toExpulsor) setTimeout(() => el.firstElementChild.animate(
+  el.classList.add(r.reject ? (D.shadow ? "would" : "reject") : "pass");
+  if (r.reject && toExpulsor && !D.shadow) setTimeout(() => el.firstElementChild.animate(
     [{ transform: "none", opacity: 1 }, { transform: "translateY(40px) rotate(25deg)", opacity: 0 }],
     { duration: 380, easing: "ease-in", fill: "forwards" }), toExpulsor);
   recordDual(pair, r, id); showDual(pair, r, id);
@@ -1452,9 +1457,10 @@ function showDual(pair, r, id) {
     $("dwhy-" + s).textContent = r[s].reject ? r[s].reasons.join(" ") : `Producto correcto y color dentro del límite. ${r[s].ms.toFixed(1)} ms.`;
   }
   const bad = SIDES.filter(s => r[s].reject).map(s => SIDE_NAME[s].toLowerCase());
-  $("dv-word").textContent = r.reject ? "Rechazo" : "Pasa";
+  const sombra = D.shadow && r.reject, ms = (r.frente.ms + r.atras.ms).toFixed(1);
+  $("dv-word").textContent = r.reject ? (D.shadow ? "Marcada" : "Rechazo") : "Pasa";
   $("dv-word").className = "v-word " + (r.reject ? "reject" : "pass");
-  $("dv-why").textContent = r.reject ? `Falló ${bad.join(" y ")}.` : `Los dos lados son ${D.prod} y el color calza en todas las zonas.`;
+  $("dv-why").textContent = (sombra ? "Modo sombra: se habría expulsado. " : "") + (r.reject ? `Falló ${bad.join(" y ")}.` : `Los dos lados son ${D.prod} y el color calza en todas las zonas.`) + ` Los dos lados en ${ms} ms (la línea da 360 ms).`;
   const isBad = pair.truth !== "ok", correct = r.reject === isBad;
   $("dv-truth").hidden = false;
   $("dv-truth").innerHTML = `Botella ${tag(id)}. En realidad era: <b>${dualTruth(pair)}</b>. ` +
@@ -1523,6 +1529,11 @@ document.querySelectorAll("#margin-box .presets button").forEach(b => b.onclick 
 const PCTS = [0, 0.1, 0.5, 1, 2, 5, 10, 20, 30, 50];
 $("pct").oninput = e => { S.defectPct = PCTS[+e.target.value]; $("pct-v").textContent = fmtPct(S.defectPct); };
 $("btn-reset").onclick = () => { resetStats(); $("save-msg").textContent = ""; if (S.running) $("v-why").textContent = "Estadísticas en cero. Esperando la siguiente botella…"; };
+function setShadow(on) {
+  S.shadow = on; $("btn-shadow").classList.toggle("on", on); $("btn-shadow").setAttribute("aria-pressed", on);
+  $("belt-note").textContent = on ? "Modo sombra: marca, pero no expulsa" : "Las rechazadas caen en el expulsor";
+}
+$("btn-shadow").onclick = () => setShadow(!S.shadow);
 $("btn-save").onclick = () => saveRun(S, S.cal.model, false);
 $("btn-dl").onclick = downloadHist;
 $("btn-clear").onclick = () => { if (confirm("¿Borrar todo el historial guardado en este navegador?")) { S.hist = []; storeHist(); renderHist(); } };
@@ -1544,6 +1555,11 @@ $("dms").oninput = e => {
 };
 $("dpct").oninput = e => { D.defectPct = PCTS[+e.target.value]; $("dpct-v").textContent = fmtPct(D.defectPct); };
 $("dbtn-reset").onclick = resetDualStats;
+function setDShadow(on) {
+  D.shadow = on; $("dbtn-shadow").classList.toggle("on", on); $("dbtn-shadow").setAttribute("aria-pressed", on);
+  $("dbelt-note").textContent = on ? "Modo sombra: marca, pero no expulsa" : "Basta que falle un lado para que caiga";
+}
+$("dbtn-shadow").onclick = () => setDShadow(!D.shadow);
 $("dbtn-save").onclick = () => saveRun(D, D.model, true);
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => setMode(t.dataset.mode));
 

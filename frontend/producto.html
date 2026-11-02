@@ -296,8 +296,15 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
             <span class="hint">La cámara mira:</span>
             <div class="seg" id="seg-lado"><button data-lado="frente" class="on">Frente</button><button data-lado="reverso">Reverso</button></div>
             <select id="cam-sel" aria-label="Cámara" hidden></select>
+            <span class="btn sm file">Probar con un video<input type="file" id="video-prueba" accept="video/*" aria-label="Probar con un video"></span>
             <span class="grow"></span>
             <button class="btn primary big" id="btn-reg" disabled>Registrar botella <span class="k">Espacio</span></button>
+          </div>
+          <div class="cambar" style="padding-top:0">
+            <button class="toggle" id="auto" aria-pressed="true" title="Registra sola cada botella que pasa por el recuadro">Disparo automático <span class="sw"></span></button>
+            <span class="hint" id="disp-est" role="status"></span>
+            <span class="grow"></span>
+            <button class="btn sm" id="btn-fondo">Reaprender fondo</button>
           </div>
         </div>
 
@@ -323,7 +330,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
 
       <div class="card">
         <h2>Últimas botellas registradas <span class="note"><button class="btn sm" id="btn-reset">Reiniciar contadores</button></span></h2>
-        <div class="feed" id="feed"><p class="empty-note">Aún no registras botellas. Pon una botella frente a la cámara y aprieta <b>Registrar botella</b> (o la barra espaciadora).</p></div>
+        <div class="feed" id="feed"><p class="empty-note">Aún no hay botellas registradas. Con el disparo automático se registran solas al pasar por el recuadro; también puedes apretar <b>Registrar botella</b> (o la barra espaciadora).</p></div>
       </div>
     </section>
 
@@ -424,6 +431,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
               <label class="slider"><span class="row"><span>Tolerancia</span><b id="tol-v">30%</b></span><input type="range" id="tol" min="0" max="100" step="5" value="30"><small>Más tolerancia: menos falsas alarmas, pero más riesgo de dejar pasar una botella sin etiqueta.</small></label>
               <label class="slider"><span class="row"><span>Recuadro: ancho</span><b id="roi-w-v">50%</b></span><input type="range" id="roi-w" min="20" max="90" step="5" value="50"></label>
               <label class="slider"><span class="row"><span>Recuadro: alto</span><b id="roi-h-v">70%</b></span><input type="range" id="roi-h" min="20" max="95" step="5" value="70"></label>
+              <label class="slider"><span class="row"><span>Sensibilidad del disparo</span><b id="sens-v">50</b></span><input type="range" id="sens" min="0" max="100" step="5" value="50"><small>Más sensibilidad: detecta botellas que contrastan poco con el fondo, pero también cuenta sombras y reflejos.</small></label>
               <div><button class="btn" id="btn-borrar-cal">Borrar calibración de este lado</button></div>
             </div>
           </div>
@@ -445,6 +453,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
 </div>
 
 <script src="motor.js"></script>
+<script src="disparo.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const LADOS = { frente: "Frente", reverso: "Reverso" };
@@ -459,15 +468,17 @@ const n2 = v => v.toFixed(2).replace(".", ","), n1 = v => v.toFixed(1).replace("
 const hora = t => new Date(t).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 /* ---------- estado ---------- */
-const cfg = leer("qa-cfg", { tol: 30, roiW: 50, roiH: 70, sombra: true, producto: null });
+const cfg = { auto: true, sens: 50, ...leer("qa-cfg", { tol: 30, roiW: 50, roiH: 70, sombra: true, producto: null }) };
 const S = {
   vista: "monitoreo", lado: "frente", ladoCal: "frente",
-  stream: null, video: document.createElement("video"),
+  stream: null, archivo: null, video: document.createElement("video"), disparo: null, dispTxt: "",
   refs: { frente: { con: [], sin: [] }, reverso: { con: [], sin: [] } },
   cal: { frente: null, reverso: null },
   ultimo: null, sesion: { n: 0, ok: 0, bad: 0 }, reg: leer("qa-reg", []), nextId: 1,
 };
 S.video.muted = true; S.video.playsInline = true;
+const nuevoDisparo = () => { S.disparo = Disparo.crear({ umbralPx: Disparo.umbralDeSensibilidad(cfg.sens) }); };
+nuevoDisparo();
 S.nextId = S.reg.reduce((m, e) => Math.max(m, e.n || 0), 0) + 1;
 
 /* referencias guardadas: rasgos (sin la imagen original) + miniatura */
@@ -494,6 +505,7 @@ function irA(v) {
   S.vista = v;
   for (const id of ["monitoreo", "dual", "calibracion", "registro"]) $("v-" + id).hidden = id !== v;
   document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.view === v));
+  if (v === "monitoreo") S.disparo.reiniciar();   // la zona pudo cambiar mientras se miraba otra pestaña
   if (v === "calibracion") pintarCal();
   if (v === "registro") pintarRegistro();
   window.scrollTo(0, 0);
@@ -508,10 +520,11 @@ async function activarCamara(deviceId) {
     return;
   }
   try {
-    if (S.stream) S.stream.getTracks().forEach(t => t.stop());
+    soltarFuente();
     const video = deviceId ? { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } } : { width: { ideal: 1280 }, height: { ideal: 720 } };
     S.stream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
     S.video.srcObject = S.stream; await S.video.play();
+    S.disparo.reiniciar();
     $("cam-empty").hidden = true; $("cam-tag").hidden = false; $("btn-reg").disabled = false;
     $("live").classList.add("on"); $("live-t").textContent = "En vivo";
     const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "videoinput");
@@ -529,7 +542,28 @@ async function activarCamara(deviceId) {
 $("btn-cam").onclick = () => activarCamara();
 $("cam-sel").onchange = e => activarCamara(e.target.value);
 
-const camLista = () => S.stream && S.video.readyState >= 2 && S.video.videoWidth > 0;
+/* video en vez de cámara, para probar sin estar frente a la línea */
+function soltarFuente() {
+  if (S.stream) S.stream.getTracks().forEach(t => t.stop());
+  if (S.archivo) URL.revokeObjectURL(S.archivo);
+  S.stream = S.archivo = null; S.video.srcObject = null; S.video.removeAttribute("src");
+}
+async function activarVideo(archivo) {
+  soltarFuente();
+  S.archivo = URL.createObjectURL(archivo); S.video.src = S.archivo;
+  try {
+    await S.video.play();
+  } catch {
+    soltarFuente(); alerta("Este navegador no puede reproducir ese video. Prueba con un .mp4 (H.264).");
+    return;
+  }
+  S.disparo.reiniciar();
+  $("cam-empty").hidden = true; $("cam-tag").hidden = false; $("btn-reg").disabled = false;
+  $("live").classList.add("on"); $("live-t").textContent = "Video de prueba"; $("cam-sel").hidden = true;
+}
+$("video-prueba").onchange = e => { if (e.target.files[0]) activarVideo(e.target.files[0]); e.target.value = ""; };
+
+const camLista = () => (S.stream || S.archivo) && S.video.readyState >= 2 && S.video.videoWidth > 0;
 const roi = () => {
   const vw = S.video.videoWidth, vh = S.video.videoHeight, w = vw * cfg.roiW / 100, h = vh * cfg.roiH / 100;
   return { x: (vw - w) / 2, y: (vh - h) / 2, w, h };
@@ -556,6 +590,10 @@ function dibujarCam(cv, conRecuadro, estado) {
   x.strokeStyle = estado === "ok" ? "#2FBF7A" : estado === "bad" ? "#FF5A62" : "#CBA14E";
   x.setLineDash(estado ? [] : [vw / 60, vw / 90]);
   x.strokeRect(r.x, r.y, r.w, r.h);
+  if (cfg.auto) {   // la fotocelda: la franja que mira el disparo automático
+    const fw = r.w * 0.08;
+    x.setLineDash([]); x.fillStyle = "rgba(203,161,78,.22)"; x.fillRect(r.x + (r.w - fw) / 2, r.y, fw, r.h);
+  }
   x.restore();
 }
 function dibujarLupa() {
@@ -565,27 +603,66 @@ function dibujarLupa() {
 
 /* ---------- inspección en vivo ---------- */
 let tUlt = 0;
+let tCuadro = 0;
 function bucle(t) {
   requestAnimationFrame(bucle);
+  const hueco = t - tCuadro; tCuadro = t;
   if (!camLista()) return;
-  const estado = S.ultimo ? (S.ultimo.presente ? "ok" : "bad") : null;
+  if (hueco > 1000 && disparoActivo()) {
+    // con la pestaña oculta o el computador suspendido el navegador deja de dar cuadros: las botellas de ese rato no se vieron
+    S.disparo.reiniciar();
+    alerta("La página estuvo oculta o detenida: las botellas de ese rato no se revisaron. Mantén esta pestaña visible.");
+  }
+  revisarDisparo(t);
+  const estado = S.ultimo && !esperando() ? (S.ultimo.presente ? "ok" : "bad") : null;
   if (S.vista === "monitoreo") { dibujarCam($("cam-cv"), true, estado); dibujarLupa(); }
   if (S.vista === "calibracion") dibujarCam($("mini-cv"), true, null);
   if (t - tUlt < 160) return;   // ~6 revisiones por segundo
   tUlt = t;
   const cal = S.cal[S.lado];
   if (!cal) { S.ultimo = null; pintarEstado(); return; }
+  if (esperando()) { pintarEstado(); return; }   // conserva el resultado de la última botella
   const rs = Motor.rasgos(S.video, roi());
   S.ultimo = { ...Motor.presencia(rs, cal, cfg.tol), rasgos: rs };
   pintarEstado();
 }
 requestAnimationFrame(bucle);
 
+/* ---------- disparo automático ---------- */
+const disparoActivo = () => cfg.auto && S.vista === "monitoreo" && !!S.cal[S.lado];
+// con el disparo activo y la zona sin botella no hay nada que juzgar: la etiqueta "faltante" sería solo el fondo
+const esperando = () => disparoActivo() && S.disparo.estado !== "ocupada";
+
+function textoDisparo(txt) {
+  if (txt !== S.dispTxt) { S.dispTxt = txt; $("disp-est").textContent = txt; }
+}
+function revisarDisparo(t) {
+  if (!disparoActivo()) {
+    textoDisparo(!cfg.auto ? "Apagado: registra cada botella con el botón o la barra espaciadora." : S.cal[S.lado] ? "" : "Calibra este lado para activar el disparo.");
+    return;
+  }
+  const r = S.disparo.paso(S.video, roi(), t);
+  if (r.evento === "botella") {
+    const rs = Motor.rasgos(r.cuadro, null), u = Motor.presencia(rs, S.cal[S.lado], cfg.tol);
+    S.ultimo = { ...u, rasgos: rs };
+    agregarRegistro(u, miniatura(r.cuadro, { x: 0, y: 0, w: r.cuadro.width, h: r.cuadro.height }, 80), "Automático", r.nitidez);
+  }
+  textoDisparo(r.evento === "luz" ? "Cambió la luz: volviendo a aprender el fondo…"
+    : r.atascada ? "La zona lleva mucho rato ocupada. Si no hay ninguna botella, aprieta Reaprender fondo."
+    : r.estado === "aprendiendo" ? "Aprendiendo el fondo: deja el recuadro sin botellas…"
+    : r.estado === "ocupada" ? "Pasando una botella…" : "Esperando botella.");
+}
+$("auto").setAttribute("aria-pressed", cfg.auto);
+$("auto").onclick = () => { cfg.auto = !cfg.auto; $("auto").setAttribute("aria-pressed", cfg.auto); guardarCfg(); S.disparo.reiniciar(); pintarEstado(); };
+$("btn-fondo").onclick = () => S.disparo.reiniciar();
+
 function pintarEstado() {
   const cal = S.cal[S.lado], u = S.ultimo, hero = $("hero");
   const set = (cls, ic, st, sub) => { hero.className = "card status " + cls; $("hero-ring").innerHTML = ICON[ic]; $("hero-st").textContent = st; $("hero-sub").textContent = sub; };
   if (!cal) set("wait", "wait", "Falta calibrar", `Calibra el ${LADOS[S.lado].toLowerCase()} con botellas con y sin etiqueta para empezar.`);
   else if (!camLista()) set("wait", "wait", "Cámara apagada", "Activa la cámara para empezar a revisar.");
+  else if (esperando() && u) set(u.presente ? "ok" : "bad", u.presente ? "ok" : "bad", "Esperando botella", "Última revisión: " + u.motivo);
+  else if (!u) set("wait", "wait", esperando() ? "Esperando botella" : "Revisando…", esperando() ? "Cuando una botella pase por el recuadro se revisa y se registra sola." : "");
   else if (u.presente) set("ok", "ok", "Etiqueta presente", u.motivo);
   else set("bad", "bad", "No se detecta etiqueta", u.motivo);
 
@@ -612,12 +689,20 @@ function pintarEstado() {
 
 /* ---------- registrar ---------- */
 function registrar() {
-  if (!camLista() || !S.cal[S.lado] || !S.ultimo) return;
-  const u = S.ultimo, sombra = cfg.sombra;
+  if (!camLista() || !S.cal[S.lado]) return;
+  const r = roi();
+  // mientras espera, S.ultimo es la botella anterior: a mano se revisa lo que se ve ahora
+  const u = esperando() ? Motor.presencia(Motor.rasgos(S.video, r), S.cal[S.lado], cfg.tol) : S.ultimo;
+  if (!u) return;
+  S.disparo.cancelar();   // si ya venía pasando una botella, que el disparo no la cuente otra vez
+  agregarRegistro(u, miniatura(S.video, r, 80), "Manual");
+}
+function agregarRegistro(u, thumb, disparo, nitidez = null) {
+  const sombra = cfg.sombra;
   const ev = {
     n: S.nextId++, t: Date.now(), lado: S.lado, presente: u.presente, sombra,
     motivo: u.motivo, textura: +u.textura.toFixed(2), parecido: +u.parecido.toFixed(3),
-    producto: $("producto").value, thumb: miniatura(S.video, roi(), 80),
+    producto: $("producto").value, thumb, disparo, nitidez: nitidez === null ? null : Math.round(nitidez),
   };
   S.reg.unshift(ev); S.reg.length = Math.min(S.reg.length, 1000);
   guardar("qa-reg", S.reg);
@@ -727,6 +812,8 @@ for (const [id, k, suf] of [["tol", "tol", "%"], ["roi-w", "roiW", "%"], ["roi-h
   $(id).value = cfg[k]; $(id + "-v").textContent = cfg[k] + suf;
   $(id).oninput = e => { cfg[k] = +e.target.value; $(id + "-v").textContent = cfg[k] + suf; guardarCfg(); };
 }
+$("sens").value = cfg.sens; $("sens-v").textContent = cfg.sens;
+$("sens").oninput = e => { cfg.sens = +e.target.value; $("sens-v").textContent = cfg.sens; guardarCfg(); nuevoDisparo(); };
 
 /* ---------- registro ---------- */
 function pintarRegistro() {
@@ -738,8 +825,8 @@ function pintarRegistro() {
 }
 $("btn-csv").onclick = () => {
   const q = v => `"${String(v).replace(/"/g, '""')}"`;
-  const filas = [["Botella", "Fecha y hora", "Producto", "Lado", "Resultado", "Modo sombra", "Motivo", "Textura", "Parecido"],
-    ...S.reg.map(ev => [tag(ev.n), new Date(ev.t).toLocaleString("es-CL"), ev.producto, LADOS[ev.lado], ev.presente ? "Con etiqueta" : "Sin etiqueta", ev.sombra ? "Sí" : "No", ev.motivo, String(ev.textura).replace(".", ","), String(ev.parecido).replace(".", ",")])];
+  const filas = [["Botella", "Fecha y hora", "Producto", "Lado", "Resultado", "Modo sombra", "Motivo", "Textura", "Parecido", "Disparo", "Nitidez"],
+    ...S.reg.map(ev => [tag(ev.n), new Date(ev.t).toLocaleString("es-CL"), ev.producto, LADOS[ev.lado], ev.presente ? "Con etiqueta" : "Sin etiqueta", ev.sombra ? "Sí" : "No", ev.motivo, String(ev.textura).replace(".", ","), String(ev.parecido).replace(".", ","), ev.disparo || "Manual", ev.nitidez ?? ""])];
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob(["﻿" + filas.map(f => f.map(q).join(";")).join("\r\n")], { type: "text/csv;charset=utf-8" }));
   a.download = `quality-ai-registro-${new Date().toISOString().slice(0, 10)}.csv`; a.click();

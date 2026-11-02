@@ -101,6 +101,10 @@ Configurable en un panel; cada regla con su porcentaje:
 - Mantener el botón **Registrar** y la barra espaciadora como respaldo.
 - **Listo cuando:** pasando 50 botellas a mano frente a la Pc02, cuenta 50 (±0) y sin duplicados.
 
+**Estado (rama `disparo-automatico`):** implementado en `frontend/disparo.js`, con pruebas en `scripts/test_disparo.js` (`node scripts/test_disparo.js`). Falta la prueba de las 50 botellas frente a la cámara real.
+- Mira una franja al centro del recuadro. El hueco entre botellas debe ser mayor que esa franja (8 % del recuadro) más lo que avanza la botella en 2 cuadros; si no, la franja no se libera y no cuenta (la app avisa a los 10 s).
+- La pestaña debe estar visible: oculta, el navegador deja de entregar cuadros. La app avisa y vuelve a aprender el fondo.
+
 ## Paso 5 — Emparejar frente y reverso
 - Cola por estación. Cada lectura del reverso se une con la botella del frente más antigua que todavía no tenga reverso, dentro de una **ventana de tiempo** configurable.
 - Si la ventana vence sin lectura, ese lado queda `null` y la botella queda **NO_REVISADA**, que se trata como rechazo y **nunca** como OK.

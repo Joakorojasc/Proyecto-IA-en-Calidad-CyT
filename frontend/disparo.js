@@ -19,6 +19,8 @@
     cuadrosSalida: 2,              // cuadros seguidos bajo "salir" para darla por salida
     aprendizaje: 0.05,             // qué tan rápido el fondo sigue los cambios lentos de luz
     centrada: 0.2,                 // cuánto se puede alejar del centro para considerarla centrada (0 a 0,5)
+    anchoMinimo: 0.2,              // ancho mínimo de la botella en el recuadro para elegir su cuadro como centrado
+    huecoReflejo: 0.1,             // hueco máximo (fracción del recuadro) dentro de una botella, por reflejos
     avisoAtascoMs: 10000,          // tiempo ocupada tras el cual se sugiere reaprender el fondo
   };
 
@@ -30,6 +32,20 @@
       suma += l; suma2 += l * l; n++;
     }
     return n ? suma2 / n - (suma / n) ** 2 : 0;
+  }
+
+  /**
+   * Foto movida: curvatura (segunda diferencia) dividida por borde (primera diferencia), en horizontal.
+   * Un desenfoque por movimiento baja mucho más la curvatura que el borde, y la razón casi no depende de qué
+   * se ve (etiqueta o vidrio). Nítida da cerca de 2; movida, bajo 1,6. Se compara con la mediana de la propia cámara.
+   */
+  function razonNitidez(g, w, h) {
+    let L = 0, B = 0;
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      L += Math.abs(g[i + 1] + g[i - 1] - 2 * g[i]); B += Math.abs(g[i + 1] - g[i - 1]) / 2;
+    }
+    return L / (B + 1);
   }
 
   /** Lógica pura: recibe cuadros en gris y decide. No toca la página, así se puede probar sin cámara. */
@@ -45,11 +61,15 @@
       const activa = x => columnas[x] >= 0.15 * h;
       let semilla = -1;
       for (let x = b0; x < b1; x++) if (activa(x) && (semilla < 0 || columnas[x] > columnas[semilla])) semilla = x;
-      if (semilla < 0) return 0.5;
+      if (semilla < 0) return { distancia: 0.5, entera: false };
+      // el tramo sigue a través de huecos chicos: un reflejo claro sobre el vidrio se parece al fondo y cortaría la botella en dos
+      const salto = Math.max(1, Math.round(o.huecoReflejo * w));
       let ini = semilla, fin = semilla;
-      while (ini > 0 && activa(ini - 1)) ini--;
-      while (fin < w - 1 && activa(fin + 1)) fin++;
-      return Math.abs((ini + fin + 1) / 2 / w - 0.5);
+      for (let x = ini - 1; x >= 0 && ini - x <= salto; x--) if (activa(x)) ini = x;
+      for (let x = fin + 1; x < w && x - fin <= salto; x++) if (activa(x)) fin = x;
+      // si el tramo toca el borde del recuadro, la botella no está entera adentro; si es muy angosto, es solo su borde
+      // o una sombra pasando por la franja. En los dos casos no cuenta como centrada.
+      return { distancia: Math.abs((ini + fin + 1) / 2 / w - 0.5), entera: ini > 0 && fin < w - 1 && fin - ini + 1 >= o.anchoMinimo * w };
     }
 
     /** Procesa un cuadro. Devuelve { estado, ocupacion, guardar, evento, atascada }. evento: null | "botella" | "luz" */
@@ -87,13 +107,13 @@
 
       if (estado === "ocupada") {
         // Se prefiere un cuadro centrado; entre los centrados, el más nítido. Nunca baja de categoría.
-        const distancia = distanciaAlCentro(w, h, b0, b1), esCentrada = distancia <= o.centrada;
+        const { distancia, entera } = distanciaAlCentro(w, h, b0, b1), esCentrada = entera && distancia <= o.centrada;
         const nit = nitidez(g, w, h);
         const mejora = !mejor
           || (esCentrada && !mejor.centrada)
           || (esCentrada && mejor.centrada && nit > mejor.nitidez)
           || (!esCentrada && !mejor.centrada && distancia < mejor.distancia);
-        if (ocupacion >= o.entrar && mejora) { mejor = { nitidez: nit, centrada: esCentrada, distancia }; guardar = true; }
+        if (ocupacion >= o.entrar && mejora) { mejor = { nitidez: nit, centrada: esCentrada, distancia, razon: razonNitidez(g, w, h) }; guardar = true; }
 
         if (ocupacion < o.salir) {
           if (++cuenta >= o.cuadrosSalida) {
@@ -105,7 +125,7 @@
 
       previa = total;
       const atascada = estado === "ocupada" && t - t0 > o.avisoAtascoMs;
-      return { estado, ocupacion, guardar, evento, nitidez: mejor?.nitidez ?? 0, centrada: !!mejor?.centrada, atascada };
+      return { estado, ocupacion, guardar, evento, nitidez: mejor?.nitidez ?? 0, razon: mejor?.razon ?? null, centrada: !!mejor?.centrada, atascada };
     }
 
     return {
@@ -147,5 +167,5 @@
   /** Sensibilidad de 0 a 100: más sensibilidad detecta diferencias de gris más chicas. */
   const umbralDeSensibilidad = s => Math.round(45 - 0.4 * s);
 
-  global.Disparo = { crear, crearNucleo, nitidez, umbralDeSensibilidad };
+  global.Disparo = { crear, crearNucleo, nitidez, razonNitidez, umbralDeSensibilidad };
 })(typeof window !== "undefined" ? window : globalThis);

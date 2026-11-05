@@ -219,6 +219,75 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
 .form-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;padding:16px 22px 4px}
 .form-row label{display:grid;gap:6px;font-size:12.5px;color:var(--muted);min-width:180px;flex:1}
 
+
+/* ---------- estaciones (2 cámaras) ---------- */
+.estaciones{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.est h2 select{text-transform:none;letter-spacing:0;font-weight:500;color:var(--tx);max-width:300px}
+.est h2 .nm small{font-weight:400;color:var(--faint);text-transform:none;letter-spacing:0;margin-left:6px}
+.sello{position:absolute;right:12px;top:12px;font-size:11px;font-weight:700;letter-spacing:.12em;color:#1A1203;background:var(--gold);padding:3px 9px;border-radius:6px}
+.estbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 22px 18px}
+.estbar .grow{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:5px 10px;border-radius:99px;background:#EEF1F6;color:var(--faint);white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.si{background:var(--ok-bg);color:var(--ok)} .pill.no{background:var(--rej-bg);color:var(--rej)}
+.estsub{font-size:12px;color:var(--muted);padding:0 22px 16px;min-height:1.4em}
+.status .kpis .kpi{min-width:74px}
+.verdad{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 22px 18px}
+.verdad .tile{padding:10px 12px}.verdad .tile .v{font-size:21px}
+.feed .row.b{grid-template-columns:60px 76px 70px 86px 1fr auto}
+.feed .thumbs{display:flex;gap:4px}
+.feed .thumbs img{width:36px;height:36px}
+.feed .thumbs .vac{width:36px;height:36px;border-radius:7px;background:#EEF1F6;display:grid;place-items:center;font-size:10px;color:var(--faint)}
+.ve2{display:grid;gap:3px}
+.ve2 .ln{display:flex;gap:3px;align-items:center;font-size:11px;color:var(--faint)}
+.ve2 span{font-size:11px;padding:2px 7px;border-radius:6px;background:#EEF1F6;color:var(--muted);white-space:nowrap}
+.ve2 span.si{background:var(--ok-bg);color:var(--ok)}
+.res.nr{color:var(--warn)} .res.nr .d{background:var(--gold)}
+.aviso-sim{margin:0 22px 16px}
+
+/* ---------- alerta del operador ---------- */
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(122,16,22,.88);display:grid;place-items:center;padding:24px;animation:latido 1.2s ease-in-out infinite}
+@keyframes latido{0%,100%{background:rgba(122,16,22,.88)}50%{background:rgba(176,52,59,.92)}}
+.al-box{background:#fff;border-radius:20px;padding:34px 40px;max-width:640px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.al-ic{width:76px;height:76px;border-radius:50%;background:var(--rej);color:#fff;display:grid;place-items:center;font-size:42px;font-weight:700;margin:0 auto 16px}
+.al-box h2{font-family:var(--serif);font-size:34px;line-height:1.1;color:var(--rej-ink);margin-bottom:10px}
+.al-box p{color:var(--muted);font-size:15px;margin-bottom:8px}
+.al-racha{background:var(--gold-bg);border:1px solid var(--gold-soft);color:#5E440A;border-radius:12px;padding:12px 14px;font-weight:600;font-size:16px!important;margin:14px 0!important}
+.al-box .btn{margin-top:14px}
+
+/* ---------- guía de calibración ---------- */
+.aviso-encuadre{margin:0}
+.pasos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:14px 22px 20px}
+.paso{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px;cursor:pointer;background:#fff;text-align:left;font:inherit;color:inherit}
+.paso:hover{border-color:#B9C2CF}
+.paso.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft)}
+.paso .pt{font-size:12.5px;font-weight:500;line-height:1.3}
+.paso .ps{font-size:11px;color:var(--muted)}
+.paso .ps.ok{color:var(--ok)}
+.paso svg{width:100%;height:64px}
+.paso .mini{display:flex;gap:3px;flex-wrap:wrap}
+.paso .mini img{width:26px;height:26px;border-radius:4px;object-fit:cover}
+.guia{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:16px 22px 6px;align-items:center}
+.guia svg{width:150px;height:150px}
+.guia h3{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.15;margin-bottom:6px}
+.guia p{color:var(--muted);font-size:13.5px}
+.ahora{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 22px 4px;font-size:13px}
+.refs-paso{display:flex;gap:8px;flex-wrap:wrap;padding:6px 22px 0}
+.refs-paso .ref{width:74px}
+
+/* ---------- capacidad ---------- */
+.estres-cams{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 22px 0}
+.estres-cams .cam{aspect-ratio:4/3}
+.criterios{display:grid;gap:8px;padding:6px 22px 20px}
+.criterios div{display:flex;gap:10px;align-items:center;font-size:13.5px}
+.barra{height:8px;border-radius:5px;background:#EEF1F6;overflow:hidden;margin:4px 22px 0}
+.barra i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+.ajustes{display:grid;gap:16px;padding:16px 22px 20px}
+.lista-ok{display:grid;gap:8px;padding:16px 22px 20px;font-size:13.5px}
+.lista-ok li{margin-left:18px}
+.sidelink{background:none;border:0;color:#8A99AD;font-size:12.5px;cursor:pointer;padding:0 12px;text-align:left}
+.sidelink:hover{color:#fff}
+
 @media (max-width:1180px){
   .cols,.cols-2{grid-template-columns:1fr}
   .status{flex-wrap:wrap}.status .sep{display:none}
@@ -231,6 +300,19 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
   .view{padding:18px 16px 36px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+@media (max-width:1180px){
+  .estaciones{grid-template-columns:1fr}
+  .status .txt{min-width:260px}
+  .kpis{flex-wrap:wrap;gap:18px}
+  .verdad{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:860px){
+  .estres-cams{grid-template-columns:1fr}
+  .guia{grid-template-columns:1fr}
+  .feed .row.b{grid-template-columns:52px 1fr auto}
+  .feed .row.b .thumbs,.feed .row.b .ve2,.feed .row.b .why{display:none}
+}
 </style>
 </head>
 <body>
@@ -241,17 +323,19 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
       <div class="sec">Operación</div>
       <nav class="nav">
         <button data-view="monitoreo" class="on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Monitoreo en vivo</button>
-        <button data-view="dual"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>Frente y reverso</button>
         <button data-view="calibracion"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Calibración<span class="badge" id="nav-cal" hidden>!</span></button>
+        <button data-view="ajustes"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Ajustes</button>
       </nav>
     </div>
     <div>
       <div class="sec">Gestión</div>
       <nav class="nav">
         <button data-view="registro"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg>Registro</button>
+        <button data-view="capacidad"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 13l4-4"/><path d="M3.5 18a9 9 0 1 1 17 0"/></svg>Prueba de capacidad</button>
       </nav>
     </div>
-    <p class="mvp"><b>MVP 1 · Presencia de etiqueta.</b><br>Revisa que cada botella tenga su etiqueta. El tipo de etiqueta (SKU) y el color vienen después.</p>
+    <p class="mvp"><b>MVP 1 · Las 2 etiquetas.</b><br>Revisa que cada botella tenga su etiqueta frontal y su trasera, aunque pase girada. El tipo de etiqueta (SKU) y el color vienen después.</p>
+    <button class="sidelink" data-view="dual">Prueba sin cámara (fotos)</button>
     <a class="mvp to-sim" href="index.html">← Simulador y demo</a>
     <div class="side-foot"><div class="avatar">O</div><div class="who">Operador<span>Línea de envasado</span></div></div>
   </aside>
@@ -259,7 +343,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
   <main class="main">
     <header class="top">
       <div class="prod"><div class="lbl">Producto en línea</div><input id="producto" aria-label="Producto en línea" value="Reservado Sauvignon Blanc · Pedro Jiménez"></div>
-      <span class="live" id="live"><span class="pulse"></span><span id="live-t">Cámara apagada</span></span>
+      <span class="live" id="live"><span class="pulse"></span><span id="live-t">Detenido</span></span>
       <span class="chip" id="chip-cal"><span class="d"></span><span id="chip-cal-t">Sin calibrar</span></span>
       <button class="toggle" id="sombra" aria-pressed="true" title="En modo sombra el sistema marca, pero no expulsa">Modo sombra <span class="sw"></span></button>
     </header>
@@ -268,76 +352,236 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
     <section class="view" id="v-monitoreo">
       <div class="card status wait" id="hero">
         <div class="ring" id="hero-ring"></div>
-        <div class="txt"><div class="st" id="hero-st">Falta calibrar</div><div class="sub" id="hero-sub">Calibra con botellas con y sin etiqueta para empezar.</div></div>
+        <div class="txt"><div class="st" id="hero-st">Preparando…</div><div class="sub" id="hero-sub"></div></div>
         <div class="sep"></div>
         <div class="kpis">
-          <div class="kpi"><div class="v" id="k-n">0</div><div class="l">Registradas</div></div>
-          <div class="kpi"><div class="v" id="k-ok">0</div><div class="l">Con etiqueta</div></div>
-          <div class="kpi"><div class="v rej" id="k-bad">0</div><div class="l">Sin etiqueta</div></div>
-          <div class="kpi main"><div class="v" id="k-pct">—</div><div class="l">% sin etiqueta</div></div>
+          <div class="kpi"><div class="v" id="k-n">0</div><div class="l">Botellas</div></div>
+          <div class="kpi"><div class="v" id="k-ok">0</div><div class="l">Con las 2</div></div>
+          <div class="kpi"><div class="v rej" id="k-bad">0</div><div class="l">Rechazos</div></div>
+          <div class="kpi"><div class="v rej" id="k-nr">0</div><div class="l">No revisadas</div></div>
+          <div class="kpi main"><div class="v" id="k-pct">—</div><div class="l">% rechazo</div></div>
         </div>
       </div>
 
-      <div class="cols">
-        <div class="card">
-          <h2>Cámara <span class="note" id="cam-note">Alinea la etiqueta dentro del recuadro dorado</span></h2>
+      <div class="estaciones">
+        <div class="card est" id="est-A">
+          <h2><span class="nm">Cámara A<small>un lado de la línea</small></span><select id="src-A" aria-label="Fuente de la cámara A"></select></h2>
           <div class="pad" style="padding-bottom:0">
-            <div class="cam" id="cam-box">
-              <canvas id="cam-cv" width="1280" height="720"></canvas>
-              <div class="empty" id="cam-empty">
-                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" style="margin:0 auto"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-                <p id="cam-msg">Conecta la cámara y actívala. El navegador te va a pedir permiso.</p>
-                <div><button class="btn gold big" id="btn-cam">Activar cámara</button></div>
-              </div>
-              <span class="tag" id="cam-tag" hidden>La cámara mira: <b id="cam-lado">Frente</b></span>
+            <div class="cam"><canvas id="cv-A" width="640" height="360"></canvas>
+              <div class="empty" id="empty-A"><p id="msg-A">Elige la fuente de esta cámara.</p><div><button class="btn gold" id="on-A" hidden>Activar cámara</button></div></div>
+              <span class="sello" id="sello-A" hidden>SIMULADA</span>
             </div>
           </div>
-          <div class="cambar">
-            <span class="hint">La cámara mira:</span>
-            <div class="seg" id="seg-lado"><button data-lado="frente" class="on">Frente</button><button data-lado="reverso">Reverso</button></div>
-            <select id="cam-sel" aria-label="Cámara" hidden></select>
-            <span class="btn sm file">Probar con un video<input type="file" id="video-prueba" accept="video/*" aria-label="Probar con un video"></span>
-            <span class="grow"></span>
-            <button class="btn primary big" id="btn-reg" disabled>Registrar botella <span class="k">Espacio</span></button>
+          <div class="estbar"><span class="hint">Última botella:</span><span class="pill" id="ve-A-f">Frontal</span><span class="pill" id="ve-A-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="A">Reaprender fondo</button></div>
+          <div class="estsub" id="txt-A" role="status"></div>
+        </div>
+        <div class="card est" id="est-B">
+          <h2><span class="nm">Cámara B<small>el otro lado</small></span><select id="src-B" aria-label="Fuente de la cámara B"></select></h2>
+          <div class="pad" style="padding-bottom:0">
+            <div class="cam"><canvas id="cv-B" width="640" height="360"></canvas>
+              <div class="empty" id="empty-B"><p id="msg-B">Elige la fuente de esta cámara.</p><div><button class="btn gold" id="on-B" hidden>Activar cámara</button></div></div>
+              <span class="sello" id="sello-B" hidden>SIMULADA</span>
+            </div>
           </div>
-          <div class="cambar" style="padding-top:0">
-            <button class="toggle" id="auto" aria-pressed="true" title="Registra sola cada botella que pasa por el recuadro">Disparo automático <span class="sw"></span></button>
-            <span class="hint" id="disp-est" role="status"></span>
-            <span class="grow"></span>
-            <button class="btn sm" id="btn-fondo">Reaprender fondo</button>
+          <div class="estbar"><span class="hint">Última botella:</span><span class="pill" id="ve-B-f">Frontal</span><span class="pill" id="ve-B-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="B">Reaprender fondo</button></div>
+          <div class="estsub" id="txt-B" role="status"></div>
+        </div>
+      </div>
+      <input type="file" id="video-file" accept="video/*" hidden>
+
+      <div class="card">
+        <div class="cambar">
+          <button class="toggle" id="auto" aria-pressed="true" title="Registra sola cada botella que pasa por el recuadro">Disparo automático <span class="sw"></span></button>
+          <span class="hint" id="modo-txt"></span>
+          <span class="grow"></span>
+          <button class="btn primary" id="btn-reg">Registrar botella <span class="k">Espacio</span></button>
+        </div>
+        <div class="alert warn aviso-sim" id="aviso-1cam" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span id="aviso-1cam-t"></span></div>
+      </div>
+
+      <div class="card" id="card-verdad" hidden>
+        <h2>Aciertos contra la verdad simulada <span class="note">la simulación sabe qué le falta a cada botella</span></h2>
+        <div class="verdad">
+          <div class="tile gold"><div class="v" id="vd-falt">0</div><div class="l">Sin alguna etiqueta</div></div>
+          <div class="tile ok"><div class="v" id="vd-det">0</div><div class="l">Detectadas</div></div>
+          <div class="tile bad"><div class="v" id="vd-esc">0</div><div class="l">Se pasaron (multa)</div></div>
+          <div class="tile"><div class="v" id="vd-fr">0</div><div class="l">Buenas rechazadas</div></div>
+          <div class="tile"><div class="v" id="vd-def">0</div><div class="l">Corridas o a medio pegar rechazadas</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Últimas botellas <span class="note"><button class="btn sm" id="btn-reset">Reiniciar contadores</button></span></h2>
+        <div class="feed" id="feed"><p class="empty-note">Aún no hay botellas. Con el disparo automático se registran solas al cruzar la franja dorada; también puedes apretar <b>Registrar botella</b> (o la barra espaciadora).</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== CALIBRACIÓN ===================== -->
+    <section class="view" id="v-calibracion" hidden>
+      <div class="head">
+        <div><h1>Calibración</h1><p>Se calibra por <b>tipo de etiqueta</b>, no por cámara: el sistema aprende cómo se ven la etiqueta <b>frontal</b>, la <b>trasera</b> y el <b>vidrio sin etiqueta</b>, con la botella girada en varios ángulos. Así reconoce cada etiqueta aunque la botella pase girada y en cualquiera de las dos cámaras.</p></div>
+      </div>
+      <div class="alert ok aviso-encuadre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span><b>Misma posición y encuadre, solo cambia la etiqueta.</b> La cámara, la luz y el recuadro no se mueven entre una foto y otra. La botella va siempre en el mismo lugar, al centro del recuadro: lo único que cambia es qué etiqueta mira a la cámara y cuánto está girada.</span></div>
+
+      <div class="cols">
+        <div class="stack">
+          <div class="card">
+            <h2><span>Paso <span id="g-num">1</span> de <span id="g-tot">14</span></span><span class="note" id="g-clase"></span></h2>
+            <div class="guia"><div id="g-dib"></div><div><h3 id="g-tit"></h3><p id="g-txt"></p></div></div>
+            <div class="refs-paso" id="g-refs"></div>
+            <div class="refbar" style="padding-top:14px">
+              <button class="btn gold" id="g-cap">Capturar <span class="k">Espacio</span></button>
+              <span class="btn file">Cargar foto<input type="file" accept="image/*" multiple id="g-load"></span>
+              <button class="btn" id="g-ant">Anterior</button>
+              <button class="btn" id="g-sig">Siguiente</button>
+              <span class="count" id="g-cnt"></span>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Todos los pasos <span class="note">toca uno para ir a él</span></h2>
+            <div class="pasos" id="pasos"></div>
           </div>
         </div>
 
         <div class="stack">
           <div class="card">
-            <h2>Lupa <span class="note">zona de la etiqueta</span></h2>
-            <div class="lupa" id="lupa"><span class="zoomlbl">Ampliado</span><canvas id="lupa-cv" width="360" height="360"></canvas><div class="scan"></div><div class="frame"></div></div>
-            <div class="signals">
-              <div class="sig">
-                <div class="sh"><b>Textura (texto y dibujo)</b><span id="s-tex">—</span></div>
-                <div class="meter" id="m-tex"><i></i><span class="th"></span></div>
-                <small>Una etiqueta tiene texto y dibujos; el vidrio es liso. La raya negra es el mínimo.</small>
-              </div>
-              <div class="sig">
-                <div class="sh"><b>Parecido con la etiqueta</b><span id="s-par">—</span></div>
-                <div class="meter" id="m-par"><i></i><span class="th"></span></div>
-                <small id="s-par-note">Comparado con las fotos de referencia.</small>
-              </div>
+            <h2>Vista de la cámara <select id="cal-est" aria-label="Cámara para calibrar"></select></h2>
+            <div class="minicam"><canvas id="mini-cv" width="640" height="360"></canvas></div>
+            <div class="ahora" id="ahora"><span class="hint">Ahora ve:</span><span class="pill" id="ah-f">Frontal</span><span class="pill" id="ah-t">Trasera</span></div>
+            <p class="hint pad">Ajusta el recuadro para que la botella quede al centro y ocupe casi todo su ancho. Captura cada paso una o dos veces.</p>
+          </div>
+          <div class="card">
+            <h2>Estado</h2>
+            <div class="checklist" id="checklist"></div>
+            <div class="pad" style="padding-top:0;display:grid;gap:16px">
+              <label class="slider"><span class="row"><span>Tolerancia</span><b id="tol-v">30%</b></span><input type="range" id="tol" min="0" max="100" step="5" value="30"><small>Más tolerancia: menos falsas alarmas, pero más riesgo de dejar pasar una botella sin etiqueta. Si hay duda, el sistema rechaza.</small></label>
+              <label class="slider"><span class="row"><span>Recuadro: ancho</span><b id="roiW-v">50%</b></span><input type="range" id="roiW" min="20" max="90" step="5" value="50"></label>
+              <label class="slider"><span class="row"><span>Recuadro: alto</span><b id="roiH-v">70%</b></span><input type="range" id="roiH" min="20" max="95" step="5" value="70"></label>
+              <label class="slider"><span class="row"><span>Ancho de la botella dentro del recuadro</span><b id="botella-v">80%</b></span><input type="range" id="botella" min="50" max="100" step="5" value="80"><small>Sirve para "desenrollar" la botella: la etiqueta que se ve de lado se aprieta hacia los bordes.</small></label>
+              <label class="slider"><span class="row"><span>Sensibilidad del disparo</span><b id="sens-v">50</b></span><input type="range" id="sens" min="0" max="100" step="5" value="50"><small>Más sensibilidad: detecta botellas que contrastan poco con el fondo, pero también cuenta sombras y reflejos.</small></label>
+              <div><button class="btn" id="btn-borrar-cal">Borrar toda la calibración</button></div>
             </div>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="card">
-        <h2>Últimas botellas registradas <span class="note"><button class="btn sm" id="btn-reset">Reiniciar contadores</button></span></h2>
-        <div class="feed" id="feed"><p class="empty-note">Aún no hay botellas registradas. Con el disparo automático se registran solas al pasar por el recuadro; también puedes apretar <b>Registrar botella</b> (o la barra espaciadora).</p></div>
+    <!-- ===================== AJUSTES ===================== -->
+    <section class="view" id="v-ajustes" hidden>
+      <div class="head"><div><h1>Ajustes</h1><p>La fuente de cada cámara se elige arriba de su imagen, en Monitoreo en vivo, y queda recordada. Aquí se ajusta cómo se juntan las dos vistas, las alertas y la simulación.</p></div></div>
+      <div class="cols-2">
+        <div class="stack">
+          <div class="card">
+            <h2>Juntar las 2 cámaras</h2>
+            <div class="ajustes">
+              <p class="hint">La misma botella llega a cada cámara con un pequeño desfase. Las lecturas se emparejan por orden de llegada: la de la cámara B se une con la de la A más antigua que esté dentro de la ventana. Si una cámara no vio la botella, queda <b>No revisada</b> y cuenta como rechazo.</p>
+              <label class="slider"><span class="row"><span>Desfase esperado (B llega después de A)</span><b id="desfase-v">100 ms</b></span><input type="range" id="desfase" min="0" max="300" step="5" value="100"></label>
+              <label class="slider"><span class="row"><span>Ventana de tolerancia</span><b id="ventana-v">150 ms</b></span><input type="range" id="ventana" min="40" max="300" step="10" value="150"><small>Tiene que ser menor que el tiempo entre botellas (360 ms a 10.000 por hora), o se pueden cruzar.</small></label>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Alerta para el operador</h2>
+            <div class="ajustes">
+              <button class="toggle" id="sonido" aria-pressed="true">Sonido en la alerta <span class="sw"></span></button>
+              <label class="slider"><span class="row"><span>Avisar "revisar etiquetadora" con</span><b id="racha-v">3 rechazos seguidos</b></span><input type="range" id="racha" min="2" max="10" step="1" value="3"></label>
+              <div><button class="btn" id="probar-alerta">Probar la alerta</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Ajustes de cámara</h2>
+            <ul class="lista-ok">
+              <li><b>Exposición corta</b> (1/1000 s o menos): la botella va rápido y una exposición larga la deja movida.</li>
+              <li><b>Buena luz</b>, pareja y fija: con exposición corta hace falta más luz. Evita reflejos directos sobre la etiqueta.</li>
+              <li><b>720p</b> (1280 × 720) a 30 cuadros por segundo: alcanza para la etiqueta y no satura el USB.</li>
+              <li><b>Cada cámara en un puerto USB distinto</b>, idealmente de otro controlador. Dos cámaras en el mismo hub pierden cuadros.</li>
+            </ul>
+            <div class="pad" style="padding-top:0;display:grid;gap:10px">
+              <button class="toggle" id="expo" aria-pressed="false">Pedir exposición corta a las cámaras <span class="sw"></span></button>
+              <p class="hint" id="expo-t">Muchas webcams no dejan cambiar la exposición desde el navegador; en ese caso, sube la luz.</p>
+              <p class="hint" id="camaras-t"></p>
+            </div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h2>Simulación <span class="note">mientras haya una sola cámara</span></h2>
+            <div class="ajustes">
+              <p class="hint">La cámara simulada ve la botella girada al azar (0 a 360°). Si las dos son simuladas, la A ve el ángulo θ y la B, θ + 180°. Las fallas vienen en rachas, como cuando se acaba un rollo. Cada botella simulada guarda la verdad, para medir aciertos.</p>
+              <label class="slider"><span class="row"><span>Botellas por hora (las dos simuladas)</span><b id="sim-porHora-v">10.000</b></span><input type="range" id="sim-porHora" min="1000" max="12000" step="500" value="10000"></label>
+              <label class="slider"><span class="row"><span>Racha de fallas: probabilidad de que empiece</span><b id="sim-pRacha-v">1,0%</b></span><input type="range" id="sim-pRacha" min="0" max="5" step="0.5" value="1"><small>Por botella. Durante la racha, casi todas las botellas tienen la misma falla (por ejemplo, sin trasera).</small></label>
+              <label class="slider"><span class="row"><span>Largo promedio de la racha</span><b id="sim-largo-v">8 botellas</b></span><input type="range" id="sim-largo" min="2" max="30" step="1" value="8"></label>
+              <label class="slider"><span class="row"><span>Fallas sueltas</span><b id="sim-pSuelta-v">2,0%</b></span><input type="range" id="sim-pSuelta" min="0" max="10" step="0.5" value="2"></label>
+              <label class="slider"><span class="row"><span>Fallas: sin etiqueta / corrida / a medio pegar</span><b id="sim-mezcla-v">60 / 25 / 15</b></span><input type="range" id="sim-mezcla" min="0" max="100" step="5" value="60"><small>Porcentaje de fallas que son "sin etiqueta"; el resto se reparte entre corrida y a medio pegar.</small></label>
+              <label class="slider"><span class="row"><span>Variación de luz</span><b id="sim-luz-v">±20%</b></span><input type="range" id="sim-luz" min="0" max="40" step="5" value="20"></label>
+              <label class="slider"><span class="row"><span>Fotos movidas</span><b id="sim-movida-v">10%</b></span><input type="range" id="sim-movida" min="0" max="50" step="5" value="10"></label>
+              <div><button class="btn primary" id="sim-aplicar">Aplicar y reiniciar la simulación</button></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- ===================== FRENTE Y REVERSO ===================== -->
+    <!-- ===================== CAPACIDAD ===================== -->
+    <section class="view" id="v-capacidad" hidden>
+      <div class="head"><div><h1>Prueba de capacidad</h1><p>Pasa la línea a 10.000 botellas por hora (una cada 360 ms) por <b>2 cámaras simuladas a la vez</b>, en tiempo real: disparo, detector y emparejamiento, igual que en la línea. Mientras corre, el monitoreo se pausa. <b>Deja esta pestaña visible</b>.</p></div></div>
+      <div class="cols">
+        <div class="card">
+          <h2>Línea simulada</h2>
+          <div class="form-row">
+            <label class="slider"><span class="row"><span>Duración</span><b id="es-min-v">10 min</b></span><input type="range" id="es-min" min="1" max="10" step="1" value="10"></label>
+            <label class="slider"><span class="row"><span>Botellas por hora</span><b id="es-ph-v">10.000</b></span><input type="range" id="es-ph" min="2000" max="12000" step="500" value="10000"></label>
+          </div>
+          <div class="refbar" style="padding-top:14px"><button class="btn primary" id="es-btn">Empezar prueba</button><span class="hint" id="es-t"></span></div>
+          <div class="barra"><i id="es-barra"></i></div>
+          <div class="estres-cams">
+            <div class="cam"><canvas id="es-A" width="320" height="240"></canvas><span class="tag">Cámara A</span></div>
+            <div class="cam"><canvas id="es-B" width="320" height="240"></canvas><span class="tag">Cámara B</span></div>
+          </div>
+          <div class="tiles">
+            <div class="tile gold"><div class="v" id="es-reales">0</div><div class="l">Botellas reales</div></div>
+            <div class="tile"><div class="v" id="es-cont">0 / 0</div><div class="l">Contadas por A / B</div></div>
+            <div class="tile"><div class="v" id="es-dup">0</div><div class="l">Duplicados</div></div>
+            <div class="tile"><div class="v" id="es-emp">0</div><div class="l">Emparejamientos fallidos (no revisadas + cruces)</div></div>
+            <div class="tile ok"><div class="v" id="es-det">0</div><div class="l">Sin etiqueta detectadas</div></div>
+            <div class="tile bad"><div class="v" id="es-esc">0</div><div class="l">Sin etiqueta que se pasaron</div></div>
+            <div class="tile"><div class="v" id="es-fr">0</div><div class="l">Buenas rechazadas</div></div>
+            <div class="tile"><div class="v" id="es-ms">—</div><div class="l">ms por botella (revisión)</div></div>
+            <div class="tile"><div class="v" id="es-perd">0</div><div class="l">Cuadros perdidos</div></div>
+            <div class="tile"><div class="v" id="es-mov">0</div><div class="l">Fotos movidas</div></div>
+          </div>
+          <p class="hint pad" id="es-res"></p>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h2>Criterios</h2>
+            <div class="criterios" id="es-crit"><p class="hint">Aparecen al terminar la prueba.</p></div>
+            <div class="refbar"><button class="btn" id="es-desc" disabled>Descargar informe</button></div>
+          </div>
+          <div class="card">
+            <h2>Antes de la prueba con cámaras reales</h2>
+            <ul class="lista-ok">
+              <li>Exposición corta, buena luz, 720p y cada cámara en un puerto USB distinto (ver Ajustes).</li>
+              <li>El hueco entre botellas tiene que ser mayor que la franja dorada más lo que avanza la botella en 2 cuadros.</li>
+              <li>La columna "Fotos movidas" del registro avisa si la exposición es muy larga.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== REGISTRO ===================== -->
+    <section class="view" id="v-registro" hidden>
+      <div class="head">
+        <div><h1>Registro</h1><p>Una fila por botella, con lo que vio cada cámara y el resultado. Queda guardado en este computador.</p></div>
+        <div style="display:flex;gap:8px"><button class="btn" id="btn-csv" disabled>Descargar CSV (Excel)</button><button class="btn" id="btn-borrar-reg" disabled>Borrar registro</button></div>
+      </div>
+      <div class="card"><div class="scroll" id="reg"></div></div>
+    </section>
+
+    <!-- ===================== PRUEBA SIN CÁMARA (FOTOS) ===================== -->
     <section class="view" id="v-dual" hidden>
       <div class="head">
-        <div><h1>Frente y reverso</h1><p>Hoy hay una sola cámara, así que la validación doble se prueba con fotos. Cada lado se calibra con sus propias fotos, y una botella pasa solo si tiene <b>las dos</b> etiquetas.</p></div>
+        <div><h1>Prueba sin cámara (fotos)</h1><p>Prueba de escritorio con fotos, sin cámara ni línea. Usa el método antiguo (una foto por lado, sin giro) y su propia calibración: no cambia la calibración ni el registro del monitoreo. Una botella pasa solo si tiene <b>las dos</b> etiquetas.</p></div>
       </div>
 
       <div class="card">
@@ -388,75 +632,27 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
         </div>
       </div>
     </section>
-
-    <!-- ===================== CALIBRACIÓN ===================== -->
-    <section class="view" id="v-calibracion" hidden>
-      <div class="head">
-        <div><h1>Calibración</h1><p>El sistema aprende cómo se ve una botella <b>con</b> etiqueta y una <b>sin</b> etiqueta, en tu cámara y con tu luz. Calibra cada lado que vaya a mirar la cámara.</p></div>
-        <div class="seg" id="seg-cal"><button data-lado="frente" class="on">Frente</button><button data-lado="reverso">Reverso</button></div>
-      </div>
-
-      <div class="cols">
-        <div class="stack">
-          <div class="card">
-            <h2>Con etiqueta <span class="note">mínimo 3 · ideal 8 o más</span></h2>
-            <div class="refgrid" id="ref-con"></div>
-            <div class="refbar">
-              <button class="btn gold" data-cap="con">Capturar de la cámara</button>
-              <span class="btn file">Cargar fotos<input type="file" accept="image/*" multiple data-load="con"></span>
-              <span class="count" id="cnt-con">0 fotos</span>
-            </div>
-          </div>
-          <div class="card">
-            <h2>Sin etiqueta <span class="note">recomendado · 3 o más</span></h2>
-            <div class="refgrid" id="ref-sin"></div>
-            <div class="refbar">
-              <button class="btn gold" data-cap="sin">Capturar de la cámara</button>
-              <span class="btn file">Cargar fotos<input type="file" accept="image/*" multiple data-load="sin"></span>
-              <span class="count" id="cnt-sin">0 fotos</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="stack">
-          <div class="card">
-            <h2>Vista de la cámara</h2>
-            <div class="minicam"><canvas id="mini-cv" width="640" height="360"></canvas></div>
-            <p class="hint pad">Captura varias veces moviendo un poco la botella, para que aprenda la variación normal. Para <b>sin etiqueta</b> usa una botella sin etiqueta, o tapa la etiqueta con un papel oscuro.</p>
-          </div>
-          <div class="card">
-            <h2>Estado</h2>
-            <div class="checklist" id="checklist"></div>
-            <div class="pad" style="padding-top:0;display:grid;gap:16px">
-              <label class="slider"><span class="row"><span>Tolerancia</span><b id="tol-v">30%</b></span><input type="range" id="tol" min="0" max="100" step="5" value="30"><small>Más tolerancia: menos falsas alarmas, pero más riesgo de dejar pasar una botella sin etiqueta.</small></label>
-              <label class="slider"><span class="row"><span>Recuadro: ancho</span><b id="roi-w-v">50%</b></span><input type="range" id="roi-w" min="20" max="90" step="5" value="50"></label>
-              <label class="slider"><span class="row"><span>Recuadro: alto</span><b id="roi-h-v">70%</b></span><input type="range" id="roi-h" min="20" max="95" step="5" value="70"></label>
-              <label class="slider"><span class="row"><span>Sensibilidad del disparo</span><b id="sens-v">50</b></span><input type="range" id="sens" min="0" max="100" step="5" value="50"><small>Más sensibilidad: detecta botellas que contrastan poco con el fondo, pero también cuenta sombras y reflejos.</small></label>
-              <div><button class="btn" id="btn-borrar-cal">Borrar calibración de este lado</button></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== REGISTRO ===================== -->
-    <section class="view" id="v-registro" hidden>
-      <div class="head">
-        <div><h1>Registro</h1><p>Cada botella registrada en el monitoreo, con su foto y el motivo. Queda guardado en este computador.</p></div>
-        <div style="display:flex;gap:8px"><button class="btn" id="btn-csv" disabled>Descargar CSV (Excel)</button><button class="btn" id="btn-borrar-reg" disabled>Borrar registro</button></div>
-      </div>
-      <div class="card">
-        <div class="scroll" id="reg"></div>
-      </div>
-    </section>
   </main>
+</div>
+
+<div class="overlay" id="alerta" hidden role="alertdialog" aria-modal="true" aria-labelledby="al-t">
+  <div class="al-box">
+    <div class="al-ic">!</div>
+    <h2 id="al-t"></h2>
+    <p id="al-p"></p>
+    <p class="al-racha" id="al-racha" hidden></p>
+    <p id="al-mas"></p>
+    <button class="btn primary big" id="al-ok">Reconocer <span class="k">Enter</span></button>
+  </div>
 </div>
 
 <script src="motor.js"></script>
 <script src="disparo.js"></script>
+<script src="simulacion.js"></script>
+<script src="botella.js"></script>
+<script src="fuentes.js"></script>
 <script>
 const $ = id => document.getElementById(id);
-const LADOS = { frente: "Frente", reverso: "Reverso" };
 const ICON = {
   ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>',
   bad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>',
@@ -464,377 +660,762 @@ const ICON = {
 };
 const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
 const leer = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
-const n2 = v => v.toFixed(2).replace(".", ","), n1 = v => v.toFixed(1).replace(".", ",");
+const n1 = v => v.toFixed(1).replace(".", ","), n2 = v => v.toFixed(2).replace(".", ",");
+const miles = v => Math.round(v).toLocaleString("es-CL");
 const hora = t => new Date(t).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const tag = n => "B" + String(n).padStart(5, "0");
+const EST = ["A", "B"];
+const NOMBRE_ETQ = { frontal: "frontal", trasera: "trasera" };
+const MS_CUADRO = 1000 / 30;
 
-/* ---------- estado ---------- */
-const cfg = { auto: true, sens: 50, ...leer("qa-cfg", { tol: 30, roiW: 50, roiH: 70, sombra: true, producto: null }) };
-const S = {
-  vista: "monitoreo", lado: "frente", ladoCal: "frente",
-  stream: null, archivo: null, video: document.createElement("video"), disparo: null, dispTxt: "",
-  refs: { frente: { con: [], sin: [] }, reverso: { con: [], sin: [] } },
-  cal: { frente: null, reverso: null },
-  ultimo: null, sesion: { n: 0, ok: 0, bad: 0 }, reg: leer("qa-reg", []), nextId: 1,
+/* ---------- configuración (recordada en qa-cfg) ---------- */
+const BASE_CFG = {
+  tol: 30, roiW: 50, roiH: 70, botella: 80, sombra: true, producto: null, auto: true, sens: 50,
+  desfase: 100, ventana: 150, racha: 3, sonido: true, expo: false,
+  sim: { porHora: 10000, pRacha: 1, largo: 8, pSuelta: 2, mezcla: 60, luz: 20, movida: 10 },
+  fuentes: { A: { tipo: "camara", deviceId: null }, B: { tipo: "simulada" } },
 };
-S.video.muted = true; S.video.playsInline = true;
-const nuevoDisparo = () => { S.disparo = Disparo.crear({ umbralPx: Disparo.umbralDeSensibilidad(cfg.sens) }); };
-nuevoDisparo();
-S.nextId = S.reg.reduce((m, e) => Math.max(m, e.n || 0), 0) + 1;
-
-/* referencias guardadas: rasgos (sin la imagen original) + miniatura */
-const empacar = r => ({ huella: Array.from(r.huella, x => Math.round(x * 1e4) / 1e4), textura: r.textura, brillo: r.brillo, thumb: r.thumb, src: r.src });
-const desempacar = r => ({ ...r, huella: Float32Array.from(r.huella) });
-(() => {
-  const g = leer("qa-refs", null);
-  if (g) for (const l of Object.keys(LADOS)) for (const k of ["con", "sin"]) S.refs[l][k] = (g[l]?.[k] || []).map(desempacar);
-})();
-const guardarRefs = () => {
-  const ok = guardar("qa-refs", Object.fromEntries(Object.keys(LADOS).map(l => [l, { con: S.refs[l].con.map(empacar), sin: S.refs[l].sin.map(empacar) }])));
-  if (!ok) alerta("No se pudo guardar la calibración en este navegador (poco espacio). Seguirá funcionando hasta que cierres la página.");
-};
+const guardado = leer("qa-cfg", {});
+const cfg = { ...BASE_CFG, ...guardado, sim: { ...BASE_CFG.sim, ...(guardado.sim || {}) }, fuentes: { ...BASE_CFG.fuentes, ...(guardado.fuentes || {}) } };
+for (const e of EST) if (cfg.fuentes[e].tipo === "video") cfg.fuentes[e] = { tipo: e === "A" ? "camara" : "simulada" };   // un video no se puede reabrir solo
 const guardarCfg = () => guardar("qa-cfg", cfg);
 
-function recalibrar(lado) {
-  const r = S.refs[lado];
-  try { S.cal[lado] = r.con.length >= 3 ? Motor.calibrar(r.con, r.sin) : null; } catch { S.cal[lado] = null; }
+/* ---------- estado ---------- */
+const S = {
+  vista: "monitoreo", est: {}, refs: [], calReal: null, errorCal: "", texSim: Simulacion.texturas(), calSim: null,
+  emp: null, vig: null, escena: null, t0Escena: 0, lineaSim: null, modo: "",
+  sesion: { n: 0, ok: 0, rech: 0, nr: 0 }, verdad: { falt: 0, det: 0, esc: 0, buenas: 0, fr: 0, def: 0, defRech: 0 },
+  reg: leer("qa-reg2", []), nextId: 1, paso: 0, calEst: "A", estres: null, alerta: null,
+};
+S.nextId = S.reg.reduce((m, e) => Math.max(m, e.n || 0), 0) + 1;
+S.calSim = Motor.calibrarTipos(Simulacion.referencias(S.texSim));   // la cámara simulada trae su propia calibración
+const ROI_SIM = { x: 80, y: 36, w: 160, h: 168 };                    // recuadro de la cámara simulada (320 x 240), el mismo de las pruebas
+const ANCHO_DISP = 160;
+
+/* ---------- referencias de calibración (qa-tipos) ---------- */
+const aB64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 4096) s += String.fromCharCode.apply(null, u8.subarray(i, i + 4096)); return btoa(s); };
+const deB64 = s => Uint8ClampedArray.from(atob(s), c => c.charCodeAt(0));
+S.refs = leer("qa-tipos", []).map(r => ({ ...r, gris: deB64(r.gris) }));
+function guardarRefs() {
+  if (!guardar("qa-tipos", S.refs.map(r => ({ ...r, gris: aB64(r.gris) }))))
+    alerta("No se pudo guardar la calibración en este navegador (poco espacio). Seguirá funcionando hasta que cierres la página.");
 }
-Object.keys(LADOS).forEach(recalibrar);
+function recalibrar() {
+  try { S.calReal = Motor.calibrarTipos(S.refs, { botella: cfg.botella / 100 }); S.errorCal = ""; }
+  catch (e) { S.calReal = null; S.errorCal = e.message; }
+}
+recalibrar();
 
 /* ---------- vistas ---------- */
+const VISTAS = ["monitoreo", "calibracion", "ajustes", "capacidad", "registro", "dual"];
 function irA(v) {
+  if (S.estres && v !== "capacidad") { alerta("Hay una prueba de capacidad corriendo. Detenla antes de salir."); return; }
   S.vista = v;
-  for (const id of ["monitoreo", "dual", "calibracion", "registro"]) $("v-" + id).hidden = id !== v;
-  document.querySelectorAll(".nav button").forEach(b => b.classList.toggle("on", b.dataset.view === v));
-  if (v === "monitoreo") S.disparo.reiniciar();   // la zona pudo cambiar mientras se miraba otra pestaña
-  if (v === "calibracion") pintarCal();
+  for (const id of VISTAS) $("v-" + id).hidden = id !== v;
+  document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === v));
+  if (v === "monitoreo") {
+    for (const e of EST) S.est[e]?.disparo?.reiniciar?.();   // el recuadro pudo cambiar en Calibración
+    if (S.escena) S.t0Escena = performance.now() - ((S.est.A?.k ?? -1) + 1) * MS_CUADRO;   // la línea simulada sigue donde quedó
+  }
+  if (v === "calibracion") { pintarSelectCal(); pintarCal(); }
   if (v === "registro") pintarRegistro();
+  if (v === "ajustes") pintarCamarasInfo();
   window.scrollTo(0, 0);
 }
-document.querySelectorAll(".nav button").forEach(b => b.onclick = () => irA(b.dataset.view));
+document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => irA(b.dataset.view));
 
-/* ---------- cámara ---------- */
-async function activarCamara(deviceId) {
-  const msg = t => { $("cam-msg").innerHTML = t; };
-  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
-    msg("Para usar la cámara abre esta página desde el servidor: <b>http://localhost:8000/frontend/producto.html</b> (con doble clic al archivo el navegador no deja usar la cámara).");
-    return;
+/* =====================================================================
+ * Estaciones: cada una con su fuente (cámara real, video o simulada)
+ * ===================================================================== */
+const tipoDe = e => cfg.fuentes[e].tipo;
+const esReal = e => ["camara", "video"].includes(tipoDe(e));
+function modoActual() {
+  const a = tipoDe("A"), b = tipoDe("B");
+  if (b === "ninguna") return "una";                          // una sola cámara (con espejo): basta su vista
+  if (a === "simulada" && b === "simulada") return "escena";  // las dos simuladas: línea completa con la verdad
+  if (a === "simulada" || b === "simulada") return "acompanante";   // una real + la otra simulada
+  return "dos";
+}
+const simLinea = () => {
+  const s = cfg.sim, resto = 100 - s.mezcla;
+  return { semilla: (Date.now() % 100000) + 1, pRacha: s.pRacha / 100, largoRacha: s.largo, pSuelta: s.pSuelta / 100, tipos: { falta: s.mezcla, corrida: resto * 0.62, medio: resto * 0.38 }, luz: s.luz / 100, pMovida: s.movida / 100 };
+};
+
+let videoPara = null;
+async function armar() {
+  for (const e of EST) S.est[e]?.fuente?.detener();
+  S.modo = modoActual();
+  S.escena = S.modo === "escena" ? Simulacion.crearEscena({ porHora: cfg.sim.porHora, desfaseMs: cfg.desfase, semilla: (Date.now() % 1e5) + 1, linea: simLinea(), tex: S.texSim }) : null;
+  S.t0Escena = performance.now();
+  S.lineaSim = S.modo === "acompanante" ? Simulacion.crearLinea(simLinea()) : null;
+  S.emp = Botella.crearEmparejador({ estaciones: S.modo === "una" ? ["A"] : EST, ventanaMs: cfg.ventana, desfaseMs: cfg.desfase });
+  S.vig = Botella.crearVigilante({ racha: cfg.racha });
+  const permiso = await Fuentes.hayPermiso();
+  for (const e of EST) {
+    const st = S.est[e] = { id: e, cv: $("cv-" + e), fuente: null, disparo: null, nucleo: null, mejor: null, k: -1, perdidos: 0, nitidez: [], movidas: 0, lecturas: 0, txt: "", ultimo: null };
+    const t = tipoDe(e);
+    $("sello-" + e).hidden = t !== "simulada";
+    $("on-" + e).hidden = true;
+    $("empty-" + e).hidden = false;
+    if (t === "ninguna") { $("msg-" + e).textContent = "Sin segunda cámara: la cámara A tiene que ver las dos etiquetas (por ejemplo, con un espejo detrás de la botella)."; continue; }
+    if (t === "simulada") {
+      st.fuente = Fuentes.simulada(e);
+      if (S.modo === "escena") st.nucleo = Disparo.crearNucleo({ umbralPx: Disparo.umbralDeSensibilidad(50) });
+      $("empty-" + e).hidden = S.modo === "escena";
+      $("msg-" + e).textContent = "Vista simulada: aparece cuando la otra cámara registra una botella.";
+      continue;
+    }
+    if (t === "video") {
+      if (!videoPara?.[e]) { $("msg-" + e).textContent = "Elige un video en el menú de esta cámara."; continue; }
+      st.fuente = Fuentes.video(videoPara[e]);
+    } else st.fuente = Fuentes.camara(cfg.fuentes[e].deviceId);
+    st.disparo = Disparo.crear({ umbralPx: Disparo.umbralDeSensibilidad(cfg.sens) });
+    if (t === "camara" && !permiso) { $("msg-" + e).textContent = "Conecta la cámara y actívala. El navegador te va a pedir permiso."; $("on-" + e).hidden = false; continue; }
+    await encender(e);
   }
+  await pintarSelects();
+  pintarModo(); pintarEstado(); pintarChip();
+}
+
+async function encender(e) {
+  const st = S.est[e];
   try {
-    soltarFuente();
-    const video = deviceId ? { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } } : { width: { ideal: 1280 }, height: { ideal: 720 } };
-    S.stream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
-    S.video.srcObject = S.stream; await S.video.play();
-    S.disparo.reiniciar();
-    $("cam-empty").hidden = true; $("cam-tag").hidden = false; $("btn-reg").disabled = false;
-    $("live").classList.add("on"); $("live-t").textContent = "En vivo";
-    const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "videoinput");
-    const actual = S.stream.getVideoTracks()[0]?.getSettings().deviceId;
-    $("cam-sel").innerHTML = devs.map((d, i) => `<option value="${d.deviceId}" ${d.deviceId === actual ? "selected" : ""}>${d.label || "Cámara " + (i + 1)}</option>`).join("");
-    $("cam-sel").hidden = devs.length < 2;
-  } catch (e) {
-    const t = e.name === "NotAllowedError" ? "El navegador no dio permiso para usar la cámara. Revisa el ícono de cámara en la barra de direcciones y permítelo."
-      : e.name === "NotFoundError" ? "No se encontró ninguna cámara. Revisa que esté conectada por USB."
-      : e.name === "NotReadableError" ? "La cámara está ocupada por otro programa (Zoom, Teams, el seguidor de Python…). Ciérralo y vuelve a intentar."
-      : "No se pudo abrir la cámara: " + e.message;
-    msg(t); $("live").classList.remove("on"); $("live-t").textContent = "Cámara apagada";
+    await st.fuente.iniciar();
+    $("empty-" + e).hidden = true;
+    if (st.fuente.tipo === "camara") {
+      // se recuerda la cámara elegida: al volver a abrir la página parte con la misma, no con la del notebook
+      if (st.fuente.deviceId && cfg.fuentes[e].deviceId !== st.fuente.deviceId) { cfg.fuentes[e].deviceId = st.fuente.deviceId; guardarCfg(); }
+      const otra = EST.find(x => x !== e);
+      if (S.est[otra]?.fuente?.tipo === "camara" && S.est[otra].fuente.deviceId === st.fuente.deviceId) alerta(`Las cámaras A y B están usando el mismo dispositivo. Elige otra cámara para ${e === "A" ? "B" : "A"}.`);
+      if (cfg.expo) st.fuente.exposicionCorta(true);
+    }
+    st.disparo?.reiniciar();
+  } catch (err) {
+    const t = err.name === "NotAllowedError" ? "El navegador no dio permiso para usar la cámara. Revisa el ícono de cámara en la barra de direcciones y permítelo."
+      : err.name === "NotFoundError" ? "No se encontró ninguna cámara. Revisa que esté conectada por USB."
+      : err.name === "NotReadableError" ? "La cámara está ocupada por otro programa (Zoom, Teams, el seguidor de Python…). Ciérralo y vuelve a intentar."
+      : err.name === "Inseguro" ? err.message
+      : "No se pudo abrir: " + err.message;
+    $("msg-" + e).textContent = t; $("on-" + e).hidden = st.fuente.tipo !== "camara";
+  }
+  await pintarSelects(); pintarEstado();
+}
+for (const e of EST) $("on-" + e).onclick = () => encender(e);
+
+/* menú de fuente de cada estación: elegir la 2.ª cámara es elegirla aquí */
+async function pintarSelects() {
+  const devs = await Fuentes.camaras().catch(() => []);
+  for (const e of EST) {
+    const f = cfg.fuentes[e], sel = $("src-" + e);
+    const actual = f.tipo === "camara" ? "cam:" + (S.est[e]?.fuente?.deviceId || f.deviceId || "") : f.tipo;
+    const camOpts = devs.length && devs[0].label
+      ? devs.map((d, i) => `<option value="cam:${d.deviceId}">${d.label || "Cámara " + (i + 1)}</option>`).join("")
+      : `<option value="cam:${f.tipo === "camara" ? f.deviceId || "" : ""}">Cámara real</option>`;
+    sel.innerHTML = `<optgroup label="Cámara real">${camOpts}</optgroup><option value="simulada">Simulada</option><option value="video">Video de prueba…</option>${e === "B" ? '<option value="ninguna">No hay (1 cámara con espejo)</option>' : ""}`;
+    if ([...sel.options].some(o => o.value === actual)) sel.value = actual;
+    else if (f.tipo === "camara") sel.selectedIndex = 0;
   }
 }
-$("btn-cam").onclick = () => activarCamara();
-$("cam-sel").onchange = e => activarCamara(e.target.value);
+for (const e of EST) $("src-" + e).onchange = ev => {
+  const v = ev.target.value;
+  if (v === "video") { $("video-file").dataset.est = e; $("video-file").click(); pintarSelects(); return; }
+  cfg.fuentes[e] = v.startsWith("cam:") ? { tipo: "camara", deviceId: v.slice(4) || null } : { tipo: v };
+  guardarCfg(); armar();
+};
+$("video-file").onchange = ev => {
+  const e = ev.target.dataset.est, f = ev.target.files[0];
+  ev.target.value = "";
+  if (!f) return;
+  videoPara = { ...(videoPara || {}), [e]: f };
+  cfg.fuentes[e] = { tipo: "video" };   // no se guarda: un video hay que elegirlo de nuevo al abrir la página
+  armar();
+};
 
-/* video en vez de cámara, para probar sin estar frente a la línea */
-function soltarFuente() {
-  if (S.stream) S.stream.getTracks().forEach(t => t.stop());
-  if (S.archivo) URL.revokeObjectURL(S.archivo);
-  S.stream = S.archivo = null; S.video.srcObject = null; S.video.removeAttribute("src");
-}
-async function activarVideo(archivo) {
-  soltarFuente();
-  S.archivo = URL.createObjectURL(archivo); S.video.src = S.archivo;
-  try {
-    await S.video.play();
-  } catch {
-    soltarFuente(); alerta("Este navegador no puede reproducir ese video. Prueba con un .mp4 (H.264).");
-    return;
-  }
-  S.disparo.reiniciar();
-  $("cam-empty").hidden = true; $("cam-tag").hidden = false; $("btn-reg").disabled = false;
-  $("live").classList.add("on"); $("live-t").textContent = "Video de prueba"; $("cam-sel").hidden = true;
-}
-$("video-prueba").onchange = e => { if (e.target.files[0]) activarVideo(e.target.files[0]); e.target.value = ""; };
-
-const camLista = () => (S.stream || S.archivo) && S.video.readyState >= 2 && S.video.videoWidth > 0;
-const roi = () => {
-  const vw = S.video.videoWidth, vh = S.video.videoHeight, w = vw * cfg.roiW / 100, h = vh * cfg.roiH / 100;
+const roiDe = img => {
+  const vw = img.videoWidth || img.width, vh = img.videoHeight || img.height, w = vw * cfg.roiW / 100, h = vh * cfg.roiH / 100;
   return { x: (vw - w) / 2, y: (vh - h) / 2, w, h };
 };
-function miniatura(fuente, r, lado = 96) {
+function miniatura(fuente, r, lado = 64) {
   const c = document.createElement("canvas"); c.width = lado; c.height = lado;
   const x = c.getContext("2d"), s = Math.min(r.w, r.h);
   x.drawImage(fuente, r.x + (r.w - s) / 2, r.y + (r.h - s) / 2, s, s, 0, 0, lado, lado);
-  return c.toDataURL("image/jpeg", .75);
+  return c.toDataURL("image/jpeg", .7);
 }
+/* miniatura de un cuadro simulado en gris (solo el recuadro) */
+const simMini = Fuentes.simulada("mini");
+function miniGris(g, w, h, r) { simMini.pintar(g, w, h); return miniatura(simMini.imagen, r); }
 
-/* dibuja la cámara con el recuadro, y la lupa */
-function dibujarCam(cv, conRecuadro, estado) {
-  const x = cv.getContext("2d"), vw = S.video.videoWidth, vh = S.video.videoHeight;
+/* dibuja una estación: imagen, recuadro y franja */
+function dibujar(cv, img, r, color, franja) {
+  const x = cv.getContext("2d"), vw = img.videoWidth || img.width, vh = img.videoHeight || img.height;
+  if (!vw) return;
   if (cv.width !== vw || cv.height !== vh) { cv.width = vw; cv.height = vh; }
-  x.drawImage(S.video, 0, 0);
-  if (!conRecuadro) return;
-  const r = roi();
+  x.drawImage(img, 0, 0);
   x.save();
   x.fillStyle = "rgba(7,16,29,.42)";
   x.fillRect(0, 0, vw, r.y); x.fillRect(0, r.y + r.h, vw, vh - r.y - r.h);
   x.fillRect(0, r.y, r.x, r.h); x.fillRect(r.x + r.w, r.y, vw - r.x - r.w, r.h);
-  x.lineWidth = Math.max(3, vw / 320);
-  x.strokeStyle = estado === "ok" ? "#2FBF7A" : estado === "bad" ? "#FF5A62" : "#CBA14E";
-  x.setLineDash(estado ? [] : [vw / 60, vw / 90]);
+  x.lineWidth = Math.max(2, vw / 320);
+  x.strokeStyle = color || "#CBA14E";
+  x.setLineDash(color ? [] : [vw / 60, vw / 90]);
   x.strokeRect(r.x, r.y, r.w, r.h);
-  if (cfg.auto) {   // la fotocelda: la franja que mira el disparo automático
-    const fw = r.w * 0.08;
-    x.setLineDash([]); x.fillStyle = "rgba(203,161,78,.22)"; x.fillRect(r.x + (r.w - fw) / 2, r.y, fw, r.h);
-  }
+  if (franja) { const fw = r.w * 0.08; x.setLineDash([]); x.fillStyle = "rgba(203,161,78,.22)"; x.fillRect(r.x + (r.w - fw) / 2, r.y, fw, r.h); }
   x.restore();
 }
-function dibujarLupa() {
-  const cv = $("lupa-cv"), x = cv.getContext("2d"), r = roi(), s = Math.min(r.w, r.h);
-  x.drawImage(S.video, r.x + (r.w - s) / 2, r.y + (r.h - s) / 2, s, s, 0, 0, cv.width, cv.height);
-}
 
-/* ---------- inspección en vivo ---------- */
-let tUlt = 0;
+/* =====================================================================
+ * Bucle: cada estación pasa por su disparo; cada lectura va al emparejador
+ * ===================================================================== */
 let tCuadro = 0;
 function bucle(t) {
   requestAnimationFrame(bucle);
   const hueco = t - tCuadro; tCuadro = t;
-  if (!camLista()) return;
-  if (hueco > 1000 && disparoActivo()) {
-    // con la pestaña oculta o el computador suspendido el navegador deja de dar cuadros: las botellas de ese rato no se vieron
-    S.disparo.reiniciar();
-    alerta("La página estuvo oculta o detenida: las botellas de ese rato no se revisaron. Mantén esta pestaña visible.");
+  if (S.estres) { pasoEstres(t); return; }
+  if (!S.emp) return;
+  if (S.vista === "calibracion") { dibujarCal(t); return; }
+  if (S.vista !== "monitoreo") return;
+  if (hueco > 1000) {
+    // con la pestaña oculta el navegador deja de dar cuadros: las botellas de ese rato no se vieron
+    for (const e of EST) { S.est[e].disparo?.reiniciar(); S.est[e].nucleo?.reiniciar(); }
+    if (S.escena) S.t0Escena += hueco;   // la línea simulada se detiene mientras no se mira
+    if (cfg.auto && S.sesion.n) alerta("La página estuvo oculta o detenida: las botellas de ese rato no se revisaron. Mantén esta pestaña visible.");
   }
-  revisarDisparo(t);
-  const estado = S.ultimo && !esperando() ? (S.ultimo.presente ? "ok" : "bad") : null;
-  if (S.vista === "monitoreo") { dibujarCam($("cam-cv"), true, estado); dibujarLupa(); }
-  if (S.vista === "calibracion") dibujarCam($("mini-cv"), true, null);
-  if (t - tUlt < 160) return;   // ~6 revisiones por segundo
-  tUlt = t;
-  const cal = S.cal[S.lado];
-  if (!cal) { S.ultimo = null; pintarEstado(); return; }
-  if (esperando()) { pintarEstado(); return; }   // conserva el resultado de la última botella
-  const rs = Motor.rasgos(S.video, roi());
-  S.ultimo = { ...Motor.presencia(rs, cal, cfg.tol), rasgos: rs };
-  pintarEstado();
+  if (S.modo === "escena") {
+    const ts = t - S.t0Escena;
+    for (const e of EST) pasoEscena(S.est[e], ts);
+    for (const b of S.emp.revisar(ts)) registrarBotella(b);
+  } else {
+    for (const e of EST) if (esReal(e)) pasoReal(S.est[e], t);
+    for (const b of S.emp.revisar(t)) registrarBotella(b);
+  }
 }
 requestAnimationFrame(bucle);
 
-/* ---------- disparo automático ---------- */
-const disparoActivo = () => cfg.auto && S.vista === "monitoreo" && !!S.cal[S.lado];
-// con el disparo activo y la zona sin botella no hay nada que juzgar: la etiqueta "faltante" sería solo el fondo
-const esperando = () => disparoActivo() && S.disparo.estado !== "ocupada";
+function pasoReal(st, t) {
+  const f = st.fuente;
+  if (!f?.lista()) return;
+  const r = roiDe(f.imagen), puede = cfg.auto && !!S.calReal;
+  if (puede) {
+    const res = st.disparo.paso(f.imagen, r, t);
+    if (res.evento === "botella") lecturaReal(st, res.cuadro, res.razon, t, "Automático");
+    textoEst(st, res.evento === "luz" ? "Cambió la luz: volviendo a aprender el fondo…"
+      : res.atascada ? "La zona lleva mucho rato ocupada. Si no hay ninguna botella, aprieta Reaprender fondo."
+      : res.estado === "aprendiendo" ? "Aprendiendo el fondo: deja el recuadro sin botellas…"
+      : res.estado === "ocupada" ? "Pasando una botella…" : "Esperando botella." + infoEst(st));
+  } else textoEst(st, !S.calReal ? "Falta calibrar: ve a Calibración." : "Disparo apagado: registra con el botón o la barra espaciadora.");
+  dibujar(st.cv, f.imagen, r, null, puede);
+}
 
-function textoDisparo(txt) {
-  if (txt !== S.dispTxt) { S.dispTxt = txt; $("disp-est").textContent = txt; }
-}
-function revisarDisparo(t) {
-  if (!disparoActivo()) {
-    textoDisparo(!cfg.auto ? "Apagado: registra cada botella con el botón o la barra espaciadora." : S.cal[S.lado] ? "" : "Calibra este lado para activar el disparo.");
-    return;
+function pasoEscena(st, ts) {
+  const k = Math.floor(ts / MS_CUADRO);
+  if (k <= st.k) return;
+  if (st.k >= 0) st.perdidos += k - st.k - 1;   // el navegador no alcanzó a pedir esos cuadros
+  st.k = k;
+  const tk = k * MS_CUADRO, q = S.escena.cuadro(st.id, tk);
+  st.fuente.pintar(q.g, q.w, q.h);
+  dibujar(st.cv, st.fuente.imagen, ROI_SIM, null, cfg.auto);
+  if (!cfg.auto) { textoEst(st, "Disparo apagado."); return; }
+  const g = Motor.reducir(q.g, q.w, q.h, ROI_SIM, ANCHO_DISP, Math.round(ANCHO_DISP * ROI_SIM.h / ROI_SIM.w));
+  const res = st.nucleo.procesar(g, ANCHO_DISP, g.length / ANCHO_DISP, tk);
+  if (res.guardar) st.mejor = { g: q.g, w: q.w, h: q.h, centro: q.centro };
+  if (res.evento === "botella" && st.mejor) {
+    const m = st.mejor, vista = Motor.detectar(Motor.reducir(m.g, m.w, m.h, ROI_SIM), S.calSim, cfg.tol);
+    const b = S.escena.botella(m.centro);
+    emitir(st, vista, tk, { thumb: miniGris(m.g, m.w, m.h, ROI_SIM), fuente: "simulada", nitidez: res.razon, id: m.centro, verdad: b?.verdad, b });
   }
-  const r = S.disparo.paso(S.video, roi(), t);
-  if (r.evento === "botella") {
-    const rs = Motor.rasgos(r.cuadro, null), u = Motor.presencia(rs, S.cal[S.lado], cfg.tol);
-    S.ultimo = { ...u, rasgos: rs };
-    agregarRegistro(u, miniatura(r.cuadro, { x: 0, y: 0, w: r.cuadro.width, h: r.cuadro.height }, 80), "Automático", r.nitidez);
-  }
-  textoDisparo(r.evento === "luz" ? "Cambió la luz: volviendo a aprender el fondo…"
-    : r.atascada ? "La zona lleva mucho rato ocupada. Si no hay ninguna botella, aprieta Reaprender fondo."
-    : r.estado === "aprendiendo" ? "Aprendiendo el fondo: deja el recuadro sin botellas…"
-    : r.estado === "ocupada" ? "Pasando una botella…" : "Esperando botella.");
+  textoEst(st, res.estado === "aprendiendo" ? "Aprendiendo el fondo…" : res.estado === "ocupada" ? "Pasando una botella…" : "Esperando botella." + infoEst(st));
 }
-$("auto").setAttribute("aria-pressed", cfg.auto);
-$("auto").onclick = () => { cfg.auto = !cfg.auto; $("auto").setAttribute("aria-pressed", cfg.auto); guardarCfg(); S.disparo.reiniciar(); pintarEstado(); };
-$("btn-fondo").onclick = () => S.disparo.reiniciar();
+
+const infoEst = st => st.lecturas ? ` ${miles(st.lecturas)} lecturas${st.movidas ? ` · ${st.movidas} fotos movidas (${n1(100 * st.movidas / st.lecturas)} %)` : ""}${st.perdidos ? ` · ${miles(st.perdidos)} cuadros perdidos` : ""}.` : "";
+function textoEst(st, txt) { if (txt !== st.txt) { st.txt = txt; $("txt-" + st.id).textContent = txt; } }
+
+/** Foto movida: su razón de nitidez (ver Disparo.razonNitidez) cae bajo el 75 % de la mediana reciente de esa cámara. */
+function esMovida(st, razon) {
+  if (razon == null) return false;
+  st.nitidez.push(razon); if (st.nitidez.length > 60) st.nitidez.shift();
+  if (st.nitidez.length < 8) return false;
+  const med = [...st.nitidez].sort((a, b) => a - b)[st.nitidez.length >> 1];
+  return razon < 0.75 * med;
+}
+
+function lecturaReal(st, cuadro, nitidez, t, disparo) {
+  const ancho = cuadro.width || cuadro.videoWidth, alto = cuadro.height || cuadro.videoHeight;
+  const vista = Motor.detectar(Motor.grisDe(cuadro), S.calReal, cfg.tol);
+  emitir(st, vista, t, { thumb: miniatura(cuadro, { x: 0, y: 0, w: ancho, h: alto }), fuente: st.fuente.tipo, nitidez, disparo });
+  if (S.modo === "acompanante") acompanar(st.id, t);
+}
+
+/** Con una cámara real y la otra simulada: por cada botella real, la simulada ve otra cara (giro al azar). */
+function acompanar(idReal, t) {
+  const e = EST.find(x => x !== idReal), st = S.est[e], b = S.lineaSim.siguiente();
+  const pintura = Simulacion.pintarBotella(b, b.theta + 180, S.texSim, { bw: 128, bh: 240 });
+  const g = Simulacion.cuadro(320, 240, [{ pintura, x: 160 }], Simulacion.azar(b.id + 3));
+  st.fuente.pintar(g, 320, 240);
+  dibujar(st.cv, st.fuente.imagen, ROI_SIM, null, false);
+  $("empty-" + e).hidden = true;
+  const vista = Motor.detectar(Motor.reducir(g, 320, 240, ROI_SIM), S.calSim, cfg.tol);
+  // llega con el desfase configurado: B después de A
+  const tl = e === "B" ? t + cfg.desfase : t - cfg.desfase;
+  emitir(st, vista, tl, { thumb: miniGris(g, 320, 240, ROI_SIM), fuente: "simulada", simFalla: b.falla ? `${b.frontal !== "ok" ? "frontal " + b.frontal : "trasera " + b.trasera}` : null });
+  textoEst(st, `Simulada: giro ${Math.round(b.theta)}°${b.falla ? ", con falla" : ""}.` + infoEst(st));
+}
+
+function emitir(st, vista, t, extra) {
+  st.lecturas++;
+  extra.movida = esMovida(st, extra.nitidez);
+  if (extra.movida) st.movidas++;
+  st.ultimo = vista;
+  pintarVe(st.id, vista);
+  for (const b of S.emp.llega(st.id, vista, t, extra)) registrarBotella(b);
+}
+function pintarVe(e, v) {
+  for (const [k, id] of [["frontal", "f"], ["trasera", "t"]]) $(`ve-${e}-${id}`).className = "pill " + (v ? (v[k].visto ? "si" : "no") : "");
+}
+
+/* registro a mano: lee lo que ven ahora las cámaras reales */
+function registrarAMano() {
+  if (S.vista !== "monitoreo" || !S.calReal) return;
+  const t = performance.now();
+  for (const e of EST) if (esReal(e) && S.est[e].fuente?.lista()) {
+    const st = S.est[e], img = st.fuente.imagen, r = roiDe(img), c = document.createElement("canvas");
+    c.width = Math.min(960, Math.round(r.w)); c.height = Math.round(c.width * r.h / r.w);
+    c.getContext("2d").drawImage(img, r.x, r.y, r.w, r.h, 0, 0, c.width, c.height);
+    st.disparo?.cancelar();   // si ya venía pasando una botella, que el disparo no la cuente otra vez
+    lecturaReal(st, c, null, t, "Manual");
+  }
+}
+$("btn-reg").onclick = registrarAMano;
+
+/* =====================================================================
+ * Botella registrada: contadores, alerta, registro
+ * ===================================================================== */
+function resumen(v, x) {
+  if (!v) return null;
+  return { ve: v.ve, cf: +v.frontal.confianza.toFixed(2), ct: +v.trasera.confianza.toFixed(2), dudosa: !!v.dudosa, thumb: x?.thumb || null, fuente: x?.fuente || "", movida: !!x?.movida, nitidez: x?.nitidez == null ? null : +x.nitidez.toFixed(2) };
+}
+function registrarBotella(b) {
+  const verdad = S.modo === "escena" && b.extra.A && b.extra.B && b.extra.A.id === b.extra.B.id ? b.extra.A.verdad : null;
+  const ev = {
+    n: S.nextId++, t: Date.now(), producto: $("producto").value, final: b.final, faltan: b.faltan, sinVer: b.sinVer, motivo: b.motivo, sombra: cfg.sombra,
+    A: resumen(b.lecturas.A, b.extra.A), B: S.modo === "una" ? null : resumen(b.lecturas.B, b.extra.B), modo: S.modo,
+    verdad: verdad ? verdad.clase : null, simFalla: b.extra.A?.simFalla || b.extra.B?.simFalla || null,
+  };
+  S.reg.unshift(ev);
+  if (S.reg.length > 5000) S.reg.length = 5000;
+  for (let i = 300; i < S.reg.length; i++) { if (S.reg[i].A) S.reg[i].A.thumb = null; if (S.reg[i].B) S.reg[i].B.thumb = null; }   // fotos solo de las 300 más nuevas
+  guardarRegistro();
+  const s = S.sesion; s.n++;
+  if (b.final === "OK") s.ok++; else if (b.final === "NO_REVISADA") s.nr++; else s.rech++;
+  if (verdad) {
+    const v = S.verdad;
+    if (verdad.clase === "buena") { v.buenas++; if (b.final !== "OK") v.fr++; }
+    else if (verdad.clase === "sin_etiqueta") { v.falt++; b.final === "OK" ? v.esc++ : v.det++; }
+    else { v.def++; if (b.final !== "OK") v.defRech++; }
+  }
+  const vig = S.vig.botella(b.final);
+  if (b.final !== "OK") avisar(ev, vig);
+  S.ultimaBotella = ev;
+  pintarEstado(); pintarFeed();
+}
+let guardadoPendiente = null;
+function guardarRegistro() {
+  // a 10.000 por hora no conviene escribir en el disco en cada botella: se agrupa cada 2 s
+  if (guardadoPendiente) return;
+  guardadoPendiente = setTimeout(() => { guardadoPendiente = null; if (!guardar("qa-reg2", S.reg)) { S.reg.length = Math.min(S.reg.length, 1500); guardar("qa-reg2", S.reg); } }, 2000);
+}
+
+const textoFinal = ev => ev.final === "OK" ? '<span class="res ok"><span class="d"></span>OK · las 2</span>'
+  : ev.final === "NO_REVISADA" ? '<span class="res nr"><span class="d"></span>No revisada</span>'
+  : ev.sombra ? `<span class="res mark"><span class="d"></span>Marcada · ${faltaTxt(ev)}</span>` : `<span class="res bad"><span class="d"></span>Rechazo · ${faltaTxt(ev)}</span>`;
+const faltaTxt = ev => ev.faltan?.length === 2 ? "sin etiquetas" : ev.faltan?.length ? "sin " + ev.faltan[0] : "";
+const veTxt = v => !v ? "no la vio" : v.ve === "ambas" ? "frontal y trasera" : v.ve === "ninguna" ? "ninguna" : v.ve;
+const veChips = v => !v ? '<span>no la vio</span>' : `<span class="${v.ve === "frontal" || v.ve === "ambas" ? "si" : ""}">F</span><span class="${v.ve === "trasera" || v.ve === "ambas" ? "si" : ""}">T</span>`;
 
 function pintarEstado() {
-  const cal = S.cal[S.lado], u = S.ultimo, hero = $("hero");
-  const set = (cls, ic, st, sub) => { hero.className = "card status " + cls; $("hero-ring").innerHTML = ICON[ic]; $("hero-st").textContent = st; $("hero-sub").textContent = sub; };
-  if (!cal) set("wait", "wait", "Falta calibrar", `Calibra el ${LADOS[S.lado].toLowerCase()} con botellas con y sin etiqueta para empezar.`);
-  else if (!camLista()) set("wait", "wait", "Cámara apagada", "Activa la cámara para empezar a revisar.");
-  else if (esperando() && u) set(u.presente ? "ok" : "bad", u.presente ? "ok" : "bad", "Esperando botella", "Última revisión: " + u.motivo);
-  else if (!u) set("wait", "wait", esperando() ? "Esperando botella" : "Revisando…", esperando() ? "Cuando una botella pase por el recuadro se revisa y se registra sola." : "");
-  else if (u.presente) set("ok", "ok", "Etiqueta presente", u.motivo);
-  else set("bad", "bad", "No se detecta etiqueta", u.motivo);
-
-  $("lupa").className = "lupa " + (cal && u && camLista() ? (u.presente ? "ok" : "bad") : "");
-  const mt = $("m-tex"), mp = $("m-par");
-  if (cal && u && camLista()) {
-    const tmax = Math.max(u.texturaMinima * 3, u.textura * 1.1);
-    mt.className = "meter " + (u.hayTextura ? "ok" : "bad");
-    mt.querySelector("i").style.width = Math.min(100, u.textura / tmax * 100) + "%";
-    mt.querySelector(".th").style.left = (u.texturaMinima / tmax * 100) + "%";
-    $("s-tex").textContent = `${n1(u.textura)} · mínimo ${n1(u.texturaMinima)}`;
-    const p = v => Math.max(0, Math.min(100, (v - 0.3) / 0.7 * 100));
-    const cmp = u.metodo === "vecino" ? u.parecidoSin : u.umbral;
-    mp.className = "meter " + (u.presente ? "ok" : "bad");
-    mp.querySelector("i").style.width = p(u.parecido) + "%";
-    mp.querySelector(".th").style.left = p(cmp) + "%";
-    $("s-par").textContent = u.metodo === "vecino" ? `${n2(u.parecido)} · sin etiqueta ${n2(u.parecidoSin)}` : `${n2(u.parecido)} · mínimo ${n2(u.umbral)}`;
-    $("s-par-note").textContent = u.metodo === "vecino" ? "La raya negra es cuánto se parece a una botella sin etiqueta: gana la más parecida." : "Sin fotos sin etiqueta: se compara contra un mínimo. Es menos seguro.";
-  } else {
-    for (const m of [mt, mp]) { m.className = "meter"; m.querySelector("i").style.width = "0"; }
-    $("s-tex").textContent = "—"; $("s-par").textContent = "—";
-  }
-}
-
-/* ---------- registrar ---------- */
-function registrar() {
-  if (!camLista() || !S.cal[S.lado]) return;
-  const r = roi();
-  // mientras espera, S.ultimo es la botella anterior: a mano se revisa lo que se ve ahora
-  const u = esperando() ? Motor.presencia(Motor.rasgos(S.video, r), S.cal[S.lado], cfg.tol) : S.ultimo;
-  if (!u) return;
-  S.disparo.cancelar();   // si ya venía pasando una botella, que el disparo no la cuente otra vez
-  agregarRegistro(u, miniatura(S.video, r, 80), "Manual");
-}
-function agregarRegistro(u, thumb, disparo, nitidez = null) {
-  const sombra = cfg.sombra;
-  const ev = {
-    n: S.nextId++, t: Date.now(), lado: S.lado, presente: u.presente, sombra,
-    motivo: u.motivo, textura: +u.textura.toFixed(2), parecido: +u.parecido.toFixed(3),
-    producto: $("producto").value, thumb, disparo, nitidez: nitidez === null ? null : Math.round(nitidez),
-  };
-  S.reg.unshift(ev); S.reg.length = Math.min(S.reg.length, 1000);
-  guardar("qa-reg", S.reg);
-  S.sesion.n++; u.presente ? S.sesion.ok++ : S.sesion.bad++;
-  // flash del recuadro
-  const box = $("cam-box"); box.animate([{ boxShadow: `0 0 0 6px ${u.presente ? "rgba(47,191,122,.55)" : "rgba(255,90,98,.6)"}` }, { boxShadow: "0 0 0 0 transparent" }], { duration: 600, easing: "ease-out" });
-  pintarSesion(); pintarFeed();
-}
-$("btn-reg").onclick = registrar;
-document.addEventListener("keydown", e => {
-  if (e.code !== "Space" || S.vista !== "monitoreo" || /INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement?.tagName)) return;
-  e.preventDefault(); registrar();
-});
-
-const tag = n => "B" + String(n).padStart(5, "0");
-const etiquetaRes = (ev) => ev.presente ? '<span class="res ok"><span class="d"></span>Con etiqueta</span>'
-  : ev.sombra ? '<span class="res mark"><span class="d"></span>Marcada · sin etiqueta</span>' : '<span class="res bad"><span class="d"></span>Rechazo · sin etiqueta</span>';
-function pintarSesion() {
+  const hero = $("hero"), set = (cls, ic, st, sub) => { hero.className = "card status " + cls; $("hero-ring").innerHTML = ICON[ic]; $("hero-st").textContent = st; $("hero-sub").textContent = sub; };
+  const ev = S.ultimaBotella, faltaCal = EST.some(esReal) && !S.calReal;
+  if (faltaCal) set("wait", "wait", "Falta calibrar", "Ve a Calibración y sigue los pasos con la botella girada. " + (S.errorCal || ""));
+  else if (!ev) set("wait", "wait", "Esperando botella", S.modo === "escena" ? "Las dos cámaras son simuladas: la línea simulada parte sola." : "Cuando una botella cruce la franja dorada se revisa y se registra sola.");
+  else if (ev.final === "OK") set("ok", "ok", `${tag(ev.n)} · tiene sus 2 etiquetas`, ev.motivo);
+  else if (ev.final === "NO_REVISADA") set("bad", "bad", `${tag(ev.n)} · no revisada`, ev.motivo + " Cuenta como rechazo.");
+  else set("bad", "bad", `${tag(ev.n)} · ${ev.faltan.length === 2 ? "sin etiquetas" : "falta la " + NOMBRE_ETQ[ev.faltan[0]]}`, ev.motivo);
   const s = S.sesion;
-  $("k-n").textContent = s.n.toLocaleString("es-CL"); $("k-ok").textContent = s.ok.toLocaleString("es-CL"); $("k-bad").textContent = s.bad.toLocaleString("es-CL");
-  $("k-pct").textContent = s.n ? (100 * s.bad / s.n).toFixed(1).replace(".", ",") + "%" : "—";
+  $("k-n").textContent = miles(s.n); $("k-ok").textContent = miles(s.ok); $("k-bad").textContent = miles(s.rech); $("k-nr").textContent = miles(s.nr);
+  $("k-pct").textContent = s.n ? n1(100 * (s.rech + s.nr) / s.n) + "%" : "—";
+  $("card-verdad").hidden = S.modo !== "escena";
+  const v = S.verdad;
+  $("vd-falt").textContent = miles(v.falt); $("vd-det").textContent = miles(v.det); $("vd-esc").textContent = miles(v.esc);
+  $("vd-fr").textContent = `${miles(v.fr)} de ${miles(v.buenas)}`; $("vd-def").textContent = `${miles(v.defRech)} de ${miles(v.def)}`;
+  const vivo = S.modo === "escena" || EST.some(e => esReal(e) && S.est[e]?.fuente?.lista?.());
+  $("live").classList.toggle("on", vivo); $("live-t").textContent = vivo ? "En vivo" : "Detenido";
 }
+let feedT = 0;
 function pintarFeed() {
+  const ahora = performance.now();
+  if (ahora - feedT < 250) { clearTimeout(pintarFeed.t); pintarFeed.t = setTimeout(pintarFeed, 260); return; }   // a 10.000/h no se repinta en cada botella
+  feedT = ahora;
   const ult = S.reg.slice(0, 8);
   if (!ult.length) return;
-  $("feed").innerHTML = ult.map((ev, i) => `<div class="row" style="animation-delay:${i * .03}s"><span class="t">${hora(ev.t).slice(0, 5)}</span><img src="${ev.thumb}" alt=""><span class="bid">${tag(ev.n)}</span><span class="why">${LADOS[ev.lado]} · ${ev.motivo}</span>${etiquetaRes(ev)}</div>`).join("");
+  const th = x => x?.thumb ? `<img src="${x.thumb}" alt="">` : '<span class="vac">—</span>';
+  $("feed").innerHTML = ult.map(ev => `<div class="row b"><span class="t">${hora(ev.t).slice(0, 8)}</span><span class="thumbs">${th(ev.A)}${ev.modo === "una" ? "" : th(ev.B)}</span><span class="bid">${tag(ev.n)}</span><span class="ve2" title="Lo que vio cada cámara: F = frontal, T = trasera"><span class="ln">A ${veChips(ev.A)}</span>${ev.modo === "una" ? "" : `<span class="ln">B ${veChips(ev.B)}</span>`}</span><span class="why">${ev.motivo}${ev.verdad ? ` · verdad: ${ev.verdad.replace("_", " ")}` : ""}${ev.simFalla ? ` · simulada con ${ev.simFalla}` : ""}</span>${textoFinal(ev)}</div>`).join("");
 }
-$("btn-reset").onclick = () => { S.sesion = { n: 0, ok: 0, bad: 0 }; pintarSesion(); };
+$("btn-reset").onclick = () => { S.sesion = { n: 0, ok: 0, rech: 0, nr: 0 }; S.verdad = { falt: 0, det: 0, esc: 0, buenas: 0, fr: 0, def: 0, defRech: 0 }; S.vig.reiniciar(); pintarEstado(); };
 
-/* lado que mira la cámara */
-document.querySelectorAll("#seg-lado button").forEach(b => b.onclick = () => {
-  S.lado = b.dataset.lado; S.ultimo = null;
-  document.querySelectorAll("#seg-lado button").forEach(x => x.classList.toggle("on", x === b));
-  $("cam-lado").textContent = LADOS[S.lado]; pintarEstado(); pintarChip();
-});
-
-/* modo sombra y producto */
-$("sombra").setAttribute("aria-pressed", cfg.sombra);
-$("sombra").onclick = () => { cfg.sombra = !cfg.sombra; $("sombra").setAttribute("aria-pressed", cfg.sombra); guardarCfg(); };
-if (cfg.producto) $("producto").value = cfg.producto;
-$("producto").onchange = e => { cfg.producto = e.target.value; guardarCfg(); };
+function pintarModo() {
+  const m = S.modo, a = $("aviso-1cam");
+  $("btn-reg").disabled = !EST.some(esReal);
+  $("modo-txt").textContent = { una: "1 cámara: tiene que ver las 2 etiquetas sola.", escena: "Las 2 cámaras simuladas: línea completa con la verdad.", acompanante: "1 cámara real + 1 simulada.", dos: "2 cámaras reales." }[m];
+  a.hidden = !(m === "acompanante" || m === "una");
+  $("aviso-1cam-t").innerHTML = m === "acompanante"
+    ? "<b>La vista simulada no mira la botella real.</b> Sirve para probar el conteo, el emparejamiento y la alerta. Para comprobar botellas reales sin frontal o sin trasera con una sola cámara, usa un espejo detrás de la botella y elige <b>No hay (1 cámara con espejo)</b> en la cámara B."
+    : "<b>Una sola cámara:</b> la botella se aprueba solo si esta cámara ve las dos etiquetas (con un espejo detrás). Sin espejo, toda botella girada se va a rechazar.";
+}
 
 function pintarChip() {
-  const listos = Object.keys(LADOS).filter(l => S.cal[l]);
-  const chip = $("chip-cal");
-  if (!listos.length) { chip.className = "chip bad"; $("chip-cal-t").textContent = "Sin calibrar"; }
-  else if (!S.cal[S.lado]) { chip.className = "chip warn"; $("chip-cal-t").textContent = `Falta calibrar ${LADOS[S.lado].toLowerCase()}`; }
-  else { chip.className = "chip ok"; $("chip-cal-t").textContent = `Calibrado: ${listos.map(l => LADOS[l].toLowerCase()).join(" y ")}`; }
-  $("nav-cal").hidden = !!S.cal[S.lado];
+  const chip = $("chip-cal"), reales = EST.filter(esReal);
+  if (!reales.length) { chip.className = "chip ok"; $("chip-cal-t").textContent = "Simulación calibrada"; }
+  else if (!S.calReal) { chip.className = "chip bad"; $("chip-cal-t").textContent = "Falta calibrar"; }
+  else { chip.className = "chip ok"; $("chip-cal-t").textContent = `Calibrado: ${S.refs.length} fotos`; }
+  $("nav-cal").hidden = !reales.length || !!S.calReal;
 }
 
-/* ---------- calibración ---------- */
-async function rasgosDeArchivo(f) {
-  const bmp = await createImageBitmap(f);
-  const r = { x: 0, y: 0, w: bmp.width, h: bmp.height };
-  const rs = Motor.rasgos(bmp, r);
-  rs.thumb = miniatura(bmp, r); rs.src = "foto"; bmp.close();
-  return rs;
-}
-const esHeic = f => /\.(heic|heif)$/i.test(f.name) || /heic|heif/i.test(f.type);
-
-function capturar(tipo) {
-  if (!camLista()) { alerta("Primero activa la cámara en Monitoreo en vivo."); return; }
-  const r = roi(), rs = Motor.rasgos(S.video, r);
-  rs.thumb = miniatura(S.video, r); rs.src = "cámara";
-  S.refs[S.ladoCal][tipo].push(rs);
-  cambioCal();
-}
-async function cargar(tipo, files) {
-  const heic = [...files].filter(esHeic);
-  if (heic.length) alerta(`${heic.length} foto(s) HEIC no se pueden leer en el navegador. Conviértelas a JPG con scripts/convertir_heic.py.`);
-  for (const f of [...files].filter(f => !esHeic(f))) {
-    try { S.refs[S.ladoCal][tipo].push(await rasgosDeArchivo(f)); } catch { }
+/* =====================================================================
+ * Alerta para el operador: pantalla roja y sonido hasta que la reconozca
+ * ===================================================================== */
+let audio = null, pitido = null;
+document.addEventListener("pointerdown", () => { if (!audio) try { audio = new AudioContext(); } catch { } }, { once: true });
+function sonar() {
+  if (!cfg.sonido || !audio) return;
+  const t = audio.currentTime;
+  for (let i = 0; i < 3; i++) {
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = "square"; o.frequency.value = 880; g.gain.value = 0.08;
+    o.connect(g).connect(audio.destination); o.start(t + i * 0.22); o.stop(t + i * 0.22 + 0.14);
   }
-  cambioCal();
 }
-function cambioCal() { recalibrar(S.ladoCal); guardarRefs(); pintarCal(); pintarChip(); }
-document.querySelectorAll("[data-cap]").forEach(b => b.onclick = () => capturar(b.dataset.cap));
-document.querySelectorAll("[data-load]").forEach(i => i.onchange = e => { cargar(i.dataset.load, e.target.files); e.target.value = ""; });
-document.querySelectorAll("#seg-cal button").forEach(b => b.onclick = () => {
-  S.ladoCal = b.dataset.lado;
-  document.querySelectorAll("#seg-cal button").forEach(x => x.classList.toggle("on", x === b));
-  pintarCal();
+function avisar(ev, vig) {
+  if (S.estres) return;
+  const a = S.alerta;
+  if (a) {
+    a.mas++;
+    $("al-mas").textContent = `Y ${a.mas} rechazo${a.mas === 1 ? "" : "s"} más desde entonces (la última: ${tag(ev.n)}).`;
+  } else {
+    S.alerta = { ev, mas: 0 };
+    $("al-t").textContent = ev.final === "NO_REVISADA" ? "BOTELLA NO REVISADA" : ev.faltan.length === 2 ? "SIN ETIQUETAS" : `FALTA ETIQUETA ${ev.faltan[0].toUpperCase()}`;
+    $("al-p").textContent = `${tag(ev.n)} · ${hora(ev.t)} · ${ev.motivo}${ev.sombra ? " (modo sombra: se marca, no se expulsa)" : ""}`;
+    $("al-mas").textContent = "";
+    $("alerta").hidden = false; $("al-ok").focus();
+    sonar(); clearInterval(pitido); pitido = setInterval(sonar, 2000);
+  }
+  if (vig.racha) { $("al-racha").hidden = false; $("al-racha").textContent = `Revisar etiquetadora: ${vig.seguidos} rechazos seguidos.`; }
+}
+function reconocer() { S.alerta = null; $("alerta").hidden = true; $("al-racha").hidden = true; clearInterval(pitido); }
+$("al-ok").onclick = reconocer;
+$("probar-alerta").onclick = () => avisar({ n: 0, t: Date.now(), final: "RECHAZO", faltan: ["trasera"], motivo: "Prueba de la alerta.", sombra: cfg.sombra }, { racha: false });
+
+document.addEventListener("keydown", e => {
+  if (!$("alerta").hidden) { if (e.key === "Enter" || e.key === "Escape") { e.preventDefault(); reconocer(); } return; }
+  if (e.code !== "Space" || /INPUT|SELECT|TEXTAREA|BUTTON/.test(document.activeElement?.tagName)) return;
+  if (S.vista === "monitoreo") { e.preventDefault(); registrarAMano(); }
+  else if (S.vista === "calibracion") { e.preventDefault(); capturar(); }
 });
 
-function pintarCal() {
-  const l = S.ladoCal, r = S.refs[l];
-  for (const tipo of ["con", "sin"]) {
-    const g = $("ref-" + tipo), arr = r[tipo];
-    g.innerHTML = arr.length ? arr.map((x, i) => `<div class="ref"><img src="${x.thumb}" alt=""><span class="src">${x.src}</span><button data-del="${tipo}:${i}" aria-label="Quitar">×</button></div>`).join("")
-      : `<div class="ref-empty">${tipo === "con" ? "Pon una botella con etiqueta en el recuadro y aprieta Capturar, o carga fotos." : "Pon una botella sin etiqueta (o tapa la etiqueta) y captura."}</div>`;
-    $("cnt-" + tipo).textContent = `${arr.length} foto${arr.length === 1 ? "" : "s"}`;
+/* =====================================================================
+ * Calibración guiada por tipo de etiqueta
+ * ===================================================================== */
+const PASOS = [
+  { clase: "frontal", angulo: 0, tit: "Frontal, de frente", txt: "La etiqueta frontal mirando directo a la cámara, al centro del recuadro." },
+  { clase: "frontal", angulo: 30, tit: "Frontal girada 30° a la derecha", txt: "Gira la botella un poco: la etiqueta frontal queda cargada hacia la derecha de la imagen." },
+  { clase: "frontal", angulo: -30, tit: "Frontal girada 30° a la izquierda", txt: "Ahora para el otro lado: la frontal queda cargada hacia la izquierda." },
+  { clase: "frontal", angulo: 60, tit: "Frontal girada 60° a la derecha", txt: "Más giro: la frontal se ve en ángulo, pegada al borde derecho." },
+  { clase: "frontal", angulo: -60, tit: "Frontal girada 60° a la izquierda", txt: "La frontal en ángulo, pegada al borde izquierdo." },
+  { clase: "trasera", angulo: 0, tit: "Trasera, de frente", txt: "Da media vuelta a la botella: la etiqueta trasera mirando directo a la cámara." },
+  { clase: "trasera", angulo: 30, tit: "Trasera girada 30° a la derecha", txt: "La trasera cargada hacia la derecha de la imagen." },
+  { clase: "trasera", angulo: -30, tit: "Trasera girada 30° a la izquierda", txt: "La trasera cargada hacia la izquierda." },
+  { clase: "trasera", angulo: 60, tit: "Trasera girada 60° a la derecha", txt: "La trasera en ángulo, pegada al borde derecho." },
+  { clase: "trasera", angulo: -60, tit: "Trasera girada 60° a la izquierda", txt: "La trasera en ángulo, pegada al borde izquierdo." },
+  { clase: "lado", angulo: 90, tit: "De lado: frontal a la derecha", txt: "Botella de costado: se ve un borde de cada etiqueta. La frontal en el borde derecho y la trasera en el izquierdo." },
+  { clase: "lado", angulo: -90, tit: "De lado: frontal a la izquierda", txt: "Al revés: la frontal en el borde izquierdo y la trasera en el derecho." },
+  { clase: "vidrio", angulo: 0, tit: "Sin etiqueta", txt: "Una botella sin ninguna etiqueta, en el mismo lugar." },
+  { clase: "vidrio", angulo: 90, tit: "Sin etiqueta, girada", txt: "La misma botella sin etiqueta, girada un cuarto de vuelta." },
+];
+const CLASE_TXT = { frontal: "Etiqueta frontal", trasera: "Etiqueta trasera", lado: "Botella de lado", vidrio: "Sin etiqueta (vidrio)" };
+
+/** Dibujo visto desde arriba: la botella, sus etiquetas (frontal dorada, trasera azul) y la cámara abajo. */
+function dibujoPaso(p, tam = 150) {
+  const c = tam / 2, r = tam * 0.3, arco = (centro, ancho, color) => {
+    const pts = [];
+    for (let a = centro - ancho / 2; a <= centro + ancho / 2 + 0.1; a += 5) { const rad = a * Math.PI / 180; pts.push(`${(c + (r + 4) * Math.sin(rad)).toFixed(1)},${(c + (r + 4) * Math.cos(rad)).toFixed(1)}`); }
+    return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="${tam / 22}" stroke-linecap="round"/>`;
+  };
+  // ángulo de cada etiqueta respecto de la cámara (0 = mirando a la cámara, positivo = a la derecha de la imagen)
+  let f = null, t = null;
+  if (p.clase === "frontal") { f = p.angulo; t = p.angulo + 180; }
+  if (p.clase === "trasera") { t = p.angulo; f = p.angulo + 180; }
+  if (p.clase === "lado") { f = p.angulo; t = p.angulo + 180; }
+  return `<svg viewBox="0 0 ${tam} ${tam}" aria-hidden="true">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="#E3EEE6" stroke="#9FB5A6" stroke-width="2"/>
+    ${f !== null ? arco(f, 110, "#CBA14E") : ""}${t !== null ? arco(t, 90, "#3B6EA8") : ""}
+    <rect x="${c - tam * 0.08}" y="${tam * 0.88}" width="${tam * 0.16}" height="${tam * 0.09}" rx="3" fill="#0B1A2C"/>
+    <path d="M${c} ${tam * 0.87} L${c} ${c + r + 10}" stroke="#0B1A2C" stroke-width="1.5" stroke-dasharray="3 3"/>
+  </svg>`;
+}
+
+function pintarSelectCal() {
+  const reales = EST.filter(e => esReal(e) && S.est[e]?.fuente);
+  if (!reales.includes(S.calEst)) S.calEst = reales[0] || "A";
+  $("cal-est").innerHTML = reales.length ? reales.map(e => `<option value="${e}">Cámara ${e}${S.est[e].fuente.nombre ? " · " + S.est[e].fuente.nombre : ""}</option>`).join("") : '<option value="">Sin cámara real</option>';
+  $("cal-est").value = reales.length ? S.calEst : "";
+}
+$("cal-est").onchange = e => { S.calEst = e.target.value; };
+
+let tAhora = 0;
+function dibujarCal(t) {
+  const st = S.est[S.calEst], f = st?.fuente;
+  if (!f || !esReal(S.calEst) || !f.lista()) return;
+  const r = roiDe(f.imagen);
+  dibujar($("mini-cv"), f.imagen, r, null, false);
+  if (S.calReal && t - tAhora > 300) {   // muestra en vivo qué reconoce: sirve para revisar la calibración
+    tAhora = t;
+    const v = Motor.detectar(Motor.grisDe(f.imagen, r), S.calReal, cfg.tol);
+    $("ah-f").className = "pill " + (v.frontal.visto ? "si" : "no"); $("ah-t").className = "pill " + (v.trasera.visto ? "si" : "no");
+    $("ah-f").textContent = `Frontal ${v.frontal.visto ? Math.round(v.frontal.confianza * 100) + "%" : ""}`.trim();
+    $("ah-t").textContent = `Trasera ${v.trasera.visto ? Math.round(v.trasera.confianza * 100) + "%" : ""}`.trim();
   }
-  document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { const [t, i] = b.dataset.del.split(":"); S.refs[l][t].splice(+i, 1); cambioCal(); });
-  const c = S.cal[l], items = [
-    [r.con.length >= 3, r.con.length >= 3 ? `${r.con.length} fotos con etiqueta` : `Faltan ${3 - r.con.length} foto(s) con etiqueta (mínimo 3)`, "y"],
-    [r.sin.length >= 3, r.sin.length >= 3 ? `${r.sin.length} fotos sin etiqueta` : r.sin.length ? `Solo ${r.sin.length} sin etiqueta: ideal 3 o más` : "Sin fotos sin etiqueta: la detección es menos segura", r.sin.length ? "w" : "w"],
-    [!!c, c ? `Lado ${LADOS[l].toLowerCase()} calibrado: textura mínima ${n1(c.texturaMinima)}` : "Todavía no está calibrado", "y"],
+}
+
+function capturar() {
+  const st = S.est[S.calEst], f = st?.fuente;
+  if (!f || !esReal(S.calEst) || !f.lista()) { alerta("Primero activa una cámara real (o un video) en Monitoreo en vivo."); return; }
+  const r = roiDe(f.imagen), p = PASOS[S.paso];
+  S.refs.push({ paso: S.paso, clase: p.clase, angulo: p.angulo, gris: Motor.grisDe(f.imagen, r), thumb: miniatura(f.imagen, r), src: "cámara " + S.calEst });
+  cambioCal();
+  if (S.refs.filter(x => x.paso === S.paso).length === 1 && S.paso < PASOS.length - 1) S.paso++;   // primera foto del paso: pasa al siguiente
+  pintarCal();
+}
+$("g-cap").onclick = capturar;
+$("g-load").onchange = async e => {
+  const p = PASOS[S.paso];
+  for (const f of e.target.files) {
+    if (/\.(heic|heif)$/i.test(f.name)) { alerta("Las fotos HEIC (iPhone) no se pueden leer en el navegador. Conviértelas a JPG con scripts/convertir_heic.py."); continue; }
+    try {
+      const bmp = await createImageBitmap(f), r = { x: 0, y: 0, w: bmp.width, h: bmp.height };
+      S.refs.push({ paso: S.paso, clase: p.clase, angulo: p.angulo, gris: Motor.grisDe(bmp, r), thumb: miniatura(bmp, r), src: "foto" });
+      bmp.close();
+    } catch { }
+  }
+  e.target.value = ""; cambioCal(); pintarCal();
+};
+$("g-ant").onclick = () => { S.paso = Math.max(0, S.paso - 1); pintarCal(); };
+$("g-sig").onclick = () => { S.paso = Math.min(PASOS.length - 1, S.paso + 1); pintarCal(); };
+function cambioCal() { recalibrar(); guardarRefs(); pintarChip(); pintarEstado(); }
+
+function pintarCal() {
+  const p = PASOS[S.paso], mias = S.refs.map((r, i) => ({ r, i })).filter(x => x.r.paso === S.paso);
+  $("g-num").textContent = S.paso + 1; $("g-tot").textContent = PASOS.length; $("g-clase").textContent = CLASE_TXT[p.clase];
+  $("g-dib").innerHTML = dibujoPaso(p); $("g-tit").textContent = p.tit; $("g-txt").textContent = p.txt;
+  $("g-cnt").textContent = `${mias.length} foto${mias.length === 1 ? "" : "s"} en este paso`;
+  $("g-refs").innerHTML = mias.map(({ r, i }) => `<div class="ref"><img src="${r.thumb}" alt=""><span class="src">${r.src}</span><button data-del="${i}" aria-label="Quitar">×</button></div>`).join("");
+  $("pasos").innerHTML = PASOS.map((q, i) => {
+    const fotos = S.refs.filter(r => r.paso === i);
+    return `<button class="paso ${i === S.paso ? "on" : ""}" data-paso="${i}">${dibujoPaso(q, 64)}<span class="pt">${i + 1}. ${q.tit}</span><span class="ps ${fotos.length ? "ok" : ""}">${fotos.length ? "✓ " + fotos.length + " foto" + (fotos.length === 1 ? "" : "s") : "pendiente"}</span></button>`;
+  }).join("");
+  document.querySelectorAll("[data-paso]").forEach(b => b.onclick = () => { S.paso = +b.dataset.paso; pintarCal(); });
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { S.refs.splice(+b.dataset.del, 1); cambioCal(); pintarCal(); });
+  const cuenta = k => S.refs.filter(r => r.clase === k).length, c = S.calReal, hechos = new Set(S.refs.map(r => r.paso)).size;
+  const items = [
+    [cuenta("frontal") >= 2, `${cuenta("frontal")} fotos de la frontal (mínimo 2; ideal los 5 giros)`],
+    [cuenta("trasera") >= 2, `${cuenta("trasera")} fotos de la trasera (mínimo 2; ideal los 5 giros)`],
+    [cuenta("lado") >= 2, `${cuenta("lado")} fotos de lado (recomendado: los 2 lados)`, true],
+    [cuenta("vidrio") >= 1, `${cuenta("vidrio")} fotos sin etiqueta (mínimo 1)`],
+    [hechos === PASOS.length, `${hechos} de ${PASOS.length} pasos con foto`, true],
+    [!!c, c ? `Calibrado: ${c.n.frontal} trozos de frontal, ${c.n.trasera} de trasera, ${c.n.vidrio} de vidrio` : "Todavía no está calibrado. " + S.errorCal],
   ];
-  $("checklist").innerHTML = items.map(([ok, t, w]) => `<div><span class="ic ${ok ? "y" : w === "w" && !ok ? "w" : "n"}">${ok ? "✓" : "!"}</span>${t}</div>`).join("");
+  $("checklist").innerHTML = items.map(([ok, t, opc]) => `<div><span class="ic ${ok ? "y" : opc ? "w" : "n"}">${ok ? "✓" : "!"}</span>${t}</div>`).join("");
 }
 $("btn-borrar-cal").onclick = () => {
-  if (!confirm(`¿Borrar todas las fotos de calibración del ${LADOS[S.ladoCal].toLowerCase()}?`)) return;
-  S.refs[S.ladoCal] = { con: [], sin: [] }; cambioCal();
+  if (!confirm("¿Borrar todas las fotos de calibración?")) return;
+  S.refs = []; S.paso = 0; cambioCal(); pintarCal();
 };
-for (const [id, k, suf] of [["tol", "tol", "%"], ["roi-w", "roiW", "%"], ["roi-h", "roiH", "%"]]) {
-  $(id).value = cfg[k]; $(id + "-v").textContent = cfg[k] + suf;
-  $(id).oninput = e => { cfg[k] = +e.target.value; $(id + "-v").textContent = cfg[k] + suf; guardarCfg(); };
-}
-$("sens").value = cfg.sens; $("sens-v").textContent = cfg.sens;
-$("sens").oninput = e => { cfg.sens = +e.target.value; $("sens-v").textContent = cfg.sens; guardarCfg(); nuevoDisparo(); };
 
-/* ---------- registro ---------- */
+/* deslizadores */
+function deslizador(id, obj, k, fmt, alCambiar) {
+  const el = $(id);
+  el.value = obj[k]; $(id + "-v").textContent = fmt(obj[k]);
+  el.oninput = e => { obj[k] = +e.target.value; $(id + "-v").textContent = fmt(obj[k]); guardarCfg(); alCambiar?.(); };
+}
+const pc = v => v + "%";
+deslizador("tol", cfg, "tol", pc);
+deslizador("roiW", cfg, "roiW", pc, () => { for (const e of EST) S.est[e]?.disparo?.reiniciar(); });
+deslizador("roiH", cfg, "roiH", pc, () => { for (const e of EST) S.est[e]?.disparo?.reiniciar(); });
+deslizador("botella", cfg, "botella", pc, () => { clearTimeout(deslizador.t); deslizador.t = setTimeout(() => { recalibrar(); pintarCal(); }, 300); });
+deslizador("sens", cfg, "sens", v => v, () => { for (const e of EST) if (S.est[e]?.disparo) S.est[e].disparo = Disparo.crear({ umbralPx: Disparo.umbralDeSensibilidad(cfg.sens) }); });
+const rearmarEmp = () => { S.emp = Botella.crearEmparejador({ estaciones: S.modo === "una" ? ["A"] : EST, ventanaMs: cfg.ventana, desfaseMs: cfg.desfase }); };
+deslizador("desfase", cfg, "desfase", v => v + " ms", rearmarEmp);
+deslizador("ventana", cfg, "ventana", v => v + " ms", rearmarEmp);
+deslizador("racha", cfg, "racha", v => v + " rechazos seguidos", () => { S.vig = Botella.crearVigilante({ racha: cfg.racha }); });
+deslizador("sim-porHora", cfg.sim, "porHora", miles);
+deslizador("sim-pRacha", cfg.sim, "pRacha", v => n1(v) + "%");
+deslizador("sim-largo", cfg.sim, "largo", v => v + " botellas");
+deslizador("sim-pSuelta", cfg.sim, "pSuelta", v => n1(v) + "%");
+deslizador("sim-mezcla", cfg.sim, "mezcla", v => `${v} / ${Math.round((100 - v) * 0.62)} / ${Math.round((100 - v) * 0.38)}`);
+deslizador("sim-luz", cfg.sim, "luz", v => "±" + v + "%");
+deslizador("sim-movida", cfg.sim, "movida", pc);
+$("sim-aplicar").onclick = () => { armar(); alerta("Simulación reiniciada con los nuevos ajustes."); };
+
+function interruptor(id, k, alCambiar) {
+  $(id).setAttribute("aria-pressed", cfg[k]);
+  $(id).onclick = () => { cfg[k] = !cfg[k]; $(id).setAttribute("aria-pressed", cfg[k]); guardarCfg(); alCambiar?.(); };
+}
+interruptor("sombra", "sombra");
+interruptor("auto", "auto", () => { for (const e of EST) S.est[e]?.disparo?.reiniciar(); });
+interruptor("sonido", "sonido");
+interruptor("expo", "expo", async () => {
+  const msgs = [];
+  for (const e of EST) if (S.est[e]?.fuente?.tipo === "camara") msgs.push(`Cámara ${e}: ${(await S.est[e].fuente.exposicionCorta(cfg.expo)).motivo}`);
+  $("expo-t").textContent = msgs.join(" ") || "No hay cámaras reales encendidas.";
+});
+if (cfg.producto) $("producto").value = cfg.producto;
+$("producto").onchange = e => { cfg.producto = e.target.value; guardarCfg(); };
+document.querySelectorAll("[data-fondo]").forEach(b => b.onclick = () => { const st = S.est[b.dataset.fondo]; st?.disparo?.reiniciar(); st?.nucleo?.reiniciar(); });
+
+function pintarCamarasInfo() {
+  const t = EST.map(e => {
+    const f = S.est[e]?.fuente;
+    if (!f) return `Cámara ${e}: sin fuente.`;
+    if (f.tipo !== "camara") return `Cámara ${e}: ${f.tipo === "simulada" ? "simulada" : "video"}.`;
+    return `Cámara ${e}: ${f.nombre}${f.resolucion ? " · " + f.resolucion : ""}${f.cps ? " · " + f.cps + " cuadros/s" : ""}.`;
+  });
+  $("camaras-t").textContent = t.join(" ");
+}
+
+/* =====================================================================
+ * Registro: una fila por botella
+ * ===================================================================== */
 function pintarRegistro() {
   const r = S.reg;
   $("btn-csv").disabled = $("btn-borrar-reg").disabled = !r.length;
   if (!r.length) { $("reg").innerHTML = '<p class="empty-note">Todavía no hay botellas registradas. Se registran desde Monitoreo en vivo.</p>'; return; }
-  $("reg").innerHTML = `<table><thead><tr><th>Foto</th><th>Botella</th><th>Hora</th><th>Lado</th><th>Resultado</th><th>Motivo</th><th class="r">Textura</th><th class="r">Parecido</th></tr></thead><tbody>${
-    r.map(ev => `<tr><td><img src="${ev.thumb}" alt=""></td><td><b>${tag(ev.n)}</b></td><td>${new Date(ev.t).toLocaleString("es-CL")}</td><td>${LADOS[ev.lado]}</td><td>${etiquetaRes(ev)}</td><td class="hint">${ev.motivo}</td><td class="r">${n1(ev.textura)}</td><td class="r">${n2(ev.parecido)}</td></tr>`).join("")}</tbody></table>`;
+  const th = x => x?.thumb ? `<img src="${x.thumb}" alt="">` : "";
+  $("reg").innerHTML = `<table><thead><tr><th>Botella</th><th>Hora</th><th>Cámara A</th><th></th><th>Cámara B</th><th></th><th>Resultado</th><th>Motivo</th></tr></thead><tbody>${
+    r.slice(0, 500).map(ev => `<tr><td><b>${tag(ev.n)}</b></td><td>${new Date(ev.t).toLocaleString("es-CL")}</td><td>${th(ev.A)}</td><td class="hint">${veTxt(ev.A)}${ev.A?.movida ? " · movida" : ""}${ev.A?.dudosa ? " · dudosa" : ""}</td><td>${th(ev.B)}</td><td class="hint">${ev.modo === "una" ? "—" : veTxt(ev.B) + (ev.B?.movida ? " · movida" : "") + (ev.B?.dudosa ? " · dudosa" : "")}</td><td>${textoFinal(ev)}</td><td class="hint">${ev.motivo}${ev.verdad ? ` (verdad: ${ev.verdad.replace("_", " ")})` : ""}</td></tr>`).join("")}</tbody></table>${r.length > 500 ? `<p class="empty-note">Se muestran las 500 más nuevas de ${miles(r.length)}. El CSV trae todas.</p>` : ""}`;
 }
 $("btn-csv").onclick = () => {
-  const q = v => `"${String(v).replace(/"/g, '""')}"`;
-  const filas = [["Botella", "Fecha y hora", "Producto", "Lado", "Resultado", "Modo sombra", "Motivo", "Textura", "Parecido", "Disparo", "Nitidez"],
-    ...S.reg.map(ev => [tag(ev.n), new Date(ev.t).toLocaleString("es-CL"), ev.producto, LADOS[ev.lado], ev.presente ? "Con etiqueta" : "Sin etiqueta", ev.sombra ? "Sí" : "No", ev.motivo, String(ev.textura).replace(".", ","), String(ev.parecido).replace(".", ","), ev.disparo || "Manual", ev.nitidez ?? ""])];
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`, c = v => String(v ?? "").replace(".", ",");
+  const lado = x => x ? [veTxt(x), c(x.cf), c(x.ct), x.fuente, x.movida ? "Sí" : "No", x.dudosa ? "Sí" : "No"] : ["no la vio", "", "", "", "", ""];
+  const filas = [["Botella", "Fecha y hora", "Producto", "Resultado", "Falta", "Modo sombra", "Motivo",
+    "A ve", "A confianza frontal", "A confianza trasera", "A fuente", "A foto movida", "A dudosa",
+    "B ve", "B confianza frontal", "B confianza trasera", "B fuente", "B foto movida", "B dudosa", "Verdad simulada"],
+    ...S.reg.map(ev => [tag(ev.n), new Date(ev.t).toLocaleString("es-CL"), ev.producto, { OK: "OK", RECHAZO: "Rechazo", NO_REVISADA: "No revisada" }[ev.final], (ev.faltan || []).join(" y "), ev.sombra ? "Sí" : "No", ev.motivo,
+      ...lado(ev.A), ...(ev.modo === "una" ? ["(1 cámara)", "", "", "", "", ""] : lado(ev.B)), ev.verdad ? ev.verdad.replace("_", " ") : ""])];
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob(["﻿" + filas.map(f => f.map(q).join(";")).join("\r\n")], { type: "text/csv;charset=utf-8" }));
   a.download = `quality-ai-registro-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };
-$("btn-borrar-reg").onclick = () => { if (confirm("¿Borrar todo el registro guardado en este computador?")) { S.reg = []; guardar("qa-reg", S.reg); pintarRegistro(); $("feed").innerHTML = '<p class="empty-note">Registro borrado.</p>'; } };
+$("btn-borrar-reg").onclick = () => { if (confirm("¿Borrar todo el registro guardado en este computador?")) { S.reg = []; guardar("qa-reg2", S.reg); pintarRegistro(); $("feed").innerHTML = '<p class="empty-note">Registro borrado.</p>'; } };
 
-/* ---------- frente y reverso (con fotos) ---------- */
+/* =====================================================================
+ * Prueba de capacidad: 2 cámaras simuladas en tiempo real
+ * ===================================================================== */
+$("es-min").oninput = e => { $("es-min-v").textContent = e.target.value + " min"; };
+$("es-ph").oninput = e => { $("es-ph-v").textContent = miles(+e.target.value); };
+$("es-btn").onclick = () => S.estres ? terminarEstres(true) : empezarEstres();
+
+function empezarEstres() {
+  const min = +$("es-min").value, ph = +$("es-ph").value;
+  const escena = Simulacion.crearEscena({ porHora: ph, desfaseMs: 175, semilla: (Date.now() % 1e5) + 1, linea: { pRacha: 0.01, pSuelta: 0.02 }, tex: S.texSim });
+  S.estres = {
+    min, ph, escena, dur: min * 60000, t0: performance.now(), ultimoPinte: 0, botellas: [],
+    emp: Botella.crearEmparejador({ ventanaMs: 150, desfaseMs: 175 }),
+    est: Object.fromEntries(EST.map(e => [e, { id: e, nucleo: Disparo.crearNucleo(), mejor: null, k: -1, perdidos: 0, cuadros: 0, lecturas: [], ms: 0, nitidez: [], movidas: 0, fuente: Fuentes.simulada(e) }])),
+  };
+  $("es-btn").textContent = "Detener"; $("es-desc").disabled = true;
+  $("es-crit").innerHTML = '<p class="hint">Corriendo…</p>'; $("es-res").textContent = "";
+}
+function pasoEstres(t) {
+  const E = S.estres, ts = E.ts = t - E.t0;
+  for (const e of EST) {
+    const st = E.est[e], k = Math.floor(ts / MS_CUADRO);
+    if (k <= st.k) continue;
+    if (st.k >= 0) st.perdidos += k - st.k - 1;
+    st.k = k; st.cuadros++;
+    const tk = k * MS_CUADRO, q = E.escena.cuadro(e, tk);
+    if (k % 2 === 0) { st.fuente.pintar(q.g, q.w, q.h); dibujar($("es-" + e), st.fuente.imagen, ROI_SIM, null, true); }
+    const g = Motor.reducir(q.g, q.w, q.h, ROI_SIM, ANCHO_DISP, 168);
+    const res = st.nucleo.procesar(g, ANCHO_DISP, 168, tk);
+    if (res.guardar) st.mejor = { g: q.g, centro: q.centro };
+    if (res.evento === "botella" && st.mejor) {
+      const t0 = performance.now(), vista = Motor.detectar(Motor.reducir(st.mejor.g, q.w, q.h, ROI_SIM), S.calSim, cfg.tol);
+      st.ms += performance.now() - t0;
+      if (esMovida(st, res.razon)) st.movidas++;
+      st.lecturas.push({ id: st.mejor.centro, t: tk });
+      E.botellas.push(...E.emp.llega(e, vista, tk, { id: st.mejor.centro }));
+    }
+  }
+  E.botellas.push(...E.emp.revisar(ts));
+  if (t - E.ultimoPinte > 500) { E.ultimoPinte = t; pintarEstres(false); }
+  if (ts > E.dur + 2500) terminarEstres(false);
+}
+function resultadosEstres() {
+  const E = S.estres, fin = Math.min(E.dur, E.ts || 0), reales = E.escena.llegadas(fin), ids = new Set(reales.map(b => b.id));
+  const cam = {};
+  for (const e of EST) {
+    const st = E.est[e], cuenta = new Map();
+    for (const l of st.lecturas) if (ids.has(l.id)) cuenta.set(l.id, (cuenta.get(l.id) || 0) + 1);
+    cam[e] = { contadas: cuenta.size, duplicados: [...cuenta.values()].reduce((s, n) => s + n - 1, 0), perdidas: [...ids].filter(i => !cuenta.has(i)).length, sinBotella: st.lecturas.filter(l => l.id === null).length, cuadrosPerdidos: st.perdidos, cuadros: st.cuadros + st.perdidos, ms: st.ms / Math.max(1, st.lecturas.length), movidas: st.movidas };
+  }
+  const dentro = E.botellas.filter(b => ids.has(b.extra.A?.id ?? b.extra.B?.id));
+  const cruces = dentro.filter(b => b.extra.A && b.extra.B && b.extra.A.id !== b.extra.B.id).length, noRev = dentro.filter(b => b.final === "NO_REVISADA").length;
+  const m = { buenas: 0, fr: 0, falt: 0, det: 0, esc: 0 };
+  for (const b of dentro) {
+    if (b.final === "NO_REVISADA" || !b.extra.A || !b.extra.B || b.extra.A.id !== b.extra.B.id) continue;
+    const v = E.escena.botella(b.extra.A.id)?.verdad.clase;
+    if (v === "buena") { m.buenas++; if (b.final !== "OK") m.fr++; }
+    if (v === "sin_etiqueta") { m.falt++; b.final === "OK" ? m.esc++ : m.det++; }
+  }
+  return { reales: reales.length, cam, cruces, noRev, m, seg: fin / 1000 };
+}
+function pintarEstres(final) {
+  const E = S.estres, r = resultadosEstres(), A = r.cam.A, B = r.cam.B;
+  $("es-barra").style.width = Math.min(100, 100 * r.seg * 1000 / E.dur) + "%";
+  $("es-t").textContent = final ? `Terminó: ${Math.round(r.seg)} s de línea.` : `${Math.floor(r.seg / 60)}:${String(Math.floor(r.seg % 60)).padStart(2, "0")} de ${E.min}:00`;
+  $("es-reales").textContent = miles(r.reales); $("es-cont").textContent = `${miles(A.contadas)} / ${miles(B.contadas)}`;
+  $("es-dup").textContent = A.duplicados + B.duplicados; $("es-emp").textContent = r.noRev + r.cruces;
+  $("es-det").textContent = `${r.m.det} de ${r.m.falt}`; $("es-esc").textContent = r.m.esc; $("es-fr").textContent = `${r.m.fr} de ${miles(r.m.buenas)}`;
+  $("es-ms").textContent = n1((A.ms + B.ms) / 2); $("es-perd").textContent = `${A.cuadrosPerdidos + B.cuadrosPerdidos}`; $("es-mov").textContent = A.movidas + B.movidas;
+  return r;
+}
+function terminarEstres(cortada) {
+  const E = S.estres;
+  E.botellas.push(...E.emp.vaciar());
+  const r = pintarEstres(true), A = r.cam.A, B = r.cam.B;
+  // al cortar a mano, las botellas que iban pasando no alcanzaron a llegar a las dos cámaras
+  const crit = [
+    [A.contadas === r.reales && B.contadas === r.reales, `Conteo exacto: A contó ${A.contadas} y B contó ${B.contadas} de ${r.reales} reales`],
+    [A.duplicados + B.duplicados === 0, `Duplicados: ${A.duplicados + B.duplicados}`],
+    [r.cruces === 0 && r.noRev === 0, `Emparejamientos fallidos: ${r.cruces} cruces y ${r.noRev} no revisadas (cuentan como rechazo)`],
+    [r.m.esc === 0, `Sin etiqueta aprobadas: ${r.m.esc} de ${r.m.falt}`],
+    [r.m.buenas && r.m.fr / r.m.buenas < 0.02, `Buenas rechazadas: ${r.m.fr} de ${r.m.buenas} (${n1(100 * r.m.fr / Math.max(1, r.m.buenas))} %)`],
+    [A.cuadrosPerdidos + B.cuadrosPerdidos <= 0.005 * (A.cuadros + B.cuadros), `Cuadros perdidos: ${A.cuadrosPerdidos + B.cuadrosPerdidos} de ${A.cuadros + B.cuadros}`],
+  ];
+  $("es-crit").innerHTML = crit.map(([ok, t]) => `<div><span class="ic ${ok ? "y" : "n"}" style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:${ok ? "var(--ok-bg)" : "var(--rej-bg)"};color:${ok ? "var(--ok)" : "var(--rej)"}">${ok ? "✓" : "✗"}</span>${t}</div>`).join("");
+  $("es-res").textContent = `${cortada ? "Prueba detenida a mano. " : ""}Revisión: ${n1((A.ms + B.ms) / 2)} ms por botella y cámara. A ${E.ph.toLocaleString("es-CL")} botellas/hora llega una cada ${Math.round(3600000 / E.ph)} ms. Fotos movidas: ${A.movidas + B.movidas}.`;
+  S.informeEstres = [`Quality AI · prueba de capacidad · ${new Date().toLocaleString("es-CL")}`, `${E.min} min a ${E.ph} botellas/hora, 2 cámaras simuladas${cortada ? " (detenida a mano)" : ""}`, ...crit.map(([ok, t]) => `${ok ? "OK   " : "FALLA"} ${t}`), $("es-res").textContent].join("\r\n");
+  $("es-desc").disabled = false; $("es-btn").textContent = "Empezar prueba";
+  S.estres = null;
+  for (const e of EST) { S.est[e]?.disparo?.reiniciar(); S.est[e]?.nucleo?.reiniciar(); }
+}
+$("es-desc").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([S.informeEstres], { type: "text/plain;charset=utf-8" }));
+  a.download = `quality-ai-capacidad-${new Date().toISOString().slice(0, 10)}.txt`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+
+/* ---------- prueba sin cámara (fotos): método antiguo, frente y reverso sin giro ---------- */
+const LADOS = { frente: "Frente", reverso: "Reverso" };
+const esHeic = f => /\.(heic|heif)$/i.test(f.name) || /heic|heif/i.test(f.type);
 // vidrio sin etiqueta simulado: degradado verde, brillo vertical, ruido y a veces reflejos y manchas
 function vidrioSimulado(semilla) {
   const c = document.createElement("canvas"); c.width = 640; c.height = 480; const x = c.getContext("2d");
@@ -951,7 +1532,7 @@ function alerta(t) {
 }
 
 /* ---------- inicio ---------- */
-pintarEstado(); pintarChip(); pintarSesion(); pintarFeed();
+pintarCal(); pintarEstado(); pintarChip(); pintarFeed(); armar();
 </script>
 </body>
 </html>

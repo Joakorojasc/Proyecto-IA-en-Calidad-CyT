@@ -123,6 +123,18 @@ const pruebas = {
     assert.ok(fin, "debería haber contado la botella");
     assert.strictEqual(guardados[guardados.length - 1], 35);
   },
+  "la razón de nitidez delata la foto movida"() {
+    const { razonNitidez } = globalThis.Disparo, r = azar(6);
+    const g = cuadroVacio(r);
+    dibujarBotella(g, 55);
+    const movida = Uint8ClampedArray.from(g, (_, i) => {   // promedio horizontal de 7 puntos, como una botella movida
+      const x = i % W; let s = 0, n = 0;
+      for (let k = -3; k <= 3; k++) if (x + k >= 0 && x + k < W) { s += g[i + k]; n++; }
+      return s / n;
+    });
+    const nitida = razonNitidez(g, W, H), borrosa = razonNitidez(movida, W, H);
+    assert.ok(borrosa < 0.75 * nitida, `nítida ${nitida.toFixed(2)}, movida ${borrosa.toFixed(2)}`);
+  },
 };
 
 let fallas = 0;

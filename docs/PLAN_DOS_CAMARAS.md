@@ -1,5 +1,27 @@
 # Plan de trabajo · Quality AI con 1 cámara real + 1 simulada (lista para 2 cámaras)
 
+## Estado (5 de noviembre de 2026, rama `mvp-dos-vistas`)
+
+El plan cambió en un punto clave: **las botellas pasan giradas al azar**, así que ya no hay "cámara de frente" y "cámara de reverso". Cada cámara dice qué etiquetas ve (frontal, trasera, las dos o ninguna) y la botella es OK solo si, juntando las dos vistas, aparecen la frontal y la trasera.
+
+| Qué | Dónde | Estado |
+|---|---|---|
+| Calibración por tipo de etiqueta (frontal, trasera, de lado, vidrio) con guía de 14 pasos y giros de 0°, ±30°, ±60° y de lado | `producto.html` → Calibración; `Motor.calibrarTipos()` | Hecho |
+| Detector por ventanas verticales sobre la botella "desenrollada" (tolera el giro y la curvatura) | `Motor.detectar()` en `motor.js` | Hecho, probado con simulación |
+| Botella como unidad: OK / RECHAZO (indica cuál falta) / NO_REVISADA | `Botella.fusionar()` en `botella.js` | Hecho |
+| Emparejar 2 cámaras por orden de llegada con ventana y desfase configurables | `Botella.crearEmparejador()` | Hecho |
+| Simulación: giro 0–360° (A ve θ, B ve θ+180°), fallas en rachas, sin etiqueta / corrida / a medio pegar, luz y foto movida, con la verdad guardada | `simulacion.js` | Hecho |
+| Fuentes intercambiables por estación (cámara real, simulada, video, 1 cámara con espejo) y `deviceId` recordado | `fuentes.js`, menú sobre cada cámara | Hecho |
+| "Frente y reverso" sale del menú principal como "Prueba sin cámara (fotos)" | barra lateral | Hecho |
+| Alerta roja con sonido que hay que reconocer y aviso "Revisar etiquetadora" | `producto.html` | Hecho |
+| Prueba de capacidad 10 min a 10.000/h con 2 fuentes simultáneas | `producto.html` → Prueba de capacidad; `scripts/test_capacidad.js` | Hecho |
+| Medición de foto movida (`Disparo.razonNitidez`) y ajustes de cámara documentados | `disparo.js`, Ajustes, `INSTRUCCIONES_DE_USO.md` | Hecho |
+| Prueba final con cámara real (30 botellas de conteo y 20 mezcladas) | `docs/PRUEBA_FINAL.md` | **Pendiente: requiere la cámara y botellas** |
+
+Pruebas sin cámara: `node scripts/test_disparo.js`, `node scripts/test_botella.js`, `node scripts/test_detector.js`, `node scripts/test_capacidad.js`.
+
+**Ojo:** todo lo anterior está probado con botellas simuladas. Las etiquetas simuladas son dibujos, no las reales; el detector todavía tiene que comprobarse con fotos reales de la viña (ver `PRUEBA_FINAL.md`).
+
 ## Contexto (léelo primero)
 
 **Objetivo del MVP:** asegurar que cada botella tenga sus **2 etiquetas** (frente y reverso). La viña recibe multas por botellas sin etiqueta. **No** se revisa SKU ni color por ahora.

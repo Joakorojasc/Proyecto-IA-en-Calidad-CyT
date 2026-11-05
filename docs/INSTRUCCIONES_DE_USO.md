@@ -10,14 +10,14 @@ Quality AI mira cada botella con una o dos cámaras, una a cada lado de la líne
 - Una o dos cámaras USB fijas, **cada una en un puerto USB distinto**.
 - Una botella con sus dos etiquetas y una botella **sin etiquetas**, para enseñarle al programa.
 
-Quien te entregó el programa te indicará cómo abrirlo. Se abre en Chrome, como una página web.
+Para abrirlo, en la carpeta del proyecto ejecuta `python3 scripts/servidor.py` y abre `http://localhost:8000/frontend/producto.html` en Chrome. Si después de una actualización ves la versión antigua, recarga con **Cmd + Shift + R** (Mac) o **Ctrl + Shift + R** (Windows).
 
 ## 1. Elige la fuente de cada cámara
 
 En **Monitoreo en vivo** hay dos cuadros: **Cámara A** y **Cámara B**. Arriba de cada imagen hay un menú:
 
 - **Cámara real**: elige la cámara por su nombre. El programa la recuerda para la próxima vez.
-- **Simulada**: una cámara de mentira que ve la botella girada al azar. Sirve mientras haya una sola cámara.
+- **Simulada**: una cámara de mentira que ve la botella girada al azar. Sirve mientras haya una sola cámara. Si eliges **Simulada** en las dos, la línea simulada parte cuando aprietas **Comenzar simulación** (y se detiene con **Detener simulación**).
 - **Video de prueba…**: un video grabado, para probar sin estar en la línea.
 - **No hay (1 cámara con espejo)** (solo en la B): una sola cámara que ve las dos etiquetas gracias a un espejo detrás de la botella.
 

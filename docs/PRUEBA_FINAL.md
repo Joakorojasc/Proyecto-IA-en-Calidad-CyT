@@ -4,7 +4,7 @@ Guion para comprobar el MVP frente a la cámara Pc02. Anotar todo con números.
 
 ## Antes de empezar
 
-- Abrir `http://localhost:8000/frontend/producto.html` en Chrome (con `python -m http.server 8000` en la carpeta del proyecto).
+- Abrir `http://localhost:8000/frontend/producto.html` en Chrome (con `python3 scripts/servidor.py` en la carpeta del proyecto; no guarda copias viejas de la página).
 - Cámara fija, buena luz, 720p. En **Ajustes**, encender **Pedir exposición corta a las cámaras** y anotar lo que responde.
 - Revisar que las pruebas sin cámara sigan pasando:
   ```bash

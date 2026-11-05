@@ -394,6 +394,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
           <button class="toggle" id="auto" aria-pressed="true" title="Registra sola cada botella que pasa por el recuadro">Disparo automático <span class="sw"></span></button>
           <span class="hint" id="modo-txt"></span>
           <span class="grow"></span>
+          <button class="btn gold" id="btn-sim" hidden>Comenzar simulación</button>
           <button class="btn primary" id="btn-reg">Registrar botella <span class="k">Espacio</span></button>
         </div>
         <div class="alert warn aviso-sim" id="aviso-1cam" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span id="aviso-1cam-t"></span></div>
@@ -646,11 +647,11 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
   </div>
 </div>
 
-<script src="motor.js"></script>
-<script src="disparo.js"></script>
-<script src="simulacion.js"></script>
-<script src="botella.js"></script>
-<script src="fuentes.js"></script>
+<script src="motor.js?v=2"></script>
+<script src="disparo.js?v=2"></script>
+<script src="simulacion.js?v=2"></script>
+<script src="botella.js?v=2"></script>
+<script src="fuentes.js?v=2"></script>
 <script>
 const $ = id => document.getElementById(id);
 const ICON = {
@@ -747,6 +748,7 @@ async function armar() {
   S.modo = modoActual();
   S.escena = S.modo === "escena" ? Simulacion.crearEscena({ porHora: cfg.sim.porHora, desfaseMs: cfg.desfase, semilla: (Date.now() % 1e5) + 1, linea: simLinea(), tex: S.texSim }) : null;
   S.t0Escena = performance.now();
+  S.simCorriendo = false;
   S.lineaSim = S.modo === "acompanante" ? Simulacion.crearLinea(simLinea()) : null;
   S.emp = Botella.crearEmparejador({ estaciones: S.modo === "una" ? ["A"] : EST, ventanaMs: cfg.ventana, desfaseMs: cfg.desfase });
   S.vig = Botella.crearVigilante({ racha: cfg.racha });
@@ -761,8 +763,7 @@ async function armar() {
     if (t === "simulada") {
       st.fuente = Fuentes.simulada(e);
       if (S.modo === "escena") st.nucleo = Disparo.crearNucleo({ umbralPx: Disparo.umbralDeSensibilidad(50) });
-      $("empty-" + e).hidden = S.modo === "escena";
-      $("msg-" + e).textContent = "Vista simulada: aparece cuando la otra cámara registra una botella.";
+      $("msg-" + e).textContent = S.modo === "escena" ? "Simulación lista. Aprieta Comenzar simulación." : "Vista simulada: aparece cuando la otra cámara registra una botella.";
       continue;
     }
     if (t === "video") {
@@ -774,7 +775,7 @@ async function armar() {
     await encender(e);
   }
   await pintarSelects();
-  pintarModo(); pintarEstado(); pintarChip();
+  pintarModo(); pintarBotonSim(); pintarEstado(); pintarChip();
 }
 
 async function encender(e) {
@@ -808,9 +809,10 @@ async function pintarSelects() {
   for (const e of EST) {
     const f = cfg.fuentes[e], sel = $("src-" + e);
     const actual = f.tipo === "camara" ? "cam:" + (S.est[e]?.fuente?.deviceId || f.deviceId || "") : f.tipo;
+    // sin permiso de cámara, Chrome no entrega los nombres: se ofrece buscarlas (pide el permiso)
     const camOpts = devs.length && devs[0].label
       ? devs.map((d, i) => `<option value="cam:${d.deviceId}">${d.label || "Cámara " + (i + 1)}</option>`).join("")
-      : `<option value="cam:${f.tipo === "camara" ? f.deviceId || "" : ""}">Cámara real</option>`;
+      : `<option value="cam:${f.tipo === "camara" ? f.deviceId || "" : ""}">Cámara real</option><option value="buscar">Buscar mis cámaras…</option>`;
     sel.innerHTML = `<optgroup label="Cámara real">${camOpts}</optgroup><option value="simulada">Simulada</option><option value="video">Video de prueba…</option>${e === "B" ? '<option value="ninguna">No hay (1 cámara con espejo)</option>' : ""}`;
     if ([...sel.options].some(o => o.value === actual)) sel.value = actual;
     else if (f.tipo === "camara") sel.selectedIndex = 0;
@@ -818,10 +820,24 @@ async function pintarSelects() {
 }
 for (const e of EST) $("src-" + e).onchange = ev => {
   const v = ev.target.value;
+  if (v === "buscar") { buscarCamaras(); return; }
   if (v === "video") { $("video-file").dataset.est = e; $("video-file").click(); pintarSelects(); return; }
   cfg.fuentes[e] = v.startsWith("cam:") ? { tipo: "camara", deviceId: v.slice(4) || null } : { tipo: v };
   guardarCfg(); armar();
 };
+/** Pide permiso de cámara solo para conocer los nombres (Pc02, la del notebook…) y llenar los menús. */
+async function buscarCamaras() {
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    s.getTracks().forEach(t => t.stop());
+  } catch (err) {
+    alerta(err.name === "NotAllowedError" ? "Chrome no dio permiso para usar la cámara. Permítelo en el ícono de cámara de la barra de direcciones." : "No se pudo buscar cámaras: " + err.message);
+  }
+  await pintarSelects();
+  const n = (await Fuentes.camaras()).length;
+  alerta(n ? `Se encontraron ${n} cámara${n === 1 ? "" : "s"}. Elígela en el menú.` : "No se encontró ninguna cámara. Revisa que esté conectada por USB.");
+}
+navigator.mediaDevices?.addEventListener?.("devicechange", () => pintarSelects());   // se conectó o desconectó una cámara
 $("video-file").onchange = ev => {
   const e = ev.target.dataset.est, f = ev.target.files[0];
   ev.target.value = "";
@@ -845,20 +861,22 @@ function miniatura(fuente, r, lado = 64) {
 const simMini = Fuentes.simulada("mini");
 function miniGris(g, w, h, r) { simMini.pintar(g, w, h); return miniatura(simMini.imagen, r); }
 
-/* dibuja una estación: imagen, recuadro y franja */
-function dibujar(cv, img, r, color, franja) {
+/* dibuja una estación: imagen, recuadro (dónde tiene que ir la botella) y franja */
+function dibujar(cv, img, r, color, franja, conRecuadro = true) {
   const x = cv.getContext("2d"), vw = img.videoWidth || img.width, vh = img.videoHeight || img.height;
   if (!vw) return;
   if (cv.width !== vw || cv.height !== vh) { cv.width = vw; cv.height = vh; }
   x.drawImage(img, 0, 0);
   x.save();
-  x.fillStyle = "rgba(7,16,29,.42)";
-  x.fillRect(0, 0, vw, r.y); x.fillRect(0, r.y + r.h, vw, vh - r.y - r.h);
-  x.fillRect(0, r.y, r.x, r.h); x.fillRect(r.x + r.w, r.y, vw - r.x - r.w, r.h);
-  x.lineWidth = Math.max(2, vw / 320);
-  x.strokeStyle = color || "#CBA14E";
-  x.setLineDash(color ? [] : [vw / 60, vw / 90]);
-  x.strokeRect(r.x, r.y, r.w, r.h);
+  if (conRecuadro) {
+    x.fillStyle = "rgba(7,16,29,.42)";
+    x.fillRect(0, 0, vw, r.y); x.fillRect(0, r.y + r.h, vw, vh - r.y - r.h);
+    x.fillRect(0, r.y, r.x, r.h); x.fillRect(r.x + r.w, r.y, vw - r.x - r.w, r.h);
+    x.lineWidth = Math.max(2, vw / 320);
+    x.strokeStyle = color || "#CBA14E";
+    x.setLineDash(color ? [] : [vw / 60, vw / 90]);
+    x.strokeRect(r.x, r.y, r.w, r.h);
+  }
   if (franja) { const fw = r.w * 0.08; x.setLineDash([]); x.fillStyle = "rgba(203,161,78,.22)"; x.fillRect(r.x + (r.w - fw) / 2, r.y, fw, r.h); }
   x.restore();
 }
@@ -881,6 +899,7 @@ function bucle(t) {
     if (cfg.auto && S.sesion.n) alerta("La página estuvo oculta o detenida: las botellas de ese rato no se revisaron. Mantén esta pestaña visible.");
   }
   if (S.modo === "escena") {
+    if (!S.simCorriendo) return;   // la línea simulada parte solo con el botón Comenzar simulación
     const ts = t - S.t0Escena;
     for (const e of EST) pasoEscena(S.est[e], ts);
     for (const b of S.emp.revisar(ts)) registrarBotella(b);
@@ -972,6 +991,22 @@ function pintarVe(e, v) {
   for (const [k, id] of [["frontal", "f"], ["trasera", "t"]]) $(`ve-${e}-${id}`).className = "pill " + (v ? (v[k].visto ? "si" : "no") : "");
 }
 
+/* las dos cámaras simuladas: la línea parte, se detiene y sigue con el botón */
+function pintarBotonSim() {
+  const b = $("btn-sim");
+  b.hidden = S.modo !== "escena";
+  b.textContent = S.simCorriendo ? "Detener simulación" : (S.est.A?.k ?? -1) >= 0 ? "Continuar simulación" : "Comenzar simulación";
+  b.className = "btn " + (S.simCorriendo ? "" : "gold");
+}
+$("btn-sim").onclick = () => {
+  S.simCorriendo = !S.simCorriendo;
+  if (S.simCorriendo) {
+    S.t0Escena = performance.now() - ((S.est.A?.k ?? -1) + 1) * MS_CUADRO;   // sigue donde quedó
+    for (const e of EST) $("empty-" + e).hidden = true;
+  }
+  pintarBotonSim(); pintarEstado();
+};
+
 /* registro a mano: lee lo que ven ahora las cámaras reales */
 function registrarAMano() {
   if (S.vista !== "monitoreo" || !S.calReal) return;
@@ -1035,7 +1070,7 @@ function pintarEstado() {
   const hero = $("hero"), set = (cls, ic, st, sub) => { hero.className = "card status " + cls; $("hero-ring").innerHTML = ICON[ic]; $("hero-st").textContent = st; $("hero-sub").textContent = sub; };
   const ev = S.ultimaBotella, faltaCal = EST.some(esReal) && !S.calReal;
   if (faltaCal) set("wait", "wait", "Falta calibrar", "Ve a Calibración y sigue los pasos con la botella girada. " + (S.errorCal || ""));
-  else if (!ev) set("wait", "wait", "Esperando botella", S.modo === "escena" ? "Las dos cámaras son simuladas: la línea simulada parte sola." : "Cuando una botella cruce la franja dorada se revisa y se registra sola.");
+  else if (!ev) set("wait", "wait", "Esperando botella", S.modo === "escena" ? (S.simCorriendo ? "Línea simulada en marcha." : "Las dos cámaras son simuladas: aprieta Comenzar simulación.") : "Cuando una botella cruce la franja dorada se revisa y se registra sola.");
   else if (ev.final === "OK") set("ok", "ok", `${tag(ev.n)} · tiene sus 2 etiquetas`, ev.motivo);
   else if (ev.final === "NO_REVISADA") set("bad", "bad", `${tag(ev.n)} · no revisada`, ev.motivo + " Cuenta como rechazo.");
   else set("bad", "bad", `${tag(ev.n)} · ${ev.faltan.length === 2 ? "sin etiquetas" : "falta la " + NOMBRE_ETQ[ev.faltan[0]]}`, ev.motivo);
@@ -1046,7 +1081,7 @@ function pintarEstado() {
   const v = S.verdad;
   $("vd-falt").textContent = miles(v.falt); $("vd-det").textContent = miles(v.det); $("vd-esc").textContent = miles(v.esc);
   $("vd-fr").textContent = `${miles(v.fr)} de ${miles(v.buenas)}`; $("vd-def").textContent = `${miles(v.defRech)} de ${miles(v.def)}`;
-  const vivo = S.modo === "escena" || EST.some(e => esReal(e) && S.est[e]?.fuente?.lista?.());
+  const vivo = (S.modo === "escena" && S.simCorriendo) || EST.some(e => esReal(e) && S.est[e]?.fuente?.lista?.());
   $("live").classList.toggle("on", vivo); $("live-t").textContent = vivo ? "En vivo" : "Detenido";
 }
 let feedT = 0;
@@ -1174,7 +1209,7 @@ function dibujarCal(t) {
   const st = S.est[S.calEst], f = st?.fuente;
   if (!f || !esReal(S.calEst) || !f.lista()) return;
   const r = roiDe(f.imagen);
-  dibujar($("mini-cv"), f.imagen, r, null, false);
+  dibujar($("mini-cv"), f.imagen, r, null, false, true);
   if (S.calReal && t - tAhora > 300) {   // muestra en vivo qué reconoce: sirve para revisar la calibración
     tAhora = t;
     const v = Motor.detectar(Motor.grisDe(f.imagen, r), S.calReal, cfg.tol);

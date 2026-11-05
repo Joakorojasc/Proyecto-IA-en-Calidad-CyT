@@ -40,7 +40,7 @@ Pruebas sin cámara: `node scripts/test_disparo.js`, `node scripts/test_botella.
 
 **Cómo correrlo:**
 ```bash
-python -m http.server 8000
+python3 scripts/servidor.py   # como http.server, pero sin copias viejas de la página
 # abrir http://localhost:8000/frontend/producto.html  (no con doble clic: la cámara exige localhost)
 ```
 

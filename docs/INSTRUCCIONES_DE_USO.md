@@ -54,9 +54,24 @@ Cada botella queda como:
 
 Cuando falta una etiqueta, la pantalla se pone **roja** y suena un pitido hasta que aprietas **Reconocer** (o Enter). Si se juntan varios rechazos seguidos aparece **Revisar etiquetadora**: puede que se haya acabado un rollo o que la etiquetadora esté atascada.
 
+### Cámara sin visión
+
+Si una cámara queda **tapada, a oscuras, encandilada, congelada, desenfocada, movida de su lugar o desconectada** por más de 2 segundos, aparece la alerta roja **CÁMARA A SIN VISIÓN** (o B), su cuadro se marca en rojo y suena el pitido. Mientras dure, las botellas que pasen **no se revisan** y quedan como **No revisadas**: nunca como OK. Cuando la cámara vuelve a ver, se avisa cuánto tiempo estuvo ciega. Todo queda anotado en **Registro → Eventos de las cámaras**.
+
+Si dice que **muchas fotos salen movidas**, es solo un aviso: acorta la exposición o sube la luz.
+
+Para probarlo, tapa la cámara con la mano unos segundos. Con las dos cámaras simuladas, usa **Ajustes → Cámara sin visión → Simular 8 segundos**. Si moviste la cámara a propósito, aprieta **Reaprender fondo** (y recalibra si cambió el encuadre).
+
 ## 5. Revisa y guarda los resultados
 
-En **Registro** hay una fila por botella: qué vio cada cámara, el resultado y el motivo. Con **Descargar CSV (Excel)** obtienes la lista en un archivo. El registro queda guardado solo en ese computador.
+En **Registro** hay una fila por botella: qué vio cada cámara, el resultado y el motivo. Con **Descargar CSV (Excel)** obtienes la lista en un archivo.
+
+**Respaldo en disco.** Si abriste la página con `python3 scripts/servidor.py`, cada botella se guarda además en la carpeta **`datos/`** del proyecto:
+
+- `datos/registro.sqlite`: todas las botellas y los eventos de las cámaras.
+- `datos/fotos/AAAA-MM-DD/`: la foto de cada botella **rechazada, no revisada o dudosa**, de las dos cámaras. Sirve de evidencia: con el número de la botella (B00012) se encuentra su foto. Las botellas OK no guardan foto.
+
+El indicador **Respaldo en disco** de arriba dice si se está guardando. Si el servidor se cae, las botellas quedan pendientes y se mandan cuando vuelva. En **Registro** está el enlace **foto A / foto B** de cada rechazo y los botones **CSV del disco (hoy)** y **CSV de eventos**. Para otras fechas: `http://localhost:8000/api/registro.csv?desde=2026-11-01&hasta=2026-11-06`. Si queda menos de 500 MB libres, se dejan de guardar fotos (las filas sí).
 
 ## Ajustes de cámara
 
@@ -82,6 +97,8 @@ En **Registro** hay una fila por botella: qué vio cada cámara, el resultado y 
 | Dice que el recuadro lleva mucho rato ocupado | Saca lo que esté frente a la cámara. Si no hay nada, aprieta **Reaprender fondo**. |
 | No cuenta las botellas | Deja el recuadro vacío y aprieta **Reaprender fondo**. Si sigue igual, sube **Sensibilidad del disparo** en Calibración. |
 | Muchas botellas **No revisadas** | Una cámara no está viendo todas las botellas, o el **desfase** entre cámaras no corresponde (Ajustes → Juntar las 2 cámaras). |
+| Alerta **SIN VISIÓN** | Lee la causa en la alerta: destapa o limpia el lente, revisa la luz, el foco y el cable USB. Si moviste la cámara a propósito, **Reaprender fondo**. |
+| Dice **Sin respaldo en disco** | Abre la página con `python3 scripts/servidor.py` (no con `python -m http.server`). |
 | Rechaza botellas buenas | Mejora la luz, revisa **Ahora ve** en Calibración y agrega fotos en los pasos donde falla. |
 
 **Si ves una botella marcada de forma incorrecta,** avísale al equipo del proyecto con el número de la botella que aparece en el Registro.

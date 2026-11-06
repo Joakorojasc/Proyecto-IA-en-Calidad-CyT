@@ -51,7 +51,8 @@
         f.cps = aj.frameRate ? Math.round(aj.frameRate) : null;
       },
       detener() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; video.srcObject = null; },
-      lista: () => !!stream && video.readyState >= 2 && video.videoWidth > 0,
+      // si se desenchufa la cámara la pista termina, pero el video sigue mostrando el último cuadro: eso no es "lista"
+      lista: () => !!stream && stream.getVideoTracks()[0]?.readyState === "live" && video.readyState >= 2 && video.videoWidth > 0,
       /** Exposición corta para que la botella en movimiento no salga movida. Muchas webcams no lo permiten. */
       async exposicionCorta(activar) {
         const pista = stream?.getVideoTracks()[0];

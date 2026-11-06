@@ -2,3 +2,7 @@ __pycache__/
 outputs/
 data/
 .venv/
+
+# Registro de botellas y fotos (evidencia), no va al repo
+datos/
+.DS_Store

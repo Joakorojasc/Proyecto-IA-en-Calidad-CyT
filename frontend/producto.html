@@ -231,6 +231,18 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
 .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .pill.si{background:var(--ok-bg);color:var(--ok)} .pill.no{background:var(--rej-bg);color:var(--rej)}
 .estsub{font-size:12px;color:var(--muted);padding:0 22px 16px;min-height:1.4em}
+/* cámara sin visión: el operador tiene que notarlo aunque no mire el detalle */
+.est.ciega{border-color:var(--rej);box-shadow:0 0 0 2px var(--rej)}
+.est.ciega .estsub{color:var(--rej-ink);font-weight:600}
+.est.aviso .estsub{color:var(--warn);font-weight:600}
+.sinvision{position:absolute;left:12px;top:12px;font-size:11px;font-weight:700;letter-spacing:.12em;color:#fff;background:var(--rej);padding:3px 9px;border-radius:6px;animation:latidoTxt 1.2s ease-in-out infinite}
+@keyframes latidoTxt{0%,100%{opacity:1}50%{opacity:.55}}
+.eventos{display:grid;gap:0}
+.eventos .row{display:grid;grid-template-columns:190px 90px 1fr 110px;gap:12px;padding:10px 22px;border-top:1px solid var(--line);font-size:13px;align-items:center}
+.eventos .row:first-child{border-top:0}
+.eventos .ciega{color:var(--rej);font-weight:600} .eventos .rec{color:var(--ok)} .eventos .av{color:var(--warn)}
+.respaldo-t{padding:0 22px 16px;font-size:13px;color:var(--muted)}
+td a.foto{font-size:12px;color:var(--navy, #13233A);text-decoration:underline}
 .status .kpis .kpi{min-width:74px}
 .verdad{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 22px 18px}
 .verdad .tile{padding:10px 12px}.verdad .tile .v{font-size:21px}
@@ -345,6 +357,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
       <div class="prod"><div class="lbl">Producto en línea</div><input id="producto" aria-label="Producto en línea" value="Reservado Sauvignon Blanc · Pedro Jiménez"></div>
       <span class="live" id="live"><span class="pulse"></span><span id="live-t">Detenido</span></span>
       <span class="chip" id="chip-cal"><span class="d"></span><span id="chip-cal-t">Sin calibrar</span></span>
+      <span class="chip" id="chip-resp" title="Respaldo del registro y de las fotos de rechazo en la carpeta datos/"><span class="d"></span><span id="chip-resp-t">Respaldo…</span></span>
       <button class="toggle" id="sombra" aria-pressed="true" title="En modo sombra el sistema marca, pero no expulsa">Modo sombra <span class="sw"></span></button>
     </header>
 
@@ -370,6 +383,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
             <div class="cam"><canvas id="cv-A" width="640" height="360"></canvas>
               <div class="empty" id="empty-A"><p id="msg-A">Elige la fuente de esta cámara.</p><div><button class="btn gold" id="on-A" hidden>Activar cámara</button></div></div>
               <span class="sello" id="sello-A" hidden>SIMULADA</span>
+              <span class="sinvision" id="ciega-A" hidden>SIN VISIÓN</span>
             </div>
           </div>
           <div class="estbar"><span class="hint">Última botella:</span><span class="pill" id="ve-A-f">Frontal</span><span class="pill" id="ve-A-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="A">Reaprender fondo</button></div>
@@ -381,6 +395,7 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
             <div class="cam"><canvas id="cv-B" width="640" height="360"></canvas>
               <div class="empty" id="empty-B"><p id="msg-B">Elige la fuente de esta cámara.</p><div><button class="btn gold" id="on-B" hidden>Activar cámara</button></div></div>
               <span class="sello" id="sello-B" hidden>SIMULADA</span>
+              <span class="sinvision" id="ciega-B" hidden>SIN VISIÓN</span>
             </div>
           </div>
           <div class="estbar"><span class="hint">Última botella:</span><span class="pill" id="ve-B-f">Frontal</span><span class="pill" id="ve-B-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="B">Reaprender fondo</button></div>
@@ -489,6 +504,18 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
             </div>
           </div>
           <div class="card">
+            <h2>Cámara sin visión</h2>
+            <div class="ajustes">
+              <p class="hint">Si una cámara queda tapada, a oscuras, encandilada, congelada, desenfocada, movida de su lugar o desconectada, las botellas pasarían sin revisar. Cuando eso dura más de 2 segundos aparece la alerta roja <b>SIN VISIÓN</b>, queda anotado en el registro de eventos y las botellas de ese rato cuentan como <b>No revisadas</b>.</p>
+              <p class="hint">Para probarlo con una cámara real, tápala con la mano unos segundos. Con las dos cámaras simuladas, usa esto:</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <select id="falla-est" aria-label="Cámara para la prueba"><option value="A">Cámara A</option><option value="B">Cámara B</option></select>
+                <select id="falla-tipo" aria-label="Falla para la prueba"><option value="tapada">Tapada</option><option value="quemada">Encandilada</option><option value="congelada">Congelada</option><option value="borrosa">Desenfocada</option><option value="desconectada">Desconectada</option></select>
+                <button class="btn" id="falla-probar">Simular 8 segundos</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
             <h2>Ajustes de cámara</h2>
             <ul class="lista-ok">
               <li><b>Exposición corta</b> (1/1000 s o menos): la botella va rápido y una exposición larga la deja movida.</li>
@@ -573,9 +600,11 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
     <!-- ===================== REGISTRO ===================== -->
     <section class="view" id="v-registro" hidden>
       <div class="head">
-        <div><h1>Registro</h1><p>Una fila por botella, con lo que vio cada cámara y el resultado. Queda guardado en este computador.</p></div>
-        <div style="display:flex;gap:8px"><button class="btn" id="btn-csv" disabled>Descargar CSV (Excel)</button><button class="btn" id="btn-borrar-reg" disabled>Borrar registro</button></div>
+        <div><h1>Registro</h1><p>Una fila por botella, con lo que vio cada cámara y el resultado. Con el servidor del proyecto queda además en el disco (carpeta <b>datos/</b>), con la foto de cada rechazo como evidencia.</p></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" id="btn-csv-disco" href="/api/registro.csv" hidden>CSV del disco (hoy)</a><button class="btn" id="btn-csv" disabled>Descargar CSV (Excel)</button><button class="btn" id="btn-borrar-reg" disabled>Borrar registro</button></div>
       </div>
+      <div class="card"><h2>Respaldo en disco</h2><p class="respaldo-t" id="resp-det"></p></div>
+      <div class="card"><h2>Eventos de las cámaras <span class="note"><a class="btn sm" id="btn-ev-csv" href="/api/eventos.csv" hidden>CSV de eventos</a></span></h2><div class="eventos" id="eventos"></div></div>
       <div class="card"><div class="scroll" id="reg"></div></div>
     </section>
 
@@ -648,10 +677,12 @@ td img{width:36px;height:36px;border-radius:6px;object-fit:cover;display:block;b
 </div>
 
 <script src="motor.js?v=2"></script>
-<script src="disparo.js?v=2"></script>
+<script src="disparo.js?v=3"></script>
 <script src="simulacion.js?v=2"></script>
 <script src="botella.js?v=2"></script>
-<script src="fuentes.js?v=2"></script>
+<script src="fuentes.js?v=3"></script>
+<script src="salud.js?v=1"></script>
+<script src="respaldo.js?v=1"></script>
 <script>
 const $ = id => document.getElementById(id);
 const ICON = {
@@ -689,6 +720,8 @@ const S = {
   reg: leer("qa-reg2", []), nextId: 1, paso: 0, calEst: "A", estres: null, alerta: null,
 };
 S.nextId = S.reg.reduce((m, e) => Math.max(m, e.n || 0), 0) + 1;
+S.eventos = leer("qa-eventos", []);   // cámara sin visión, recuperada, avisos: los 300 más nuevos
+S.fallaSim = null;                    // prueba del vigilante con cámaras simuladas: { est, tipo, hasta }
 S.calSim = Motor.calibrarTipos(Simulacion.referencias(S.texSim));   // la cámara simulada trae su propia calibración
 const ROI_SIM = { x: 80, y: 36, w: 160, h: 168 };                    // recuadro de la cámara simulada (320 x 240), el mismo de las pruebas
 const ANCHO_DISP = 160;
@@ -719,7 +752,7 @@ function irA(v) {
     if (S.escena) S.t0Escena = performance.now() - ((S.est.A?.k ?? -1) + 1) * MS_CUADRO;   // la línea simulada sigue donde quedó
   }
   if (v === "calibracion") { pintarSelectCal(); pintarCal(); }
-  if (v === "registro") pintarRegistro();
+  if (v === "registro") { pintarRegistro(); pintarEventos(); pintarRespaldo(); }
   if (v === "ajustes") pintarCamarasInfo();
   window.scrollTo(0, 0);
 }
@@ -754,8 +787,10 @@ async function armar() {
   S.vig = Botella.crearVigilante({ racha: cfg.racha });
   const permiso = await Fuentes.hayPermiso();
   for (const e of EST) {
-    const st = S.est[e] = { id: e, cv: $("cv-" + e), fuente: null, disparo: null, nucleo: null, mejor: null, k: -1, perdidos: 0, nitidez: [], movidas: 0, lecturas: 0, txt: "", ultimo: null };
+    const st = S.est[e] = { id: e, cv: $("cv-" + e), fuente: null, disparo: null, nucleo: null, mejor: null, k: -1, perdidos: 0, nitidez: [], movidas: 0, lecturas: 0, txt: "", ultimo: null, salud: null, sv: null };
+    pintarSalud(e);
     const t = tipoDe(e);
+    if (t !== "ninguna") st.salud = Salud.crear();
     $("sello-" + e).hidden = t !== "simulada";
     $("on-" + e).hidden = true;
     $("empty-" + e).hidden = false;
@@ -912,15 +947,17 @@ requestAnimationFrame(bucle);
 
 function pasoReal(st, t) {
   const f = st.fuente;
-  if (!f?.lista()) return;
+  if (!f?.lista()) { if (f && st.salud) manejarSalud(st, st.salud.sinImagen(t), t); return; }
   const r = roiDe(f.imagen), puede = cfg.auto && !!S.calReal;
   if (puede) {
     const res = st.disparo.paso(f.imagen, r, t);
+    if (res.gris) manejarSalud(st, conAtasco(st, st.salud.cuadro(res.gris, res.w, res.h, t, { libre: res.estado === "libre" }), res.atascada, t), t);
     if (res.evento === "botella") lecturaReal(st, res.cuadro, res.razon, t, "Automático");
-    textoEst(st, res.evento === "luz" ? "Cambió la luz: volviendo a aprender el fondo…"
+    if (st.sv?.nivel === "ciega") textoEst(st, "SIN VISIÓN · " + st.sv.texto);
+    else textoEst(st, res.evento === "luz" ? "Cambió la luz: volviendo a aprender el fondo…"
       : res.atascada ? "La zona lleva mucho rato ocupada. Si no hay ninguna botella, aprieta Reaprender fondo."
       : res.estado === "aprendiendo" ? "Aprendiendo el fondo: deja el recuadro sin botellas…"
-      : res.estado === "ocupada" ? "Pasando una botella…" : "Esperando botella." + infoEst(st));
+      : res.estado === "ocupada" ? "Pasando una botella…" : (st.sv?.nivel === "aviso" ? st.sv.texto + " " : "Esperando botella.") + infoEst(st));
   } else textoEst(st, !S.calReal ? "Falta calibrar: ve a Calibración." : "Disparo apagado: registra con el botón o la barra espaciadora.");
   dibujar(st.cv, f.imagen, r, null, puede);
 }
@@ -930,19 +967,24 @@ function pasoEscena(st, ts) {
   if (k <= st.k) return;
   if (st.k >= 0) st.perdidos += k - st.k - 1;   // el navegador no alcanzó a pedir esos cuadros
   st.k = k;
-  const tk = k * MS_CUADRO, q = S.escena.cuadro(st.id, tk);
+  const tk = k * MS_CUADRO, falla = fallaActual(st.id, tk);
+  if (falla === "desconectada") { manejarSalud(st, st.salud.sinImagen(tk), tk); textoEst(st, "SIN VISIÓN · " + (st.sv?.texto || "Sin imagen…")); return; }
+  const q = conFalla(S.escena.cuadro(st.id, tk), falla, st);
   st.fuente.pintar(q.g, q.w, q.h);
   dibujar(st.cv, st.fuente.imagen, ROI_SIM, null, cfg.auto);
   if (!cfg.auto) { textoEst(st, "Disparo apagado."); return; }
   const g = Motor.reducir(q.g, q.w, q.h, ROI_SIM, ANCHO_DISP, Math.round(ANCHO_DISP * ROI_SIM.h / ROI_SIM.w));
   const res = st.nucleo.procesar(g, ANCHO_DISP, g.length / ANCHO_DISP, tk);
+  // el vigilante usa el reloj de la línea simulada (tk), el mismo que el disparo
+  manejarSalud(st, conAtasco(st, st.salud.cuadro(g, ANCHO_DISP, g.length / ANCHO_DISP, tk, { libre: res.estado === "libre" }), res.atascada, tk), tk);
   if (res.guardar) st.mejor = { g: q.g, w: q.w, h: q.h, centro: q.centro };
   if (res.evento === "botella" && st.mejor) {
     const m = st.mejor, vista = Motor.detectar(Motor.reducir(m.g, m.w, m.h, ROI_SIM), S.calSim, cfg.tol);
     const b = S.escena.botella(m.centro);
-    emitir(st, vista, tk, { thumb: miniGris(m.g, m.w, m.h, ROI_SIM), fuente: "simulada", nitidez: res.razon, id: m.centro, verdad: b?.verdad, b });
+    emitir(st, vista, tk, { thumb: miniGris(m.g, m.w, m.h, ROI_SIM), foto: fotoGris(m.g, m.w, m.h, ROI_SIM), fuente: "simulada", nitidez: res.razon, id: m.centro, verdad: b?.verdad, b });
   }
-  textoEst(st, res.estado === "aprendiendo" ? "Aprendiendo el fondo…" : res.estado === "ocupada" ? "Pasando una botella…" : "Esperando botella." + infoEst(st));
+  if (st.sv?.nivel === "ciega") textoEst(st, "SIN VISIÓN · " + st.sv.texto);
+  else textoEst(st, res.estado === "aprendiendo" ? "Aprendiendo el fondo…" : res.estado === "ocupada" ? "Pasando una botella…" : "Esperando botella." + infoEst(st));
 }
 
 const infoEst = st => st.lecturas ? ` ${miles(st.lecturas)} lecturas${st.movidas ? ` · ${st.movidas} fotos movidas (${n1(100 * st.movidas / st.lecturas)} %)` : ""}${st.perdidos ? ` · ${miles(st.perdidos)} cuadros perdidos` : ""}.` : "";
@@ -960,7 +1002,7 @@ function esMovida(st, razon) {
 function lecturaReal(st, cuadro, nitidez, t, disparo) {
   const ancho = cuadro.width || cuadro.videoWidth, alto = cuadro.height || cuadro.videoHeight;
   const vista = Motor.detectar(Motor.grisDe(cuadro), S.calReal, cfg.tol);
-  emitir(st, vista, t, { thumb: miniatura(cuadro, { x: 0, y: 0, w: ancho, h: alto }), fuente: st.fuente.tipo, nitidez, disparo });
+  emitir(st, vista, t, { thumb: miniatura(cuadro, { x: 0, y: 0, w: ancho, h: alto }), foto: copiaFoto(cuadro, ancho, alto), fuente: st.fuente.tipo, nitidez, disparo });
   if (S.modo === "acompanante") acompanar(st.id, t);
 }
 
@@ -975,7 +1017,7 @@ function acompanar(idReal, t) {
   const vista = Motor.detectar(Motor.reducir(g, 320, 240, ROI_SIM), S.calSim, cfg.tol);
   // llega con el desfase configurado: B después de A
   const tl = e === "B" ? t + cfg.desfase : t - cfg.desfase;
-  emitir(st, vista, tl, { thumb: miniGris(g, 320, 240, ROI_SIM), fuente: "simulada", simFalla: b.falla ? `${b.frontal !== "ok" ? "frontal " + b.frontal : "trasera " + b.trasera}` : null });
+  emitir(st, vista, tl, { thumb: miniGris(g, 320, 240, ROI_SIM), foto: fotoGris(g, 320, 240, ROI_SIM), fuente: "simulada", simFalla: b.falla ? `${b.frontal !== "ok" ? "frontal " + b.frontal : "trasera " + b.trasera}` : null });
   textoEst(st, `Simulada: giro ${Math.round(b.theta)}°${b.falla ? ", con falla" : ""}.` + infoEst(st));
 }
 
@@ -983,6 +1025,9 @@ function emitir(st, vista, t, extra) {
   st.lecturas++;
   extra.movida = esMovida(st, extra.nitidez);
   if (extra.movida) st.movidas++;
+  if (st.salud) manejarSalud(st, st.salud.lectura(extra.movida, t), t);
+  // con la cámara sin visión lo que "vio" no sirve: la botella queda No revisada (nunca OK)
+  if (st.sv?.nivel === "ciega") { extra.ciega = st.sv.texto; vista = null; }
   st.ultimo = vista;
   pintarVe(st.id, vista);
   for (const b of S.emp.llega(st.id, vista, t, extra)) registrarBotella(b);
@@ -990,6 +1035,166 @@ function emitir(st, vista, t, extra) {
 function pintarVe(e, v) {
   for (const [k, id] of [["frontal", "f"], ["trasera", "t"]]) $(`ve-${e}-${id}`).className = "pill " + (v ? (v[k].visto ? "si" : "no") : "");
 }
+
+/* =====================================================================
+ * Vigilante de cada cámara (salud.js): si queda ciega, alerta roja y evento
+ * ===================================================================== */
+function manejarSalud(st, r, t) {
+  if (!r) return;
+  const antes = st.sv?.nivel;
+  st.sv = r;
+  if (r.cambio === "ciega") {
+    st.causaCiega = r.causa;
+    registrarEvento({ tipo: "ciega", estacion: st.id, causa: r.causa, texto: r.texto });
+    avisarCiega(st.id, r);
+  } else if (r.cambio === "recuperada") {
+    const seg = r.duracionMs != null ? r.duracionMs / 1000 : null;
+    registrarEvento({ tipo: "recuperada", estacion: st.id, causa: st.causaCiega || null, texto: `Volvió a ver${seg != null ? ` después de ${n1(seg)} s sin visión` : ""}.`, duracionMs: r.duracionMs != null ? Math.round(r.duracionMs) : null });
+    recuperoCiega(st.id, seg);
+    // puede volver a ver pero con un aviso pendiente (muchas fotos movidas): se anota su inicio
+    if (r.nivel === "aviso") registrarEvento({ tipo: "aviso", estacion: st.id, causa: r.causa, texto: r.texto });
+  } else if (r.cambio === "aviso") {
+    registrarEvento({ tipo: "aviso", estacion: st.id, causa: r.causa, texto: r.texto });
+    alerta(`Cámara ${st.id}: ${r.texto}`);
+  } else if (r.cambio === "fin_aviso") registrarEvento({ tipo: "fin_aviso", estacion: st.id, causa: r.causa, texto: "Se normalizó." });
+  if (antes !== r.nivel) { pintarSalud(st.id); pintarEstado(); }
+}
+/**
+ * Si la cámara se golpea o algo queda frente a ella, el disparo ve la zona ocupada para siempre y el vigilante
+ * nunca recibe cuadros libres para compararlos con el fondo. Por eso la zona ocupada por más de 10 s también es "sin visión".
+ */
+const TEXTO_ATASCO = "El recuadro lleva más de 10 s ocupado: la cámara se movió o algo la tapa. Si no hay nada, aprieta Reaprender fondo.";
+function conAtasco(st, r, atascada, t) {
+  if (atascada) {
+    const nuevo = !st.atasco;
+    if (nuevo) st.atasco = t;
+    return { nivel: "ciega", causa: "atascada", texto: TEXTO_ATASCO, desde: st.atasco, cambio: nuevo && st.sv?.nivel !== "ciega" ? "ciega" : null };
+  }
+  if (st.atasco) {
+    const desde = st.atasco; st.atasco = null;
+    if (r.nivel !== "ciega") return { ...r, cambio: "recuperada", duracionMs: Math.round(t - desde) };
+  }
+  return r;
+}
+function pintarSalud(e) {
+  const n = S.est[e]?.sv?.nivel;
+  $("est-" + e).classList.toggle("ciega", n === "ciega");
+  $("est-" + e).classList.toggle("aviso", n === "aviso");
+  $("ciega-" + e).hidden = n !== "ciega";
+}
+function avisarCiega(e, r) {
+  if (S.estres) return;
+  S.alerta = { ciega: e, mas: 0 };
+  $("al-t").textContent = `CÁMARA ${e} SIN VISIÓN`;
+  $("al-p").textContent = `${hora(Date.now())} · ${r.texto} Mientras dure, las botellas no se revisan y cuentan como No revisadas.`;
+  $("al-mas").textContent = ""; $("al-racha").hidden = true;
+  $("alerta").hidden = false; $("al-ok").focus();
+  sonar(); clearInterval(pitido); pitido = setInterval(sonar, 2000);
+}
+function recuperoCiega(e, seg) {
+  const txt = `Cámara ${e} volvió a ver a las ${hora(Date.now())}${seg != null ? ` (estuvo ${n1(seg)} s sin visión)` : ""}.`;
+  if (S.alerta?.ciega === e && !$("alerta").hidden) { $("al-mas").textContent = txt + " Reconoce para seguir."; clearInterval(pitido); }
+  else alerta(txt);
+}
+function registrarEvento(x) {
+  const ev = { t: Date.now(), estacion: null, causa: null, texto: "", duracionMs: null, ...x };
+  S.eventos.unshift(ev);
+  if (S.eventos.length > 300) S.eventos.length = 300;
+  guardar("qa-eventos", S.eventos);
+  S.respaldo?.evento(ev);
+  if (S.vista === "registro") pintarEventos();
+}
+
+/* prueba del vigilante con cámaras simuladas: tapada, encandilada, congelada, desenfocada o desconectada por 8 s */
+function fallaActual(e, tk) {
+  const f = S.fallaSim;
+  if (!f) return null;
+  if (tk > f.hasta) { S.fallaSim = null; for (const x of EST) if (S.est[x]) S.est[x].congelado = null; return null; }
+  return f.est === e ? f.tipo : null;
+}
+function conFalla(q, falla, st) {
+  if (!falla) return q;
+  const n = q.g.length, g = new Uint8ClampedArray(n);
+  if (falla === "tapada" || falla === "quemada") {
+    const base = falla === "tapada" ? 8 : 252;
+    for (let i = 0; i < n; i++) g[i] = base + ((i * 7919 + st.k * 104729) % 5) - 2;   // con ruido de sensor, como una cámara real
+  } else if (falla === "congelada") {
+    st.congelado = st.congelado || Uint8ClampedArray.from(q.g);
+    g.set(st.congelado);
+  } else if (falla === "borrosa") {
+    // desenfoque de caja de 13 px en las dos direcciones
+    const w = q.w, h = q.h, tmp = new Float32Array(n), R = 6;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let s = 0, c = 0; for (let k = -R; k <= R; k++) { const xx = x + k; if (xx >= 0 && xx < w) { s += q.g[y * w + xx]; c++; } } tmp[y * w + x] = s / c; }
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { let s = 0, c = 0; for (let k = -R; k <= R; k++) { const yy = y + k; if (yy >= 0 && yy < h) { s += tmp[yy * w + x]; c++; } } g[y * w + x] = s / c; }
+  } else return q;
+  return { ...q, g };
+}
+$("falla-probar").onclick = () => {
+  const e = $("falla-est").value, tipo = $("falla-tipo").value;
+  if (S.modo !== "escena") { alerta("La prueba simulada funciona con las dos cámaras en Simulada. Con una cámara real, tápala con la mano unos segundos."); return; }
+  S.fallaSim = { est: e, tipo, hasta: ((S.est.A?.k ?? -1) + 1) * MS_CUADRO + 8000 };   // 8 s del reloj de la línea simulada
+  if (!S.simCorriendo) $("btn-sim").click();
+  irA("monitoreo");
+};
+
+/* =====================================================================
+ * Evidencia y respaldo en disco (respaldo.js + scripts/servidor.py)
+ * ===================================================================== */
+/** Copia de la foto de la botella: el canvas del disparo se reutiliza en la siguiente botella. */
+function copiaFoto(cuadro, w, h) {
+  const c = document.createElement("canvas"), k = Math.min(1, 640 / w);
+  c.width = Math.round(w * k); c.height = Math.round(h * k);
+  c.getContext("2d").drawImage(cuadro, 0, 0, c.width, c.height);
+  return c;
+}
+function fotoGris(g, w, h, r) {
+  simMini.pintar(g, w, h);
+  const c = document.createElement("canvas"); c.width = r.w; c.height = r.h;
+  c.getContext("2d").drawImage(simMini.imagen, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+  return c;
+}
+S.respaldo = Respaldo.crear({
+  alCambiar: () => pintarRespaldo(),
+  alGuardar: fotos => {
+    // el servidor devuelve dónde quedó cada foto: se anota en el registro para abrirla desde la tabla
+    for (const [n, rutas] of Object.entries(fotos)) { const ev = S.reg.find(x => x.n === +n && x.sesion === S.respaldo.sesion); if (ev) ev.fotos = rutas; }
+    guardarRegistro();
+    if (S.vista === "registro") pintarRegistro();
+  },
+});
+let huboRespaldo = false;
+function respaldar(ev, b) {
+  const r = S.respaldo.estado;
+  if (r.disponible) huboRespaldo = true;
+  if (!huboRespaldo) return;   // sin servidor de respaldo desde el inicio: no se acumula nada
+  ev.sesion = S.respaldo.sesion;
+  let fotos = null;
+  // evidencia: rechazos, no revisadas y lecturas dudosas. Las OK no guardan foto (serían miles por turno).
+  if (ev.final !== "OK" || ev.A?.dudosa || ev.B?.dudosa) {
+    fotos = {};
+    for (const e of EST) { const c = b.extra[e]?.foto; if (c) try { fotos[e] = c.toDataURL("image/jpeg", 0.85); } catch { } }
+  }
+  S.respaldo.botella(ev, fotos);
+}
+function pintarRespaldo() {
+  const r = S.respaldo.estado, chip = $("chip-resp"), t = $("chip-resp-t");
+  if (r.disponible === null) { chip.className = "chip"; t.textContent = "Respaldo…"; }
+  else if (!r.disponible) { chip.className = "chip warn"; t.textContent = r.pendientes ? `Sin respaldo · ${miles(r.pendientes)} pendientes` : "Sin respaldo en disco"; }
+  else if (r.sinEspacio) { chip.className = "chip bad"; t.textContent = "Disco casi lleno"; }
+  else if (r.pendientes > 50) { chip.className = "chip warn"; t.textContent = `Guardando · ${miles(r.pendientes)} pendientes`; }
+  else { chip.className = "chip ok"; t.textContent = "Respaldo en disco"; }
+  $("btn-csv-disco").hidden = $("btn-ev-csv").hidden = !r.disponible;
+  $("resp-det").innerHTML = r.disponible
+    ? `Cada botella se guarda en <b>${r.carpeta || "datos/"}</b> (registro.sqlite) y la foto de cada rechazo, no revisada o dudosa en <b>datos/fotos/</b>, por día. Sesión ${r.sesion} · ${miles(r.enviadas)} botellas guardadas${r.pendientes ? ` · ${miles(r.pendientes)} pendientes` : ""}.${r.sinEspacio ? " <b>Queda poco espacio en el disco: se dejaron de guardar las fotos.</b>" : ""}${r.error ? " " + r.error : ""}`
+    : `Sin respaldo en disco: el registro queda solo en este navegador. ${r.error || ""} ${r.pendientes ? `Hay ${miles(r.pendientes)} pendientes que se mandan cuando vuelva el servidor.` : ""}`;
+}
+function pintarEventos() {
+  const ev = S.eventos;
+  if (!ev.length) { $("eventos").innerHTML = '<p class="empty-note">Ninguna cámara ha quedado sin visión.</p>'; return; }
+  const cls = { ciega: "ciega", recuperada: "rec", aviso: "av", fin_aviso: "rec" }, nom = { ciega: "Sin visión", recuperada: "Volvió a ver", aviso: "Aviso", fin_aviso: "Fin del aviso" };
+  $("eventos").innerHTML = ev.slice(0, 100).map(x => `<div class="row"><span>${new Date(x.t).toLocaleString("es-CL")}</span><span>Cámara ${x.estacion || "—"}</span><span>${x.texto}</span><span class="${cls[x.tipo] || ""}">${nom[x.tipo] || x.tipo}</span></div>`).join("");
+}
+addEventListener("pagehide", () => S.respaldo.despedida());
 
 /* las dos cámaras simuladas: la línea parte, se detiene y sigue con el botón */
 function pintarBotonSim() {
@@ -1030,6 +1235,8 @@ function resumen(v, x) {
 }
 function registrarBotella(b) {
   const verdad = S.modo === "escena" && b.extra.A && b.extra.B && b.extra.A.id === b.extra.B.id ? b.extra.A.verdad : null;
+  const ciegas = EST.filter(e => b.extra[e]?.ciega);
+  if (ciegas.length) b.motivo = `La cámara ${ciegas.join(" y ")} estaba sin visión (${b.extra[ciegas[0]].ciega.replace(/\.$/, "")}): no se puede asegurar que tenga sus etiquetas.`;
   const ev = {
     n: S.nextId++, t: Date.now(), producto: $("producto").value, final: b.final, faltan: b.faltan, sinVer: b.sinVer, motivo: b.motivo, sombra: cfg.sombra,
     A: resumen(b.lecturas.A, b.extra.A), B: S.modo === "una" ? null : resumen(b.lecturas.B, b.extra.B), modo: S.modo,
@@ -1037,6 +1244,7 @@ function registrarBotella(b) {
   };
   S.reg.unshift(ev);
   if (S.reg.length > 5000) S.reg.length = 5000;
+  respaldar(ev, b);
   for (let i = 300; i < S.reg.length; i++) { if (S.reg[i].A) S.reg[i].A.thumb = null; if (S.reg[i].B) S.reg[i].B.thumb = null; }   // fotos solo de las 300 más nuevas
   guardarRegistro();
   const s = S.sesion; s.n++;
@@ -1047,7 +1255,9 @@ function registrarBotella(b) {
     else if (verdad.clase === "sin_etiqueta") { v.falt++; b.final === "OK" ? v.esc++ : v.det++; }
     else { v.def++; if (b.final !== "OK") v.defRech++; }
   }
-  const vig = S.vig.botella(b.final);
+  // las no revisadas por una cámara sin visión no son culpa de la etiquetadora: no cuentan para "revisar etiquetadora"
+  const porCamara = b.final === "NO_REVISADA" && (ciegas.length || EST.some(e => S.est[e]?.sv?.nivel === "ciega"));
+  const vig = porCamara ? { seguidos: S.vig.seguidos, racha: false, avisoNuevo: false } : S.vig.botella(b.final);
   if (b.final !== "OK") avisar(ev, vig);
   S.ultimaBotella = ev;
   pintarEstado(); pintarFeed();
@@ -1069,7 +1279,9 @@ const veChips = v => !v ? '<span>no la vio</span>' : `<span class="${v.ve === "f
 function pintarEstado() {
   const hero = $("hero"), set = (cls, ic, st, sub) => { hero.className = "card status " + cls; $("hero-ring").innerHTML = ICON[ic]; $("hero-st").textContent = st; $("hero-sub").textContent = sub; };
   const ev = S.ultimaBotella, faltaCal = EST.some(esReal) && !S.calReal;
-  if (faltaCal) set("wait", "wait", "Falta calibrar", "Ve a Calibración y sigue los pasos con la botella girada. " + (S.errorCal || ""));
+  const ciegas = EST.filter(e => S.est[e]?.sv?.nivel === "ciega");
+  if (ciegas.length) set("bad", "bad", `Cámara ${ciegas.join(" y ")} sin visión`, S.est[ciegas[0]].sv.texto + " Las botellas que pasen ahora no se revisan.");
+  else if (faltaCal) set("wait", "wait", "Falta calibrar", "Ve a Calibración y sigue los pasos con la botella girada. " + (S.errorCal || ""));
   else if (!ev) set("wait", "wait", "Esperando botella", S.modo === "escena" ? (S.simCorriendo ? "Línea simulada en marcha." : "Las dos cámaras son simuladas: aprieta Comenzar simulación.") : "Cuando una botella cruce la franja dorada se revisa y se registra sola.");
   else if (ev.final === "OK") set("ok", "ok", `${tag(ev.n)} · tiene sus 2 etiquetas`, ev.motivo);
   else if (ev.final === "NO_REVISADA") set("bad", "bad", `${tag(ev.n)} · no revisada`, ev.motivo + " Cuenta como rechazo.");
@@ -1312,7 +1524,15 @@ interruptor("expo", "expo", async () => {
 });
 if (cfg.producto) $("producto").value = cfg.producto;
 $("producto").onchange = e => { cfg.producto = e.target.value; guardarCfg(); };
-document.querySelectorAll("[data-fondo]").forEach(b => b.onclick = () => { const st = S.est[b.dataset.fondo]; st?.disparo?.reiniciar(); st?.nucleo?.reiniciar(); });
+document.querySelectorAll("[data-fondo]").forEach(b => b.onclick = () => {
+  const st = S.est[b.dataset.fondo];
+  st?.disparo?.reiniciar(); st?.nucleo?.reiniciar();
+  if (st?.salud) {
+    // el vigilante aprende de nuevo la imagen de referencia (la cámara pudo moverse a propósito)
+    if (st.sv?.nivel === "ciega") registrarEvento({ tipo: "recuperada", estacion: st.id, causa: st.causaCiega || null, texto: "Se reaprendió el fondo con la cámara sin visión.", duracionMs: null });
+    st.salud.reiniciar(); st.sv = null; st.atasco = null; pintarSalud(st.id); pintarEstado();
+  }
+});
 
 function pintarCamarasInfo() {
   const t = EST.map(e => {
@@ -1333,7 +1553,7 @@ function pintarRegistro() {
   if (!r.length) { $("reg").innerHTML = '<p class="empty-note">Todavía no hay botellas registradas. Se registran desde Monitoreo en vivo.</p>'; return; }
   const th = x => x?.thumb ? `<img src="${x.thumb}" alt="">` : "";
   $("reg").innerHTML = `<table><thead><tr><th>Botella</th><th>Hora</th><th>Cámara A</th><th></th><th>Cámara B</th><th></th><th>Resultado</th><th>Motivo</th></tr></thead><tbody>${
-    r.slice(0, 500).map(ev => `<tr><td><b>${tag(ev.n)}</b></td><td>${new Date(ev.t).toLocaleString("es-CL")}</td><td>${th(ev.A)}</td><td class="hint">${veTxt(ev.A)}${ev.A?.movida ? " · movida" : ""}${ev.A?.dudosa ? " · dudosa" : ""}</td><td>${th(ev.B)}</td><td class="hint">${ev.modo === "una" ? "—" : veTxt(ev.B) + (ev.B?.movida ? " · movida" : "") + (ev.B?.dudosa ? " · dudosa" : "")}</td><td>${textoFinal(ev)}</td><td class="hint">${ev.motivo}${ev.verdad ? ` (verdad: ${ev.verdad.replace("_", " ")})` : ""}</td></tr>`).join("")}</tbody></table>${r.length > 500 ? `<p class="empty-note">Se muestran las 500 más nuevas de ${miles(r.length)}. El CSV trae todas.</p>` : ""}`;
+    r.slice(0, 500).map(ev => `<tr><td><b>${tag(ev.n)}</b></td><td>${new Date(ev.t).toLocaleString("es-CL")}</td><td>${th(ev.A)}</td><td class="hint">${veTxt(ev.A)}${ev.A?.movida ? " · movida" : ""}${ev.A?.dudosa ? " · dudosa" : ""}</td><td>${th(ev.B)}</td><td class="hint">${ev.modo === "una" ? "—" : veTxt(ev.B) + (ev.B?.movida ? " · movida" : "") + (ev.B?.dudosa ? " · dudosa" : "")}</td><td>${textoFinal(ev)}${ev.fotos ? Object.entries(ev.fotos).map(([e, ruta]) => ` <a class="foto" href="/${ruta}" target="_blank" rel="noopener">foto ${e}</a>`).join("") : ""}</td><td class="hint">${ev.motivo}${ev.verdad ? ` (verdad: ${ev.verdad.replace("_", " ")})` : ""}</td></tr>`).join("")}</tbody></table>${r.length > 500 ? `<p class="empty-note">Se muestran las 500 más nuevas de ${miles(r.length)}. El CSV trae todas.</p>` : ""}`;
 }
 $("btn-csv").onclick = () => {
   const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`, c = v => String(v ?? "").replace(".", ",");
@@ -1567,7 +1787,7 @@ function alerta(t) {
 }
 
 /* ---------- inicio ---------- */
-pintarCal(); pintarEstado(); pintarChip(); pintarFeed(); armar();
+pintarCal(); pintarEstado(); pintarChip(); pintarFeed(); pintarRespaldo(); armar(); S.respaldo.iniciar();
 </script>
 </body>
 </html>

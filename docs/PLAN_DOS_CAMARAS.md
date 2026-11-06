@@ -16,9 +16,11 @@ El plan cambió en un punto clave: **las botellas pasan giradas al azar**, así 
 | Alerta roja con sonido que hay que reconocer y aviso "Revisar etiquetadora" | `producto.html` | Hecho |
 | Prueba de capacidad 10 min a 10.000/h con 2 fuentes simultáneas | `producto.html` → Prueba de capacidad; `scripts/test_capacidad.js` | Hecho |
 | Medición de foto movida (`Disparo.razonNitidez`) y ajustes de cámara documentados | `disparo.js`, Ajustes, `INSTRUCCIONES_DE_USO.md` | Hecho |
+| Vigilante de cámara: tapada/oscura, encandilada, congelada, desenfocada, movida o atascada, desconectada → alerta **SIN VISIÓN**, botellas de ese rato **No revisadas**, evento en el registro | `salud.js`, `producto.html`; prueba en Ajustes → Cámara sin visión | Hecho, probado con simulación (0 falsas alarmas en 4 × 10 min) |
+| Respaldo en disco: cada botella en `datos/registro.sqlite` y foto de cada rechazo/no revisada/dudosa en `datos/fotos/`, CSV del disco y de eventos | `scripts/servidor.py` (`/api/...`), `respaldo.js` | Hecho |
 | Prueba final con cámara real (30 botellas de conteo y 20 mezcladas) | `docs/PRUEBA_FINAL.md` | **Pendiente: requiere la cámara y botellas** |
 
-Pruebas sin cámara: `node scripts/test_disparo.js`, `node scripts/test_botella.js`, `node scripts/test_detector.js`, `node scripts/test_capacidad.js`.
+Pruebas sin cámara: `node scripts/test_disparo.js`, `node scripts/test_botella.js`, `node scripts/test_detector.js`, `node scripts/test_capacidad.js`, `node scripts/test_salud.js`, `python3 scripts/test_servidor.py`.
 
 **Ojo:** todo lo anterior está probado con botellas simuladas. Las etiquetas simuladas son dibujos, no las reales; el detector todavía tiene que comprobarse con fotos reales de la viña (ver `PRUEBA_FINAL.md`).
 

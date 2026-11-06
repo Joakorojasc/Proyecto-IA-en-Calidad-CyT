@@ -158,7 +158,8 @@
         if (foto.width !== fw || foto.height !== fh) { foto.width = fw; foto.height = fh; }
         ctxFoto.drawImage(fuente, roi.x, roi.y, roi.w, roi.h, 0, 0, fw, fh);
       }
-      return r.evento === "botella" ? { ...r, cuadro: foto } : r;
+      // el cuadro en gris también sirve al vigilante de la cámara (Salud), así no se calcula dos veces
+      return r.evento === "botella" ? { ...r, gris, w, h, cuadro: foto } : { ...r, gris, w, h };
     }
 
     return { paso, reiniciar: nucleo.reiniciar, cancelar: nucleo.cancelar, get estado() { return nucleo.estado; } };

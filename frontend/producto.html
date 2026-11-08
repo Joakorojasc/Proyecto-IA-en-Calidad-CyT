@@ -936,10 +936,10 @@ function bucle(t) {
   if (S.modo === "escena") {
     if (!S.simCorriendo) return;   // la línea simulada parte solo con el botón Comenzar simulación
     const ts = t - S.t0Escena;
-    for (const e of EST) pasoEscena(S.est[e], ts);
+    for (const e of EST) if (S.est[e]) pasoEscena(S.est[e], ts);
     for (const b of S.emp.revisar(ts)) registrarBotella(b);
   } else {
-    for (const e of EST) if (esReal(e)) pasoReal(S.est[e], t);
+    for (const e of EST) if (S.est[e] && esReal(e)) pasoReal(S.est[e], t);   // al abrir, las estaciones se preparan después del primer cuadro
     for (const b of S.emp.revisar(t)) registrarBotella(b);
   }
 }

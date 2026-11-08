@@ -12,6 +12,8 @@ Quality AI mira cada botella con una o dos cámaras, una a cada lado de la líne
 
 Para abrirlo, en la carpeta del proyecto ejecuta `python3 scripts/servidor.py` y abre `http://localhost:8000/frontend/producto.html` en Chrome. Si después de una actualización ves la versión antigua, recarga con **Cmd + Shift + R** (Mac) o **Ctrl + Shift + R** (Windows).
 
+El servidor solo acepta conexiones desde el mismo computador. Si de verdad hace falta abrirlo desde otro equipo de la red, usa `python3 scripts/servidor.py --red` (cualquiera en esa red podrá entrar).
+
 ## 1. Elige la fuente de cada cámara
 
 En **Monitoreo en vivo** hay dos cuadros: **Cámara A** y **Cámara B**. Arriba de cada imagen hay un menú:

@@ -497,18 +497,24 @@ class Manejador(http.server.SimpleHTTPRequestHandler):
             return self._error(500, "error interno")
 
 
-def crear_servidor(puerto, carpeta_datos=None, min_libre_mb=None):
+def crear_servidor(puerto, carpeta_datos=None, min_libre_mb=None, host="127.0.0.1"):
+    """Por defecto solo acepta conexiones desde este mismo computador (127.0.0.1)."""
     carpeta = carpeta_datos or os.environ.get("QA_DATOS") or os.path.join(RAIZ, "datos")
     if min_libre_mb is None:
         min_libre_mb = int(os.environ.get("QA_MIN_LIBRE_MB", "500"))
     almacen = Almacen(carpeta, min_libre_mb)
     clase = type("ManejadorQA", (Manejador,), {"almacen": almacen})
-    return http.server.ThreadingHTTPServer(("", puerto), functools.partial(clase, directory=RAIZ))
+    return http.server.ThreadingHTTPServer((host, puerto), functools.partial(clase, directory=RAIZ))
 
 
 if __name__ == "__main__":
-    puerto = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
-    with crear_servidor(puerto) as srv:
+    args = sys.argv[1:]
+    red = "--red" in args   # abrirlo a la red local (otros equipos), solo si de verdad hace falta
+    numeros = [a for a in args if a.isdigit()]
+    puerto = int(numeros[0]) if numeros else 8000
+    with crear_servidor(puerto, host="0.0.0.0" if red else "127.0.0.1") as srv:
+        if red:
+            print("OJO: abierto a la red local; otros equipos de la misma red pueden entrar.")
         print(f"Quality AI en http://localhost:{puerto}/frontend/producto.html  (Ctrl+C para detener)")
         print(f"Datos en {srv.RequestHandlerClass.func.almacen.carpeta}")
         srv.serve_forever()

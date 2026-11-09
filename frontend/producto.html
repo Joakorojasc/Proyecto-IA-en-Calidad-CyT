@@ -386,7 +386,7 @@ td a.foto{font-size:12px;color:var(--navy, #13233A);text-decoration:underline}
               <span class="sinvision" id="ciega-A" hidden>SIN VISIÓN</span>
             </div>
           </div>
-          <div class="estbar"><span class="hint">Última botella:</span><span class="pill" id="ve-A-f">Frontal</span><span class="pill" id="ve-A-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="A">Reaprender fondo</button></div>
+          <div class="estbar"><span class="hint" id="ve-A-h">Última botella:</span><span class="pill" id="ve-A-f">Frontal</span><span class="pill" id="ve-A-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="A">Reaprender fondo</button></div>
           <div class="estsub" id="txt-A" role="status"></div>
         </div>
         <div class="card est" id="est-B">
@@ -398,7 +398,7 @@ td a.foto{font-size:12px;color:var(--navy, #13233A);text-decoration:underline}
               <span class="sinvision" id="ciega-B" hidden>SIN VISIÓN</span>
             </div>
           </div>
-          <div class="estbar"><span class="hint">Última botella:</span><span class="pill" id="ve-B-f">Frontal</span><span class="pill" id="ve-B-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="B">Reaprender fondo</button></div>
+          <div class="estbar"><span class="hint" id="ve-B-h">Última botella:</span><span class="pill" id="ve-B-f">Frontal</span><span class="pill" id="ve-B-t">Trasera</span><span class="grow"></span><button class="btn sm" data-fondo="B">Reaprender fondo</button></div>
           <div class="estsub" id="txt-B" role="status"></div>
         </div>
       </div>
@@ -406,7 +406,7 @@ td a.foto{font-size:12px;color:var(--navy, #13233A);text-decoration:underline}
 
       <div class="card">
         <div class="cambar">
-          <button class="toggle" id="auto" aria-pressed="true" title="Registra sola cada botella que pasa por el recuadro">Disparo automático <span class="sw"></span></button>
+          <button class="toggle" id="auto" aria-pressed="true" title="Encendido: registra sola cada botella que pasa. Apagado: modo prueba, muestra en vivo lo que ve, sin alertas.">Disparo automático <span class="sw"></span></button>
           <span class="hint" id="modo-txt"></span>
           <span class="grow"></span>
           <button class="btn gold" id="btn-sim" hidden>Comenzar simulación</button>
@@ -958,7 +958,12 @@ function pasoReal(st, t) {
       : res.atascada ? "La zona lleva mucho rato ocupada. Si no hay ninguna botella, aprieta Reaprender fondo."
       : res.estado === "aprendiendo" ? "Aprendiendo el fondo: deja el recuadro sin botellas…"
       : res.estado === "ocupada" ? "Pasando una botella…" : (st.sv?.nivel === "aviso" ? st.sv.texto + " " : "Esperando botella.") + infoEst(st));
-  } else textoEst(st, !S.calReal ? "Falta calibrar: ve a Calibración." : "Disparo apagado: registra con el botón o la barra espaciadora.");
+  } else if (!S.calReal) textoEst(st, "Falta calibrar: ve a Calibración.");
+  else {
+    // disparo apagado = modo prueba: muestra en vivo lo que reconoce, sin alertas ni registros (salvo con el botón)
+    textoEst(st, "Modo prueba (disparo apagado): muestra en vivo lo que ve, sin alertas. Para registrar, usa el botón o la barra espaciadora.");
+    if (t - (st.tVivo || 0) > 300) { st.tVivo = t; pintarVe(st.id, Motor.detectar(Motor.grisDe(f.imagen, r), S.calReal, cfg.tol), true); }
+  }
   dibujar(st.cv, f.imagen, r, null, puede);
 }
 
@@ -1032,10 +1037,11 @@ function emitir(st, vista, t, extra) {
   pintarVe(st.id, vista);
   for (const b of S.emp.llega(st.id, vista, t, extra)) registrarBotella(b);
 }
-function pintarVe(e, v) {
+function pintarVe(e, v, enVivo = false) {
+  $(`ve-${e}-h`).textContent = enVivo ? "Ahora ve:" : "Última botella:";
   for (const [k, id, nom] of [["frontal", "f", "Frontal"], ["trasera", "t", "Trasera"]]) {
     $(`ve-${e}-${id}`).className = "pill " + (v ? (v[k].visto ? "si" : "no") : "");
-    $(`ve-${e}-${id}`).textContent = v ? `${nom}: ${v[k].visto ? "sí" : "no"}` : nom;
+    $(`ve-${e}-${id}`).textContent = v ? `${nom}: ${v[k].visto ? "sí" + (enVivo ? ` (${Math.round(v[k].confianza * 100)}%)` : "") : "no"}` : nom;
   }
 }
 

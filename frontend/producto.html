@@ -1033,7 +1033,10 @@ function emitir(st, vista, t, extra) {
   for (const b of S.emp.llega(st.id, vista, t, extra)) registrarBotella(b);
 }
 function pintarVe(e, v) {
-  for (const [k, id] of [["frontal", "f"], ["trasera", "t"]]) $(`ve-${e}-${id}`).className = "pill " + (v ? (v[k].visto ? "si" : "no") : "");
+  for (const [k, id, nom] of [["frontal", "f", "Frontal"], ["trasera", "t", "Trasera"]]) {
+    $(`ve-${e}-${id}`).className = "pill " + (v ? (v[k].visto ? "si" : "no") : "");
+    $(`ve-${e}-${id}`).textContent = v ? `${nom}: ${v[k].visto ? "sí" : "no"}` : nom;
+  }
 }
 
 /* =====================================================================
@@ -1426,8 +1429,8 @@ function dibujarCal(t) {
     tAhora = t;
     const v = Motor.detectar(Motor.grisDe(f.imagen, r), S.calReal, cfg.tol);
     $("ah-f").className = "pill " + (v.frontal.visto ? "si" : "no"); $("ah-t").className = "pill " + (v.trasera.visto ? "si" : "no");
-    $("ah-f").textContent = `Frontal ${v.frontal.visto ? Math.round(v.frontal.confianza * 100) + "%" : ""}`.trim();
-    $("ah-t").textContent = `Trasera ${v.trasera.visto ? Math.round(v.trasera.confianza * 100) + "%" : ""}`.trim();
+    $("ah-f").textContent = v.frontal.visto ? `Frontal: la ve (${Math.round(v.frontal.confianza * 100)}%)` : "Frontal: no la ve";
+    $("ah-t").textContent = v.trasera.visto ? `Trasera: la ve (${Math.round(v.trasera.confianza * 100)}%)` : "Trasera: no la ve";
   }
 }
 

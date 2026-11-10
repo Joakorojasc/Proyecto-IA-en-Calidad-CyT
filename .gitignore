@@ -6,3 +6,9 @@ data/
 # Registro de botellas y fotos (evidencia), no va al repo
 datos/
 .DS_Store
+
+# Fotos y datasets de YOLOX (pesados, no van al repo)
+datos_yolox/
+datasets/
+*.onnx
+*.pth

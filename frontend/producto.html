@@ -83,6 +83,9 @@ button,input,select{font:inherit;color:inherit}
 .card h2 .note{font-weight:400;text-transform:none;letter-spacing:0;color:var(--faint);font-size:12px}
 .pad{padding:16px 22px 20px}
 .cols{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:20px;align-items:start}
+.cols.una{grid-template-columns:minmax(0,760px)}
+#seg-det{justify-self:start}
+.detector-card{margin-bottom:20px}
 .cols-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
 .stack{display:flex;flex-direction:column;gap:20px;min-width:0}
 
@@ -437,11 +440,27 @@ td a.foto{font-size:12px;color:var(--navy, #13233A);text-decoration:underline}
       <div class="head">
         <div><h1>Calibración</h1><p>Se calibra por <b>tipo de etiqueta</b>, no por cámara: el sistema aprende cómo se ven la etiqueta <b>frontal</b>, la <b>trasera</b> y el <b>vidrio sin etiqueta</b>, con la botella girada en varios ángulos. Así reconoce cada etiqueta aunque la botella pase girada y en cualquiera de las dos cámaras.</p></div>
       </div>
-      <div class="alert ok aviso-encuadre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span><b>Misma posición y encuadre, solo cambia la etiqueta.</b> La cámara, la luz y el recuadro no se mueven entre una foto y otra. La botella va siempre en el mismo lugar, al centro del recuadro: lo único que cambia es qué etiqueta mira a la cámara y cuánto está girada.</span></div>
+      <div class="alert ok aviso-encuadre solo-clasico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span><b>Misma posición y encuadre, solo cambia la etiqueta.</b> La cámara, la luz y el recuadro no se mueven entre una foto y otra. La botella va siempre en el mismo lugar, al centro del recuadro: lo único que cambia es qué etiqueta mira a la cámara y cuánto está girada.</span></div>
 
-      <div class="cols">
-        <div class="stack">
-          <div class="card">
+      <div class="card detector-card">
+        <h2><span>Detector de etiquetas</span><span class="note" id="det-estado"></span></h2>
+        <div class="ajustes">
+        <div class="seg" id="seg-det" role="group" aria-label="Detector"><button data-det="clasico">Clásico (fotos de calibración)</button><button data-det="yolox">YOLOX (modelo entrenado)</button></div>
+        <p class="hint" id="det-txt" style="margin:0"></p>
+        <div id="det-yolox" class="ajustes" style="padding:0" hidden>
+          <div class="refbar">
+            <button class="btn" id="det-recargar">Volver a cargar frontend/modelos/etiquetas.onnx</button>
+            <span class="btn file">Cargar otro modelo (.onnx)<input type="file" id="det-archivo" accept=".onnx" aria-label="Cargar modelo"></span>
+          </div>
+          <label class="slider"><span class="row"><span>Aprobar si la probabilidad conjunta de cada etiqueta es al menos</span><b id="u-ok-v">90%</b></span><input type="range" id="u-ok" min="60" max="99" step="1" value="90"><small>Juntando las 2 cámaras: P = 1 − (1 − pA)(1 − pB). Más alto: más seguro contra multas, más botellas buenas a revisar.</small></label>
+          <label class="slider"><span class="row"><span>Bajo esto, la etiqueta falta (rechazo claro)</span><b id="u-rech-v">50%</b></span><input type="range" id="u-rech" min="10" max="80" step="5" value="50"><small>Entre los dos valores la botella se rechaza como <b>dudosa</b> y se guarda su foto para revisarla.</small></label>
+        </div>
+        </div>
+      </div>
+
+      <div class="cols" id="cal-cols">
+        <div class="stack solo-clasico">
+          <div class="card solo-clasico">
             <h2><span>Paso <span id="g-num">1</span> de <span id="g-tot">14</span></span><span class="note" id="g-clase"></span></h2>
             <div class="guia"><div id="g-dib"></div><div><h3 id="g-tit"></h3><p id="g-txt"></p></div></div>
             <div class="refs-paso" id="g-refs"></div>
@@ -453,7 +472,7 @@ td a.foto{font-size:12px;color:var(--navy, #13233A);text-decoration:underline}
               <span class="count" id="g-cnt"></span>
             </div>
           </div>
-          <div class="card">
+          <div class="card solo-clasico">
             <h2>Todos los pasos <span class="note">toca uno para ir a él</span></h2>
             <div class="pasos" id="pasos"></div>
           </div>
@@ -679,7 +698,8 @@ td a.foto{font-size:12px;color:var(--navy, #13233A);text-decoration:underline}
 <script src="motor.js?v=2"></script>
 <script src="disparo.js?v=3"></script>
 <script src="simulacion.js?v=2"></script>
-<script src="botella.js?v=2"></script>
+<script src="botella.js?v=3"></script>
+<script src="yolox.js?v=1"></script>
 <script src="fuentes.js?v=3"></script>
 <script src="salud.js?v=1"></script>
 <script src="respaldo.js?v=1"></script>
@@ -704,6 +724,7 @@ const MS_CUADRO = 1000 / 30;
 const BASE_CFG = {
   tol: 30, roiW: 50, roiH: 70, botella: 80, sombra: true, producto: null, auto: true, sens: 50,
   desfase: 100, ventana: 150, racha: 3, sonido: true, expo: false,
+  detector: "clasico", umbralOk: 90, umbralRechazo: 50,
   sim: { porHora: 10000, pRacha: 1, largo: 8, pSuelta: 2, mezcla: 60, luz: 20, movida: 10 },
   fuentes: { A: { tipo: "camara", deviceId: null }, B: { tipo: "simulada" } },
 };
@@ -714,7 +735,7 @@ const guardarCfg = () => guardar("qa-cfg", cfg);
 
 /* ---------- estado ---------- */
 const S = {
-  vista: "monitoreo", est: {}, refs: [], calReal: null, errorCal: "", texSim: Simulacion.texturas(), calSim: null,
+  vista: "monitoreo", est: {}, refs: [], calReal: null, errorCal: "", yolox: null, yoloxError: "", yoloxInfo: "", pendientes: new Map(), texSim: Simulacion.texturas(), calSim: null,
   emp: null, vig: null, escena: null, t0Escena: 0, lineaSim: null, modo: "",
   sesion: { n: 0, ok: 0, rech: 0, nr: 0 }, verdad: { falt: 0, det: 0, esc: 0, buenas: 0, fr: 0, def: 0, defRech: 0 },
   reg: leer("qa-reg2", []), nextId: 1, paso: 0, calEst: "A", estres: null, alerta: null,
@@ -739,6 +760,59 @@ function recalibrar() {
   catch (e) { S.calReal = null; S.errorCal = e.message; }
 }
 recalibrar();
+
+/* ---------- detector de etiquetas: clásico (fotos de calibración) o YOLOX (modelo entrenado) ---------- */
+const usaYolox = () => cfg.detector === "yolox";
+/** ¿Las cámaras reales ya pueden revisar? Clásico: falta calibrar. YOLOX: falta cargar el modelo. */
+const listoReal = () => usaYolox() ? !!S.yolox : !!S.calReal;
+const textoSinDetector = () => usaYolox() ? (S.yoloxError || "Cargando el modelo YOLOX…") : "Falta calibrar: ve a Calibración.";
+const umbralesFusion = () => ({ ok: cfg.umbralOk / 100, rechazo: cfg.umbralRechazo / 100 });
+/** Revisa una imagen (o el recuadro de un video). Siempre devuelve una promesa, con el detector que esté elegido. */
+function detectarReal(fuente, roi) {
+  if (usaYolox()) return S.yolox.detectar(fuente, roi);
+  return Promise.resolve(Motor.detectar(Motor.grisDe(fuente, roi), S.calReal, cfg.tol));
+}
+async function cargarYolox(origen) {
+  S.yolox = null; S.yoloxError = ""; pintarDetector();
+  try {
+    S.yolox = await Yolox.cargar(origen);
+    S.yoloxInfo = `${origen instanceof ArrayBuffer ? "Modelo cargado a mano" : "frontend/modelos/etiquetas.onnx"} · entrada ${S.yolox.tam} px · ${S.yolox.nClases} clases`;
+  } catch (e) { S.yoloxError = e.message; }
+  pintarDetector(); pintarChip(); pintarEstado();
+}
+if (usaYolox()) cargarYolox();
+
+function pintarDetector() {
+  if (!$("seg-det")) return;
+  document.querySelectorAll("#seg-det button").forEach(b => b.classList.toggle("on", b.dataset.det === cfg.detector));
+  $("det-yolox").hidden = !usaYolox();
+  $("u-ok").value = cfg.umbralOk; $("u-ok-v").textContent = cfg.umbralOk + "%";
+  $("u-rech").value = cfg.umbralRechazo; $("u-rech-v").textContent = cfg.umbralRechazo + "%";
+  document.querySelectorAll(".solo-clasico").forEach(el => { el.hidden = usaYolox(); });
+  $("cal-cols").classList.toggle("una", usaYolox());   // sin los 14 pasos, la vista de la cámara ocupa todo el ancho
+  if (!usaYolox()) {
+    $("det-estado").textContent = S.calReal ? "calibrado" : "falta calibrar";
+    $("det-txt").innerHTML = "Compara la imagen con las fotos de los 14 pasos de abajo. Sirve para partir sin datos, pero falla con la botella girada (etiqueta en el borde).";
+  } else {
+    $("det-estado").textContent = S.yolox ? "modelo cargado" : S.yoloxError ? "sin modelo" : "cargando…";
+    $("det-txt").innerHTML = S.yolox
+      ? `${S.yoloxInfo}. <b>No necesita los 14 pasos:</b> ya aprendió con las fotos marcadas. Ajusta el recuadro a la botella y revisa con <b>Ahora ve</b> girándola una vuelta.`
+      : S.yoloxError ? `<b>${S.yoloxError}</b> Guía: docs/YOLOX_PASO_A_PASO.md.` : "Cargando el modelo…";
+  }
+}
+document.querySelectorAll("#seg-det button").forEach(b => b.onclick = () => {
+  if (cfg.detector === b.dataset.det) return;
+  cfg.detector = b.dataset.det; guardarCfg();
+  if (usaYolox() && !S.yolox) cargarYolox(); else { pintarDetector(); pintarChip(); pintarEstado(); }
+});
+$("det-recargar").onclick = () => cargarYolox();
+$("det-archivo").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if (f) cargarYolox(await f.arrayBuffer()); };
+for (const [id, k] of [["u-ok", "umbralOk"], ["u-rech", "umbralRechazo"]]) $(id).oninput = e => {
+  cfg[k] = +e.target.value;
+  if (cfg.umbralRechazo >= cfg.umbralOk) cfg.umbralRechazo = cfg.umbralOk - 5;
+  guardarCfg(); pintarDetector(); rearmarEmp();
+};
+pintarDetector();
 
 /* ---------- vistas ---------- */
 const VISTAS = ["monitoreo", "calibracion", "ajustes", "capacidad", "registro", "dual"];
@@ -783,7 +857,7 @@ async function armar() {
   S.t0Escena = performance.now();
   S.simCorriendo = false;
   S.lineaSim = S.modo === "acompanante" ? Simulacion.crearLinea(simLinea()) : null;
-  S.emp = Botella.crearEmparejador({ estaciones: S.modo === "una" ? ["A"] : EST, ventanaMs: cfg.ventana, desfaseMs: cfg.desfase });
+  S.emp = Botella.crearEmparejador({ estaciones: S.modo === "una" ? ["A"] : EST, ventanaMs: cfg.ventana, desfaseMs: cfg.desfase, umbrales: umbralesFusion() });
   S.vig = Botella.crearVigilante({ racha: cfg.racha });
   const permiso = await Fuentes.hayPermiso();
   for (const e of EST) {
@@ -839,6 +913,15 @@ async function encender(e) {
 for (const e of EST) $("on-" + e).onclick = () => encender(e);
 
 /* menú de fuente de cada estación: elegir la 2.ª cámara es elegirla aquí */
+/**
+ * Dos cámaras iguales (dos Pc02) traen el mismo nombre: se numeran por orden de conexión y se agrega
+ * el inicio de su identificador, para distinguirlas en los menús. El programa las recuerda por ese identificador.
+ */
+function nombreCamara(d, i, devs) {
+  const base = d.label || "Cámara " + (i + 1), iguales = devs.filter(x => x.label === d.label);
+  if (iguales.length < 2) return base;
+  return `${base} · n.º ${iguales.indexOf(d) + 1} (${d.deviceId.slice(0, 4) || "?"})`;
+}
 async function pintarSelects() {
   const devs = await Fuentes.camaras().catch(() => []);
   for (const e of EST) {
@@ -846,7 +929,7 @@ async function pintarSelects() {
     const actual = f.tipo === "camara" ? "cam:" + (S.est[e]?.fuente?.deviceId || f.deviceId || "") : f.tipo;
     // sin permiso de cámara, Chrome no entrega los nombres: se ofrece buscarlas (pide el permiso)
     const camOpts = devs.length && devs[0].label
-      ? devs.map((d, i) => `<option value="cam:${d.deviceId}">${d.label || "Cámara " + (i + 1)}</option>`).join("")
+      ? devs.map((d, i) => `<option value="cam:${d.deviceId}">${nombreCamara(d, i, devs)}</option>`).join("")
       : `<option value="cam:${f.tipo === "camara" ? f.deviceId || "" : ""}">Cámara real</option><option value="buscar">Buscar mis cámaras…</option>`;
     sel.innerHTML = `<optgroup label="Cámara real">${camOpts}</optgroup><option value="simulada">Simulada</option><option value="video">Video de prueba…</option>${e === "B" ? '<option value="ninguna">No hay (1 cámara con espejo)</option>' : ""}`;
     if ([...sel.options].some(o => o.value === actual)) sel.value = actual;
@@ -940,7 +1023,9 @@ function bucle(t) {
     for (const b of S.emp.revisar(ts)) registrarBotella(b);
   } else {
     for (const e of EST) if (S.est[e] && esReal(e)) pasoReal(S.est[e], t);   // al abrir, las estaciones se preparan después del primer cuadro
-    for (const b of S.emp.revisar(t)) registrarBotella(b);
+    // mientras una cámara todavía está revisando su foto (YOLOX tarda unos ms), su pareja no se da por perdida
+    const enCurso = [...S.pendientes.values()];
+    for (const b of S.emp.revisar(enCurso.length ? Math.min(t, ...enCurso) : t)) registrarBotella(b);
   }
 }
 requestAnimationFrame(bucle);
@@ -948,7 +1033,7 @@ requestAnimationFrame(bucle);
 function pasoReal(st, t) {
   const f = st.fuente;
   if (!f?.lista()) { if (f && st.salud) manejarSalud(st, st.salud.sinImagen(t), t); return; }
-  const r = roiDe(f.imagen), puede = cfg.auto && !!S.calReal;
+  const r = roiDe(f.imagen), puede = cfg.auto && listoReal();
   if (puede) {
     const res = st.disparo.paso(f.imagen, r, t);
     if (res.gris) manejarSalud(st, conAtasco(st, st.salud.cuadro(res.gris, res.w, res.h, t, { libre: res.estado === "libre" }), res.atascada, t), t);
@@ -958,13 +1043,20 @@ function pasoReal(st, t) {
       : res.atascada ? "La zona lleva mucho rato ocupada. Si no hay ninguna botella, aprieta Reaprender fondo."
       : res.estado === "aprendiendo" ? "Aprendiendo el fondo: deja el recuadro sin botellas…"
       : res.estado === "ocupada" ? "Pasando una botella…" : (st.sv?.nivel === "aviso" ? st.sv.texto + " " : "Esperando botella.") + infoEst(st));
-  } else if (!S.calReal) textoEst(st, "Falta calibrar: ve a Calibración.");
+  } else if (!listoReal()) textoEst(st, textoSinDetector());
   else {
     // disparo apagado = modo prueba: muestra en vivo lo que reconoce, sin alertas ni registros (salvo con el botón)
-    textoEst(st, "Modo prueba (disparo apagado): muestra en vivo lo que ve, sin alertas. Para registrar, usa el botón o la barra espaciadora.");
-    if (t - (st.tVivo || 0) > 300) { st.tVivo = t; pintarVe(st.id, Motor.detectar(Motor.grisDe(f.imagen, r), S.calReal, cfg.tol), true); }
+    textoEst(st, "Modo prueba (disparo apagado): muestra en vivo lo que ve, sin alertas. Para registrar, usa el botón o la barra espaciadora."
+      + (st.vivo?.ms ? ` YOLOX: ${Math.round(st.vivo.ms)} ms por foto.` : ""));
+    if (t - (st.tVivo || 0) > 300 && !st.vivoEnCurso) {
+      st.tVivo = t; st.vivoEnCurso = true;
+      detectarReal(f.imagen, r).then(v => { st.vivo = v; st.tVivoOk = performance.now(); pintarVe(st.id, v, true); })
+        .catch(e => textoEst(st, "Error del detector: " + e.message)).finally(() => { st.vivoEnCurso = false; });
+    }
   }
   dibujar(st.cv, f.imagen, r, null, puede);
+  // en modo prueba con YOLOX se dibujan las cajas que encontró (dorada = frontal, azul = trasera)
+  if (!puede && st.vivo?.cajas && performance.now() - (st.tVivoOk || 0) < 1500) dibujarCajas(st.cv, r, st.vivo);
 }
 
 function pasoEscena(st, ts) {
@@ -1004,11 +1096,33 @@ function esMovida(st, razon) {
   return razon < 0.75 * med;
 }
 
+let idLectura = 0;
 function lecturaReal(st, cuadro, nitidez, t, disparo) {
   const ancho = cuadro.width || cuadro.videoWidth, alto = cuadro.height || cuadro.videoHeight;
-  const vista = Motor.detectar(Motor.grisDe(cuadro), S.calReal, cfg.tol);
-  emitir(st, vista, t, { thumb: miniatura(cuadro, { x: 0, y: 0, w: ancho, h: alto }), foto: copiaFoto(cuadro, ancho, alto), fuente: st.fuente.tipo, nitidez, disparo });
+  // el disparo reutiliza su lienzo con la próxima botella: se copia antes de revisar (YOLOX responde unos ms después)
+  const copia = document.createElement("canvas");
+  copia.width = ancho; copia.height = alto; copia.getContext("2d").drawImage(cuadro, 0, 0);
+  const extra = { thumb: miniatura(copia, { x: 0, y: 0, w: ancho, h: alto }), foto: copiaFoto(copia, ancho, alto), fuente: st.fuente.tipo, nitidez, disparo };
+  const id = ++idLectura;
+  S.pendientes.set(id, t);
+  detectarReal(copia, null)
+    .then(vista => { st.ultimaCaja = vista.cajas ? { vista, t: performance.now() } : null; emitir(st, vista, t, extra); })
+    .catch(e => { alerta("El detector falló: " + e.message); emitir(st, null, t, { ...extra, ciega: "error del detector" }); })
+    .finally(() => S.pendientes.delete(id));
   if (S.modo === "acompanante") acompanar(st.id, t);
+}
+
+/** Cajas de YOLOX sobre la vista de la cámara (coordenadas 0-1 del recuadro r). */
+function dibujarCajas(cv, r, vista) {
+  const x = cv.getContext("2d"), lw = Math.max(2, cv.width / 300);
+  x.save(); x.lineWidth = lw; x.font = `${Math.round(lw * 7)}px sans-serif`; x.setLineDash([]);
+  for (const c of vista.cajas) {
+    const valida = vista.validas?.includes(c), col = c.nombre === "frontal" ? "#CBA14E" : "#3B8EEA";
+    x.strokeStyle = col; x.globalAlpha = valida ? 1 : 0.4;
+    x.strokeRect(r.x + c.x * r.w, r.y + c.y * r.h, c.w * r.w, c.h * r.h);
+    x.fillStyle = col; x.fillText(`${c.nombre} ${Math.round(c.puntaje * 100)}%`, r.x + c.x * r.w + lw, r.y + c.y * r.h - lw * 2);
+  }
+  x.restore();
 }
 
 /** Con una cámara real y la otra simulada: por cada botella real, la simulada ve otra cara (giro al azar). */
@@ -1223,7 +1337,7 @@ $("btn-sim").onclick = () => {
 
 /* registro a mano: lee lo que ven ahora las cámaras reales */
 function registrarAMano() {
-  if (S.vista !== "monitoreo" || !S.calReal) return;
+  if (S.vista !== "monitoreo" || !listoReal()) return;
   const t = performance.now();
   for (const e of EST) if (esReal(e) && S.est[e].fuente?.lista()) {
     const st = S.est[e], img = st.fuente.imagen, r = roiDe(img), c = document.createElement("canvas");
@@ -1287,10 +1401,10 @@ const veChips = v => !v ? '<span>no la vio</span>' : `<span class="${v.ve === "f
 
 function pintarEstado() {
   const hero = $("hero"), set = (cls, ic, st, sub) => { hero.className = "card status " + cls; $("hero-ring").innerHTML = ICON[ic]; $("hero-st").textContent = st; $("hero-sub").textContent = sub; };
-  const ev = S.ultimaBotella, faltaCal = EST.some(esReal) && !S.calReal;
+  const ev = S.ultimaBotella, faltaCal = EST.some(esReal) && !listoReal();
   const ciegas = EST.filter(e => S.est[e]?.sv?.nivel === "ciega");
   if (ciegas.length) set("bad", "bad", `Cámara ${ciegas.join(" y ")} sin visión`, S.est[ciegas[0]].sv.texto + " Las botellas que pasen ahora no se revisan.");
-  else if (faltaCal) set("wait", "wait", "Falta calibrar", "Ve a Calibración y sigue los pasos con la botella girada. " + (S.errorCal || ""));
+  else if (faltaCal) set("wait", "wait", usaYolox() ? "Falta el modelo YOLOX" : "Falta calibrar", usaYolox() ? textoSinDetector() : "Ve a Calibración y sigue los pasos con la botella girada. " + (S.errorCal || ""));
   else if (!ev) set("wait", "wait", "Esperando botella", S.modo === "escena" ? (S.simCorriendo ? "Línea simulada en marcha." : "Las dos cámaras son simuladas: aprieta Comenzar simulación.") : "Cuando una botella cruce la franja dorada se revisa y se registra sola.");
   else if (ev.final === "OK") set("ok", "ok", `${tag(ev.n)} · tiene sus 2 etiquetas`, ev.motivo);
   else if (ev.final === "NO_REVISADA") set("bad", "bad", `${tag(ev.n)} · no revisada`, ev.motivo + " Cuenta como rechazo.");
@@ -1330,9 +1444,10 @@ function pintarModo() {
 function pintarChip() {
   const chip = $("chip-cal"), reales = EST.filter(esReal);
   if (!reales.length) { chip.className = "chip ok"; $("chip-cal-t").textContent = "Simulación calibrada"; }
-  else if (!S.calReal) { chip.className = "chip bad"; $("chip-cal-t").textContent = "Falta calibrar"; }
+  else if (!listoReal()) { chip.className = "chip bad"; $("chip-cal-t").textContent = usaYolox() ? "Falta el modelo" : "Falta calibrar"; }
+  else if (usaYolox()) { chip.className = "chip ok"; $("chip-cal-t").textContent = "Detector YOLOX"; }
   else { chip.className = "chip ok"; $("chip-cal-t").textContent = `Calibrado: ${S.refs.length} fotos`; }
-  $("nav-cal").hidden = !reales.length || !!S.calReal;
+  $("nav-cal").hidden = !reales.length || listoReal();
 }
 
 /* =====================================================================
@@ -1431,12 +1546,16 @@ function dibujarCal(t) {
   if (!f || !esReal(S.calEst) || !f.lista()) return;
   const r = roiDe(f.imagen);
   dibujar($("mini-cv"), f.imagen, r, null, false, true);
-  if (S.calReal && t - tAhora > 300) {   // muestra en vivo qué reconoce: sirve para revisar la calibración
-    tAhora = t;
-    const v = Motor.detectar(Motor.grisDe(f.imagen, r), S.calReal, cfg.tol);
-    $("ah-f").className = "pill " + (v.frontal.visto ? "si" : "no"); $("ah-t").className = "pill " + (v.trasera.visto ? "si" : "no");
-    $("ah-f").textContent = v.frontal.visto ? `Frontal: la ve (${Math.round(v.frontal.confianza * 100)}%)` : "Frontal: no la ve";
-    $("ah-t").textContent = v.trasera.visto ? `Trasera: la ve (${Math.round(v.trasera.confianza * 100)}%)` : "Trasera: no la ve";
+  if (S.ahora?.cajas && performance.now() - S.tAhoraOk < 1500) dibujarCajas($("mini-cv"), r, S.ahora);
+  if (listoReal() && t - tAhora > 300 && !S.ahoraEnCurso) {   // muestra en vivo qué reconoce: sirve para revisar la calibración
+    tAhora = t; S.ahoraEnCurso = true;
+    detectarReal(f.imagen, r).then(v => {
+      S.ahora = v; S.tAhoraOk = performance.now();
+      const pc = k => Math.round(100 * (v[k].prob ?? v[k].confianza));
+      $("ah-f").className = "pill " + (v.frontal.visto ? "si" : "no"); $("ah-t").className = "pill " + (v.trasera.visto ? "si" : "no");
+      $("ah-f").textContent = v.frontal.visto ? `Frontal: la ve (${pc("frontal")}%)` : "Frontal: no la ve";
+      $("ah-t").textContent = v.trasera.visto ? `Trasera: la ve (${pc("trasera")}%)` : "Trasera: no la ve";
+    }).catch(() => {}).finally(() => { S.ahoraEnCurso = false; });
   }
 }
 
@@ -1506,7 +1625,7 @@ deslizador("roiW", cfg, "roiW", pc, () => { for (const e of EST) S.est[e]?.dispa
 deslizador("roiH", cfg, "roiH", pc, () => { for (const e of EST) S.est[e]?.disparo?.reiniciar(); });
 deslizador("botella", cfg, "botella", pc, () => { clearTimeout(deslizador.t); deslizador.t = setTimeout(() => { recalibrar(); pintarCal(); }, 300); });
 deslizador("sens", cfg, "sens", v => v, () => { for (const e of EST) if (S.est[e]?.disparo) S.est[e].disparo = Disparo.crear({ umbralPx: Disparo.umbralDeSensibilidad(cfg.sens) }); });
-const rearmarEmp = () => { S.emp = Botella.crearEmparejador({ estaciones: S.modo === "una" ? ["A"] : EST, ventanaMs: cfg.ventana, desfaseMs: cfg.desfase }); };
+const rearmarEmp = () => { S.emp = Botella.crearEmparejador({ estaciones: S.modo === "una" ? ["A"] : EST, ventanaMs: cfg.ventana, desfaseMs: cfg.desfase, umbrales: umbralesFusion() }); };
 deslizador("desfase", cfg, "desfase", v => v + " ms", rearmarEmp);
 deslizador("ventana", cfg, "ventana", v => v + " ms", rearmarEmp);
 deslizador("racha", cfg, "racha", v => v + " rechazos seguidos", () => { S.vig = Botella.crearVigilante({ racha: cfg.racha }); });

@@ -131,24 +131,57 @@ La demo de YOLOX escribe nombres de clases de COCO ("person", "bicycle"). Ignór
 
 Si un paso da error, copia el mensaje completo y mándalo: la instalación de YOLOX a veces necesita ajustes según la versión de Colab.
 
-## 6. Conectarlo a la app
+## 6. Conectarlo a la app (ya está programado)
 
-Con `etiquetas.onnx` listo, se conecta a Quality AI (se deja en `frontend/modelos/`). En el navegador corre con ONNX Runtime Web y en **Calibración** aparece la opción **"Detector: YOLOX"**. YOLOX ya no necesita los 14 pasos; Calibración queda solo para el recuadro y la prueba "Ahora ve". Ese paso lo hacemos juntos cuando tengas el modelo.
+1. Copia `etiquetas.onnx` a **`frontend/modelos/etiquetas.onnx`**.
+2. Solo la primera vez, con internet, baja el motor para que funcione sin conexión en la línea: `python scripts/yolox/bajar_ort.py`. Sin este paso, la página lo descarga de internet cada vez.
+3. Abre la app y ve a **Calibración → Detector de etiquetas → YOLOX (modelo entrenado)**. Debe decir "modelo cargado · entrada 416 px · 2 clases". También puedes elegir otro archivo con **Cargar otro modelo**.
+4. Con YOLOX **no se usan los 14 pasos**: se ocultan. Solo ajusta el recuadro a la botella y revisa con **Ahora ve**, girándola una vuelta. Sobre la imagen se dibujan las cajas que encontró: **dorada = frontal, azul = trasera**. Las cajas tenues son de botellas vecinas y no cuentan.
+5. En **Monitoreo**, con el disparo apagado (modo prueba), cada cámara muestra en vivo "Frontal: sí (94%)" y cuántos ms tarda YOLOX por foto.
 
-## Cómo se decide con 2 cámaras (decisión conjunta)
+Para volver al método anterior, elige **Clásico**: la calibración de 14 pasos sigue guardada.
 
-La decisión **ya es conjunta** (`frontend/botella.js`): una botella es **OK si, sumando las dos cámaras, aparecen la frontal y la trasera**. Si la cámara A ve solo la frontal y la B solo la trasera, la botella **pasa**. Se rechaza solo si **ninguna** de las dos cámaras vio alguna de las etiquetas.
+**Probado sin modelo real:** el pre y post proceso tiene pruebas automáticas (`node scripts/test_yolox.js`). Además, la app completa se probó en Chrome con un modelo de prueba de la misma forma que YOLOX: carga el motor desde `frontend/vendor/ort/`, detecta la frontal (94%), descarta la etiqueta de una botella vecina y rechaza por falta de trasera. Con el modelo entrenado de verdad falta medir cuánto acierta y cuánto tarda en tu PC.
 
-Con YOLOX se puede mejorar usando la **confianza** de cada cámara:
+## Cómo se decide con 2 cámaras (decisión conjunta, ya programada)
 
-- Para cada etiqueta, la probabilidad de que exista es **P = 1 − (1 − pA) × (1 − pB)**. Si A la ve con 0,6 y B con 0,7, entonces P = 1 − 0,4 × 0,3 = **0,88**. Dos vistas dudosas que coinciden suman confianza.
-- **OK** si P ≥ 0,90 para la frontal **y** para la trasera.
-- **Dudosa** si P queda entre 0,50 y 0,90. En modo sombra se marca para revisión, con la foto guardada. En producción cuenta como rechazo: mejor revisar que pagar una multa.
-- **Rechazo** si P < 0,50 en alguna de las dos: falta esa etiqueta.
-- **No revisada** si una cámara no vio la botella: cuenta como rechazo, nunca como OK.
-- Solo cuentan las etiquetas **de la botella del centro**: se usa el rectángulo de YOLOX que cae dentro del recuadro, no el de las botellas vecinas.
+Las dos cámaras miran la línea desde lados opuestos. **La decisión es de las dos juntas** (`frontend/botella.js`): no importa qué cámara vea qué etiqueta.
 
-Los umbrales (0,90 y 0,50) se ajustan con la prueba real. Lo que manda es la meta de **0 botellas sin etiqueta aprobadas**.
+- Para cada etiqueta, YOLOX da en cada cámara la probabilidad de que esté (pA, pB). Se juntan: **P = 1 − (1 − pA) × (1 − pB)**.
+  - A ve la frontal con 0,96 y B no la ve: P = 0,96 → la frontal está.
+  - Botella de lado: A y B ven la misma etiqueta a medias, cada una con 0,7: P = 1 − 0,3 × 0,3 = **0,91** → está. Dos vistas parciales que coinciden suman confianza.
+- **OK** si P ≥ 90% en la frontal **y** en la trasera.
+- **Dudosa** si alguna queda entre 50% y 90%: se rechaza, se marca "dudosa" y se guarda la foto de las dos cámaras para revisarla.
+- **Rechazo** si alguna queda bajo 50%: falta esa etiqueta (el motivo dice cuál y con qué probabilidad).
+- **No revisada** si una cámara no vio la botella: rechazo, nunca OK.
+- Solo cuentan las etiquetas de la botella del centro del recuadro, no las de las botellas vecinas.
+
+Los umbrales (90% y 50%) se cambian en **Calibración → Detector de etiquetas**. Se ajustan con la prueba real: la meta es **0 botellas sin etiqueta aprobadas**.
+
+## Dónde poner las 2 cámaras (todas las posiciones de la botella)
+
+`python scripts/cobertura_camaras.py` calcula, para cada giro posible de la botella, qué parte de cada etiqueta alcanza a ver la mejor cámara. Supone una botella de 75 mm de diámetro, una frontal de ~90 mm de ancho (140° de la vuelta), una trasera de ~70 mm (105°) y que una cámara ve bien hasta ±70° de su eje. Con tus medidas reales: `--frontal` y `--trasera`.
+
+| Montaje | Giros donde una etiqueta se ve a menos de la mitad | Peor caso |
+|---|---|---|
+| **2 cámaras enfrentadas** (una a cada lado de la línea, a la misma altura, apuntando al centro de la botella) | **22%** de los giros | botella de lado (90°): cada cámara ve ~31% de cada etiqueta |
+| 2 cámaras enfrentadas + 2 espejos (4 vistas) | 0% | 68% visible |
+| 3 cámaras a 120° | 0% | 57% visible |
+| 4 cámaras a 90° | 0% | 68% visible |
+
+**Qué significa:**
+
+1. **Con 2 cámaras enfrentadas, el caso difícil es la botella de lado.** Ninguna cámara ve una etiqueta completa: cada una ve un pedazo en el borde. La salida es que **YOLOX reconozca etiquetas parciales** (por eso hay que **marcar también los pedazos** al etiquetar) y que **la decisión conjunta sume las dos vistas** (0,7 + 0,7 → 0,91).
+2. Si en la prueba real las botellas de lado salen como **dudosas** muy seguido, hay dos arreglos baratos: **2 espejos** (un espejo detrás de la botella, en ángulo, frente a cada cámara: cada una ve además el costado) o **una 3.ª cámara**. Es una decisión de montaje. Con espejos, el recuadro de cada cámara tiene que abarcar la botella y sus reflejos, y la "zona central" que descarta botellas vecinas hay que ampliarla para que cuenten las etiquetas del espejo. Ese ajuste todavía no está programado: se hace si la prueba real lo pide.
+3. **Montaje recomendado para las 2 Pc02:**
+   - Una a cada lado de la cinta, **enfrentadas** (180°), a la altura del centro de la etiqueta y a 25–40 cm.
+   - **Cada una en un puerto USB distinto**, a 720p.
+   - Las dos con el mismo tipo de fondo liso detrás de la botella (por ejemplo, una plancha mate en la baranda del frente) y **luz difusa** sin reflejos directos.
+   - Si se puede, una pequeña separación entre botellas, para que la fotocelda virtual las distinga.
+
+## Dos cámaras iguales
+
+Las dos Pc02 tienen el mismo nombre. En el menú de cada cámara aparecen como **"Web Camera (6211:e904) · n.º 1 (ab12)"** y **"n.º 2 (cd34)"**. El número entre paréntesis es el comienzo de su identificador. Para saber cuál es cuál, tapa una con la mano y mira qué imagen se oscurece. El programa recuerda cada una por su identificador. Si cambias una de puerto USB, puede que tengas que elegirla de nuevo. Si las dos estaciones quedan con la misma cámara, la app avisa.
 
 ## Futuro: colorimetría (fuera del alcance del MVP)
 

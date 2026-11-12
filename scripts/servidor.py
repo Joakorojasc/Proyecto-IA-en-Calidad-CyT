@@ -395,6 +395,9 @@ def csv_eventos(almacen, desde, hasta):
 
 class Manejador(http.server.SimpleHTTPRequestHandler):
     almacen = None  # se asigna en crear_servidor
+    # Windows no siempre conoce estos tipos: sin ellos, el navegador no carga el motor de YOLOX
+    extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map,
+                      ".wasm": "application/wasm", ".onnx": "application/octet-stream", ".mjs": "text/javascript"}
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-store, must-revalidate")

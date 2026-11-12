@@ -12,3 +12,5 @@ datos_yolox/
 datasets/
 *.onnx
 *.pth
+frontend/vendor/
+frontend/modelos/*.onnx

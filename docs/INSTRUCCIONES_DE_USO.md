@@ -25,7 +25,16 @@ En **Monitoreo en vivo** hay dos cuadros: **Cámara A** y **Cámara B**. Arriba 
 
 Conectar la segunda cámara es solo elegirla en el menú de la Cámara B.
 
-## 2. Calibra (la primera vez, y si cambias de producto, mueves la cámara o cambia la luz)
+## 2. Elige el detector
+
+En **Calibración → Detector de etiquetas**:
+
+- **YOLOX (modelo entrenado)**, recomendado: copia el modelo a `frontend/modelos/etiquetas.onnx` (guía: `docs/YOLOX_PASO_A_PASO.md`). No necesita los 14 pasos: ajusta el recuadro y revisa con **Ahora ve**. Las dos cámaras deciden juntas con la probabilidad de cada etiqueta: OK desde 90%, dudosa entre 50% y 90%, rechazo bajo 50%.
+- **Clásico (fotos de calibración)**: sigue el paso 3. Sirve para partir sin modelo, pero falla con la botella girada.
+
+**Dos cámaras iguales (dos Pc02):** en el menú aparecen como "n.º 1 (ab12)" y "n.º 2 (cd34)". Tapa una con la mano para saber cuál es cuál.
+
+## 3. Calibra con el detector clásico (la primera vez, y si cambias de producto, mueves la cámara o cambia la luz)
 
 Entra a **Calibración**. Se calibra por **tipo de etiqueta**, no por cámara.
 
@@ -40,7 +49,7 @@ Entra a **Calibración**. Se calibra por **tipo de etiqueta**, no por cámara.
 3. En cada paso aprieta **Capturar** (o la barra espaciadora). La guía pasa sola al siguiente.
 4. Bajo la imagen aparece **Ahora ve:**. Gira la botella y revisa que reconozca bien cada etiqueta.
 
-## 3. Empieza a revisar
+## 4. Empieza a revisar
 
 1. Vuelve a **Monitoreo en vivo** con **Disparo automático** encendido.
 2. Deja los recuadros vacíos unos segundos, hasta que diga **Esperando botella**.
@@ -52,7 +61,7 @@ Cada botella queda como:
 - **Rechazo** (o **Marcada**, en modo sombra): falta una etiqueta. Se indica cuál.
 - **No revisada**: una cámara no vio la botella. **Cuenta como rechazo**, nunca como OK.
 
-## 4. La alerta
+## 5. La alerta
 
 Cuando falta una etiqueta, la pantalla se pone **roja** y suena un pitido hasta que aprietas **Reconocer** (o Enter). Si se juntan varios rechazos seguidos aparece **Revisar etiquetadora**: puede que se haya acabado un rollo o que la etiquetadora esté atascada.
 
@@ -64,7 +73,7 @@ Si dice que **muchas fotos salen movidas**, es solo un aviso: acorta la exposici
 
 Para probarlo, tapa la cámara con la mano unos segundos. Con las dos cámaras simuladas, usa **Ajustes → Cámara sin visión → Simular 8 segundos**. Si moviste la cámara a propósito, aprieta **Reaprender fondo** (y recalibra si cambió el encuadre).
 
-## 5. Revisa y guarda los resultados
+## 6. Revisa y guarda los resultados
 
 En **Registro** hay una fila por botella: qué vio cada cámara, el resultado y el motivo. Con **Descargar CSV (Excel)** obtienes la lista en un archivo.
 
@@ -95,7 +104,8 @@ El indicador **Respaldo en disco** de arriba dice si se está guardando. Si el s
 |---|---|
 | La cámara no se activa | Revisa que esté conectada, permite la cámara en Chrome y cierra otros programas que la usen, como Zoom o Teams. |
 | Se ve otra cámara | Elige la correcta en el menú de esa cámara. |
-| Dice "Falta calibrar" | Haz el paso 2. |
+| Dice "Falta calibrar" | Haz el paso 3 (detector clásico). |
+| Dice "Falta el modelo YOLOX" | Copia `etiquetas.onnx` a `frontend/modelos/` o cárgalo en Calibración. Si dice que no pudo cargar ONNX Runtime, corre `python scripts/yolox/bajar_ort.py` con internet. |
 | Dice que el recuadro lleva mucho rato ocupado | Saca lo que esté frente a la cámara. Si no hay nada, aprieta **Reaprender fondo**. |
 | No cuenta las botellas | Deja el recuadro vacío y aprieta **Reaprender fondo**. Si sigue igual, sube **Sensibilidad del disparo** en Calibración. |
 | Muchas botellas **No revisadas** | Una cámara no está viendo todas las botellas, o el **desfase** entre cámaras no corresponde (Ajustes → Juntar las 2 cámaras). |

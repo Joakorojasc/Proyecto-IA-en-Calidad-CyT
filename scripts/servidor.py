@@ -28,6 +28,10 @@ API (todo responde JSON, salvo los CSV):
                                "eventosHoy", "libreMB"}
     GET  /api/registro.csv?desde=AAAA-MM-DD&hasta=AAAA-MM-DD   botellas para Excel (por defecto hoy)
     GET  /api/eventos.csv?desde=...&hasta=...                  eventos para Excel (por defecto hoy)
+    POST /api/detectar      el cuerpo es la foto JPEG tal cual (no JSON). Detector YOLOX en Python (scripts/yolox/detector.py),
+                            con el mismo modelo que la página (frontend/modelos/etiquetas.onnx). La página no
+                            lo usa (corre YOLOX en el navegador): es para probar el modelo desde afuera.
+                            → {"ok", "ms", "detecciones": [{"clase", "confianza", "caja": [x1, y1, x2, y2]}]}
 Si quedan menos de 500 MB libres (o QA_MIN_LIBRE_MB) se guardan las filas pero no las fotos,
 y la respuesta trae "sinEspacio": true.
 """
@@ -391,6 +395,31 @@ def csv_eventos(almacen, desde, hasta):
     return a_csv(enc, salida)
 
 
+# ---------------------------------------------------------------- detector YOLOX
+
+_detector = None
+_lock_detector = threading.Lock()
+
+
+def detectar(jpeg):
+    """Se carga recién con la primera foto: el servidor sigue andando sin onnxruntime ni modelo."""
+    global _detector
+    import time
+    import cv2
+    import numpy as np
+    img = cv2.imdecode(np.frombuffer(jpeg, np.uint8), cv2.IMREAD_COLOR)
+    if img is None:
+        raise ErrorCliente("el cuerpo debe ser una foto JPEG")
+    with _lock_detector:
+        if _detector is None:
+            sys.path.insert(0, os.path.join(RAIZ, "scripts", "yolox"))
+            from detector import Detector
+            _detector = Detector()
+        t0 = time.time()
+        cajas = _detector.detectar(img)
+    return {"ok": True, "ms": round((time.time() - t0) * 1000), "detecciones": cajas}
+
+
 # ---------------------------------------------------------------- servidor HTTP
 
 class Manejador(http.server.SimpleHTTPRequestHandler):
@@ -464,7 +493,7 @@ class Manejador(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         ruta = urllib.parse.urlsplit(self.path).path
-        if ruta not in ("/api/botellas", "/api/eventos"):
+        if ruta not in ("/api/botellas", "/api/eventos", "/api/detectar"):
             return self._error(404, "no existe")
         try:
             largo = int(self.headers.get("Content-Length", ""))
@@ -475,6 +504,8 @@ class Manejador(http.server.SimpleHTTPRequestHandler):
             self.close_connection = True
             return self._error(413, "cuerpo muy grande (máximo 25 MB)")
         try:
+            if ruta == "/api/detectar":
+                return self._responder(200, detectar(self.rfile.read(largo)))
             try:
                 cuerpo = json.loads(self.rfile.read(largo).decode("utf-8"))
             except (ValueError, UnicodeDecodeError):

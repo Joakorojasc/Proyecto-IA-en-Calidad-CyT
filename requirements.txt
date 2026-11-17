@@ -5,3 +5,6 @@ scikit-image
 # Para DINOv2:
 # torch
 # torchvision
+# Para probar YOLOX desde Python (scripts/yolox/detector.py y /api/detectar):
+# opencv-python
+# onnxruntime

@@ -266,6 +266,23 @@ def p_estaticos(base, carpeta):
     assert st == 404
 
 
+def p_detectar(base, carpeta):
+    try:
+        import cv2
+        import numpy as np
+        import onnxruntime  # noqa: F401
+    except ImportError:
+        cv2 = None
+    if cv2 is None or not os.path.exists(os.path.join(servidor.RAIZ, "frontend", "modelos", "etiquetas.onnx")):
+        print("         (sin onnxruntime, opencv o frontend/modelos/etiquetas.onnx: no se prueba el detector)")
+        return
+    _, jpg = cv2.imencode(".jpg", np.full((480, 640, 3), 128, np.uint8))
+    st, r = pedir_json(base, "/api/detectar", crudo=jpg.tobytes())
+    assert st == 200 and r["ok"] and isinstance(r["detecciones"], list), (st, r)
+    st, r = pedir_json(base, "/api/detectar", crudo=b"no soy una foto")
+    assert st == 400, (st, r)
+
+
 def p_sin_espacio(base, carpeta):
     otra = tempfile.mkdtemp(prefix="qa_lleno_")
     srv, base2 = levantar(otra, min_libre_mb=10 ** 12)  # "disco lleno"
@@ -281,7 +298,7 @@ def p_sin_espacio(base, carpeta):
 
 
 PRUEBAS = [p_estado, p_botellas, p_reintento, p_campos_faltantes, p_eventos, p_csv,
-           p_validaciones, p_concurrencia, p_estaticos, p_sin_espacio]
+           p_validaciones, p_concurrencia, p_estaticos, p_detectar, p_sin_espacio]
 
 
 def main():

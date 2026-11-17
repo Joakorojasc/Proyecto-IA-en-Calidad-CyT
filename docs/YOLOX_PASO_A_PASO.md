@@ -143,6 +143,24 @@ Para volver al método anterior, elige **Clásico**: la calibración de 14 pasos
 
 **Probado sin modelo real:** el pre y post proceso tiene pruebas automáticas (`node scripts/test_yolox.js`). Además, la app completa se probó en Chrome con un modelo de prueba de la misma forma que YOLOX: carga el motor desde `frontend/vendor/ort/`, detecta la frontal (94%), descarta la etiqueta de una botella vecina y rechaza por falta de trasera. Con el modelo entrenado de verdad falta medir cuánto acierta y cuánto tarda en tu PC.
 
+## Probar el modelo fuera de la app (Python)
+
+Para revisar fotos sueltas o medir el modelo sin abrir el navegador. Usa el mismo :
+
+```bash
+pip install opencv-python onnxruntime
+python scripts/yolox/detector.py foto.jpg      # imprime las cajas y guarda foto_cajas.jpg con las cajas dibujadas
+```
+
+El servidor ofrece lo mismo en `POST /api/detectar` (el cuerpo es el JPEG tal cual; la página no lo usa):
+
+```bash
+curl --data-binary @foto.jpg http://localhost:8000/api/detectar
+# {"ok": true, "ms": 40, "detecciones": [{"clase": "frontal", "confianza": 0.94, "caja": [x1, y1, x2, y2]}]}
+```
+
+Mientras no haya modelo entrenado se puede probar la cañería con el YOLOX oficial (reconoce "bottle", no etiquetas): baja [yolox_s.onnx](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.onnx) y pásalo como segundo argumento, `python scripts/yolox/detector.py foto.jpg yolox_s.onnx`.
+
 ## Cómo se decide con 2 cámaras (decisión conjunta, ya programada)
 
 Las dos cámaras miran la línea desde lados opuestos. **La decisión es de las dos juntas** (`frontend/botella.js`): no importa qué cámara vea qué etiqueta.

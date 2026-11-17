@@ -4,8 +4,10 @@
 Sirve para probar un modelo fuera del navegador: revisar fotos sueltas o medir cuánto acierta.
 
     pip install opencv-python onnxruntime
-    python scripts/yolox/detector.py foto.jpg                  # imprime las cajas y guarda foto_cajas.jpg
-    python scripts/yolox/detector.py foto.jpg otro_modelo.onnx
+    python scripts/yolox/detector.py datos_yolox/fotos            # revisa 12 fotos repartidas de la carpeta
+    python scripts/yolox/detector.py datos_yolox/fotos --max 40   # o más
+    python scripts/yolox/detector.py foto.jpg otro_modelo.onnx    # una foto, con otro modelo
+  Imprime lo que encontró en cada foto y guarda las fotos con las cajas en datos_yolox/pruebas/.
 
 Desde Python:
     from detector import Detector
@@ -94,11 +96,34 @@ def dibujar(img, cajas):
 
 
 if __name__ == "__main__":
-    ruta = sys.argv[1]
-    foto = cv2.imread(ruta)
-    cajas = Detector(*sys.argv[2:3]).detectar(foto)
-    for c in cajas:
-        print(c)
-    salida = os.path.splitext(ruta)[0] + "_cajas.jpg"
-    cv2.imwrite(salida, dibujar(foto, cajas))
-    print("Guardado:", salida)
+    # Uso: detector.py FOTO_O_CARPETA [más fotos o carpetas] [modelo.onnx] [--max N]
+    #   Con una carpeta revisa N fotos repartidas en ella (por defecto 12). Las fotos con cajas quedan en
+    #   datos_yolox/pruebas/ (no se mezclan con las fotos originales).
+    args, maximo = sys.argv[1:], 12
+    if "--max" in args:
+        i = args.index("--max"); maximo = int(args[i + 1]); del args[i:i + 2]
+    modelo = [a for a in args if a.lower().endswith(".onnx")]
+    rutas = []
+    for a in (a for a in args if not a.lower().endswith(".onnx")):
+        if os.path.isdir(a):
+            fotos = sorted(f for f in os.listdir(a) if f.lower().endswith((".jpg", ".jpeg", ".png")) and not f.endswith("_cajas.jpg"))
+            paso = max(1, len(fotos) // maximo)
+            rutas += [os.path.join(a, f) for f in fotos[::paso][:maximo]]
+        else:
+            rutas.append(a)
+    if not rutas:
+        sys.exit("Uso: python scripts/yolox/detector.py datos_yolox/fotos   (una carpeta o una foto)")
+    det = Detector(*modelo[:1])
+    carpeta = os.path.join(RAIZ, "datos_yolox", "pruebas")
+    os.makedirs(carpeta, exist_ok=True)
+    for ruta in rutas:
+        foto = cv2.imread(ruta)
+        if foto is None:
+            print(f"No pude abrir {ruta}: revisa el nombre (escribe dir datos_yolox\\fotos para ver los nombres).")
+            continue
+        cajas = det.detectar(foto)
+        resumen = ", ".join(f'{c["clase"]} {c["confianza"]:.0%}' for c in cajas) or "ninguna etiqueta"
+        salida = os.path.join(carpeta, os.path.splitext(os.path.basename(ruta))[0] + "_cajas.jpg")
+        cv2.imwrite(salida, dibujar(foto, cajas))
+        print(f"{os.path.basename(ruta)}: {resumen}")
+    print(f"Fotos con las cajas dibujadas en {carpeta}")

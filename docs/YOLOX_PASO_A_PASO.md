@@ -105,7 +105,11 @@ from google.colab import drive; drive.mount('/content/drive')
 !ls datasets/etiquetas
 ```
 
-Si el repositorio es privado, el `wget` de `exp_etiquetas.py` falla. En ese caso súbelo a mano con el ícono de carpeta de Colab, a `/content/YOLOX/`.
+Si el repositorio es privado, el `wget` de `exp_etiquetas.py` falla. En ese caso súbelo a mano con el ícono de carpeta de Colab, a `/content/YOLOX/`, o crea el archivo con `%%writefile exp_etiquetas.py` pegando su contenido.
+
+**Ojo con el zip:** a Drive se sube `etiquetas.zip`, que es la carpeta `datasets\etiquetas` que arma `preparar_dataset.py`, no el zip que exporta Roboflow. En Windows: clic derecho sobre `datasets\etiquetas` → *Enviar a → Carpeta comprimida*. `!ls datasets/etiquetas` tiene que mostrar `annotations  train2017  val2017`.
+
+**Primer entrenamiento (17-11-2026):** 225 fotos marcadas, 120 épocas, unos 14 min en una T4. **AP50 = 0,95**; AP 0,5:0,95 = 0,89 (frontal 91,6, trasera 85,9). La validación salió de las mismas sesiones caseras, así que el número es optimista: la prueba real es con la cámara.
 
 ```python
 # 3) Entrenar (30–60 min). Parte del modelo ya entrenado con COCO: aprende rápido con pocas fotos.
@@ -115,8 +119,26 @@ Si el repositorio es privado, el `wget` de `exp_etiquetas.py` falla. En ese caso
 Al terminar, el mejor modelo queda en `YOLOX_outputs/etiquetas/best_ckpt.pth`. En el registro del entrenamiento busca **AP50**: es el porcentaje de etiquetas bien encontradas en las fotos de validación, y la meta es **más de 0,9**.
 
 ```python
-# 4) Exportar a ONNX (el formato que corre en el navegador) y probar con una foto de validación
-!python tools/export_onnx.py --output-name etiquetas.onnx -f exp_etiquetas.py -c YOLOX_outputs/etiquetas/best_ckpt.pth
+# 4) Exportar a ONNX (el formato que corre en el navegador).
+#    No se usa tools/export_onnx.py: con PyTorch 2.6+ falla (weights_only y torch.onnx._export ya no existen).
+import torch, os, onnxruntime as ort, numpy as np
+from yolox.exp import get_exp
+from yolox.utils import replace_module
+from yolox.models.network_blocks import SiLU
+exp = get_exp("exp_etiquetas.py", None); model = exp.get_model()
+ckpt = torch.load("YOLOX_outputs/etiquetas/best_ckpt.pth", map_location="cpu", weights_only=False)   # es tu propio archivo
+model.load_state_dict(ckpt["model"]); model.eval()
+model.head.decode_in_inference = False          # la app decodifica las cajas
+model = replace_module(model, torch.nn.SiLU, SiLU)
+kw = dict(input_names=["images"], output_names=["output"], opset_version=11)
+try: torch.onnx.export(model, torch.randn(1, 3, 416, 416), "etiquetas.onnx", dynamo=False, **kw)
+except TypeError: torch.onnx.export(model, torch.randn(1, 3, 416, 416), "etiquetas.onnx", **kw)
+out = ort.InferenceSession("etiquetas.onnx").run(None, {"images": np.zeros((1, 3, 416, 416), np.float32)})[0]
+print("OK ·", round(os.path.getsize("etiquetas.onnx") / 1e6, 1), "MB · salida", out.shape)   # (1, 3549, 7)
+```
+
+```python
+# 4b) Probar con una foto de validación
 import glob; foto = sorted(glob.glob('datasets/etiquetas/val2017/*.jpg'))[0]
 !python demo/ONNXRuntime/onnx_inference.py -m etiquetas.onnx -i "$foto" -o prueba -s 0.3 --input_shape 416,416
 from IPython.display import Image; Image(glob.glob('prueba/*')[0])
